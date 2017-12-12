@@ -1,0 +1,6 @@
+{
+  "filetype" : "device_metadata",
+  "framework" : "tensorflow",
+  "architecture" : "generic_cpu",
+  "library" : "eigen",
+}

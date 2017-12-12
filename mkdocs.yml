@@ -1,0 +1,27 @@
+site_name: NNModel
+repo_url: https://github.com/rdadolf/nnmodel
+site_description: 'NNModel: Predictive modeling for deep neural networks.'
+google_analytics: ['UA-29492860-4', 'auto']
+
+site_dir: 'docs/site'
+theme: 'readthedocs'
+
+pages:
+# * = not even close to being done
+  - 'Overview*': index.md
+  - 'Getting Started':
+    - 'Installation': install.md
+    - 'Quick Start': quickstart.md
+    - 'Tools*': tool_list.md
+    - 'Models*': model_list.md
+    - 'Devices*': device_list.md
+  - 'Developing with NNModel':
+    - 'Frameworks*': dev/frameworks.md
+    - 'Models*': dev/models.md
+    - 'Primops*': dev/primops.md
+    - 'DGraphs*': dev/dgraphs.md
+#- 'Constraints': ?
+    - 'Devices*': dev/devices.md
+  - 'Extending NNModel':
+    - 'Building a New Tool*': new_tool.md
+    - 'Importing a New Model': import.md
