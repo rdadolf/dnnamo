@@ -1,37 +1,8 @@
 #!/usr/bin/env python
-# PYTHON_ARGCOMPLETE_OK
 import sys
 import argparse
 
 import importlib
-
-ARGCOMPLETE = True # bash/zsh only
-
-if ARGCOMPLETE:
-  # requires argcomplete module
-  #
-  # For bash: execution of
-  #   activate-global-python-argcomplete
-  #
-  # or
-
-  #   cd <nnmodel/tools/ directory>
-  #   eval "$(register-python-argcomplete run.py)"
-  #   cd -
-  #
-  # For zsh (which doesn't support global completion like bash):
-  #   autoload bashcompinit
-  #   bashcompinit
-  #   autoload compinit
-  #   compinit
-  #   cd <nnmodel/tools/ directory>
-  #   eval "$(register-python-argcomplete run.py)"
-  #   cd -
-  try:
-    import argcomplete
-  except ImportError:
-    print("You must install the argcomplete module if you want tab completion.")
-    sys.exit(0)
 
 # NOTE: These are filenames, not the command-line names.
 #       Command-line names are specified by the Tool.TOOL_NAME property.
@@ -59,9 +30,6 @@ def main(argv):
     tooldict[toolname] = importlib.import_module(toolname).Tool()
     subparser = tooldict[toolname].add_subparser(subparsers)
     subparser.set_defaults(run=tooldict[toolname].run)
-
-  if ARGCOMPLETE:
-    argcomplete.autocomplete(parser)
 
   args = parser.parse_args(argv)
   print args
