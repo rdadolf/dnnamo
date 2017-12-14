@@ -3,7 +3,9 @@ from nnmodel.core.device import Device
 
 class TF_CPU(Device):
   pass
-  #def run_benchmark(self,primop):
+  def run_benchmark(self,primop):
+    return 0 # FIXME
+
   #  benchmark_name = 'time_'+str(primop.optype)
   #  benchmark_args = list(primop.args)+[10,10]
 

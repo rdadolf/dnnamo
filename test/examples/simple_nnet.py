@@ -36,7 +36,7 @@ class NativeOpSampleModel0(TFModel):
         self.session = tf.Session(config=tf.ConfigProto(**setup_options))
       else:
         self.session = tf.Session()
-      self.session.run(tf.initialize_all_variables())
+      self.session.run(tf.global_variables_initializer())
       # Random training data
       self.example_data = np.random.rand(self.trainsize,100)
       self.example_labels = np.random.rand(self.trainsize,10)

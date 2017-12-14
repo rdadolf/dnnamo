@@ -107,8 +107,8 @@ class TFNativeStats(NativeStats):
     #   is an artifact of the RunMetadata protobuf), so we only bother updating
     #   op output tensors.
     for t,t_stats in self._tensors.items():
+      tensor = h.get_tensor_by_name(t)
       if 'dims' in t_stats:
-        tensor = h.get_tensor_by_name(t)
         # FIXME: is_compatible only exists in TF versions beyond 0.8.0.
         #        Uncomment this check when TF version is bumped in nnmodel.
         #assert tensor.get_shape().is_compatible(t_stats['dims']), 'Dynamically-traced tensor shape information ('+str(t_stats['dims'])+') is incompatible with static graph shape ('+str(tensor.get_shape())+')'

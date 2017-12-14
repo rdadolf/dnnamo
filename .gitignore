@@ -1,3 +1,6 @@
 .DS_Store
-*.pyc
+.cache/
 deploy/
+
+*.pyc
+*.pdf
