@@ -1,10 +1,11 @@
-site_name: NNModel
-repo_url: https://github.com/rdadolf/nnmodel
-site_description: 'NNModel: Predictive modeling for deep neural networks.'
+site_name: Dnnamo
+repo_url: https://github.com/rdadolf/dnnamo
+site_description: 'Dnnamo: Tools for Analysis, Modeling, and Optimization of Deep Neural Networks'
 google_analytics: ['UA-29492860-4', 'auto']
 
-site_dir: 'docs/site'
+site_dir: 'deploy'
 theme: 'readthedocs'
+extra_css: [assets/dnnamo.css]
 
 pages:
 # * = not even close to being done

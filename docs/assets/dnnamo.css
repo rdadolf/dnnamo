@@ -1,0 +1,60 @@
+/* Dnnamo uses a light Open Sans for body and EB Garamond for styled titles. */
+@import 'https://fonts.googleapis.com/css?family=EB+Garamond|Open+Sans';
+body, h1, h2, h3, h4, h5, h6, legend {
+  font-family: 'Open Sans', 'Helvetica Neue', 'Helvetica';
+  font-weight: 300;
+}
+code {
+  font-size: 95%;
+  padding-top: 4px;
+}
+/* Style all links in Dnnamo red. */
+a, a:visited {
+  color: #ac3f40;
+}
+/* Make the large headers more visible */
+h1 {
+  padding-bottom: 5px;
+  /*border-left: solid #ac3f40 1px;*/
+  border-bottom: solid #ac3f40 1px;
+}
+
+/***** Navigation Header *****/
+/* Remove the house icon near the title. */
+a.icon-home:before { content: ''; }
+/* Give the title a stylized look. */
+a.icon-home { /* Desktop */
+  color: #ac3f40;
+  font-family: 'EB Garamond', 'Serif';
+  font-size: 30pt;
+  font-weight: 'semi-bold';
+  margin-bottom: 5px;
+}
+.wy-nav-top a { /* Mobile */
+  color: #ac3f40;
+  font-family: 'EB Garamond', 'Serif';
+  font-size: 24pt;
+  font-weight: 'semi-bold';
+  margin-bottom: 5px;
+}
+
+/* Add water as a background on desktop, just Dnnamo red on mobile. */
+.wy-side-nav-search { /* Desktop */
+  background: url(dynamo-docs-small.png) #ffffff;
+  padding: 5px;
+}
+.wy-side-nav-search input[type=text] {
+  border-color: #343131;
+}
+.wy-nav-top {
+  color: #ac3f40;
+  background-color: #ffffff;
+}
+
+/***** Navigation Body *****/
+.wy-menu-vertical a {
+  color: #b3b3b3; /* Back to the default */
+}
+.wy-menu-vertical li.toctree-l3 a {
+  color: #404040; /* Highlight the difference between h1's and h*'s */
+}
