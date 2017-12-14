@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 RUN pip install --upgrade pip
 
 # Install dependencies
-ADD build/requirements.txt /tmp
+ADD requirements.txt /tmp
 RUN pip install --upgrade -r /tmp/requirements.txt
 
 # Add Dnnamo
