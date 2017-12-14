@@ -1,6 +1,0 @@
-FROM rdadolf/dnnamo:latest
-
-# This may be out of date. That's fine.
-RUN apt-get install -y \
-  vim
-

@@ -1,0 +1,7 @@
+TensorFlow==0.12.1
+scipy
+matplotlib
+mkdocs
+pylint>1.7
+nose
+pytest>=3

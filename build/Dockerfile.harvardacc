@@ -1,0 +1,16 @@
+FROM hubris.int.seas.harvard.edu/harvardacc/clusterbase
+
+MAINTAINER Bob Adolf <rdadolf@gmail.com>
+
+RUN apt-get update && apt-get install -y \
+  python \
+  python-pip \
+  git
+
+RUN pip install --upgrade pip
+
+# Install dependencies
+ADD build/requirements.txt /tmp
+RUN pip install --upgrade -r /tmp/requirements.txt
+
+# Dnnamo sources will be mounted at container run time
