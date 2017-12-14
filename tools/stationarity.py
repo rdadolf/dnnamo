@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-import argparse
-import os.path
-import importlib
 
 import numpy as np
 
@@ -121,4 +118,4 @@ class Tool(PlotTool):
     #fig.tight_layout()
     fig.savefig(filename)
 
-    
+

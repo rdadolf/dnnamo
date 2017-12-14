@@ -1,0 +1,64 @@
+# Custom pylintrc file
+# Based off defaults from: pylint --generate-rcfile
+
+[MASTER]
+persistent=no
+
+[MESSAGES CONTROL]
+# Only show warnings with the listed confidence levels. Leave empty to show
+# all. Valid levels: HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED
+confidence=
+
+# NOTE:
+#   Eventually we may want to blacklist, but it's a *lot* of work, and our
+# codebase is in a state of flux. Instead, I'm whitelisting important ones
+# and gradually introducing new ones as necessary.
+disable=all
+# Full list at https://pylint.readthedocs.io/en/latest/features.html
+enable=
+  # 2 spaces is the correct number of spaces. I don't care what PEP8 says.
+  bad-indentation, mixed-indentation,
+  # Keep things clean and avoid accidental dependencies and name collisions
+  unused-import, unused-variable,
+  # I'm needlessly inconsistent about this.
+  wrong-import-order,
+  # There's zero reason for old-style classes these days, and I sometimes rely on new-style ones. So make everything new.
+  old-style-class,
+  # Prevents things like func(arg=[]). There's almost always a safer way.
+  dangerous-default-value,
+  # This could probably just be fixed automatically...
+  trailing-whitespace,
+  # Avoid confusion, typos, and lingering inconsistencies.
+  arguments-differ,
+
+[BASIC]
+# List of builtins function names that should not be used
+bad-functions=input
+# Good/bad variable names which should always/never be accepted
+good-names=i,j,k,ex,Run,_
+bad-names=
+
+[FORMAT]
+# I'm old-school. 80 or bust.
+max-line-length=80
+# PEP-8 says 4; it's wrong.
+indent-string='  '
+indent-after-paren=2
+
+[VARIABLES]
+# For temporary variables, allow only "_"
+# Being strict means it's easier to catch unused variables.
+dummy-variables-rgx=_
+# Callbacks can be named anything.
+callbacks=
+
+[CLASSES]
+# Isolated the API. No exceptions.
+exclude-protected=
+
+[DESIGN]
+# Don't set a limit on number of arguments.
+# Simple is better, but complex does happen. Don't enforce an arbitrary number.
+max-args=1000
+
+
