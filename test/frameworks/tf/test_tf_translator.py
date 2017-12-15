@@ -2,8 +2,8 @@ import unittest
 
 import tensorflow as tf
 
-from nnmodel.frameworks.tf.tf_model import TFModel
-from nnmodel.frameworks.tf.tf_translator import TFTranslator
+from dnnamo.frameworks.tf.tf_model import TFModel
+from dnnamo.frameworks.tf.tf_translator import TFTranslator
 
 class SyntheticTFModel(TFModel):
   def __init__(self):

@@ -1,5 +1,5 @@
-import nnmodel
-import nnmodel.frameworks
+import dnnamo
+import dnnamo.frameworks
 from tool_utilities import BaselineTool
 
 class Tool(BaselineTool):
@@ -12,7 +12,7 @@ class Tool(BaselineTool):
 
   def _run(self, modelfiles):
     for modelfile in modelfiles:
-      Frame = nnmodel.frameworks.FRAMEWORKS[self.args['framework']]
+      Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
       frame = Frame()
       frame.load(modelfile)
       m = frame.native_model()

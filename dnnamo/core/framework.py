@@ -35,7 +35,7 @@ class Framework(object):
     return self._model.model()
 
   def model(self):
-    '''Returns a reference to an NNModel Frame object wrapping the native model.'''
+    '''Returns a reference to a Dnnamo Frame object wrapping the native model.'''
     return self._model
 
   def translate_native_op(self, native_op_id):

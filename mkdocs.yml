@@ -16,13 +16,13 @@ pages:
     - 'Tools*': tool_list.md
     - 'Models*': model_list.md
     - 'Devices*': device_list.md
-  - 'Developing with NNModel':
+  - 'Developing with Dnnamo':
     - 'Frameworks*': dev/frameworks.md
     - 'Models*': dev/models.md
     - 'Primops*': dev/primops.md
     - 'DGraphs*': dev/dgraphs.md
 #- 'Constraints': ?
     - 'Devices*': dev/devices.md
-  - 'Extending NNModel':
+  - 'Extending Dnnamo':
     - 'Building a New Tool*': new_tool.md
     - 'Importing a New Model': import.md

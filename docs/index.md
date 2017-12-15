@@ -1,4 +1,4 @@
-# NNModel
-Predictive modeling for deep neural networks.
+# Dnnamo
+Tools for Analysis, Modeling, and Optimization of Deep Neural Networks
 
 ----

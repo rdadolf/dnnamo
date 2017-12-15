@@ -1,13 +1,13 @@
 from abc import ABCMeta, abstractmethod
 
-import nnmodel
-from nnmodel.core.mpl_plot import *
+import dnnamo
+from dnnamo.core.mpl_plot import *
 
 class BaselineTool(Cacher):
   __metaclass__ = ABCMeta
 
   TOOL_NAME = 'Tool'
-  TOOL_SUMMARY = 'A tool for NNModel.'
+  TOOL_SUMMARY = 'A tool for Dnnamo.'
 
   def __init__(self):
     self.subparser = None
@@ -17,7 +17,7 @@ class BaselineTool(Cacher):
   def add_subparser(self, argparser):
     self.subparser = argparser.add_parser(self.TOOL_NAME, help=self.TOOL_SUMMARY)
     self.subparser.add_argument('modelfiles', type=str, nargs='*', help='a list of model files or modules. If there are multiple models, add the name of the desired model after a ":".')
-    self.subparser.add_argument('--framework', choices=nnmodel.frameworks.FRAMEWORKS.keys(), default='tf', help='specify which framework the models use')
+    self.subparser.add_argument('--framework', choices=dnnamo.frameworks.FRAMEWORKS.keys(), default='tf', help='specify which framework the models use')
     self.subparser.add_argument('--cachefile', metavar='PATH', type=str, default=self.TOOL_NAME+'.cache', help='location for reading or writing pre-computed data')
     self.subparser.add_argument('--readcache', action='store_true', default=False, help='Do not run any computation. Use data from a cache file instead.')
     self.subparser.add_argument('--writecache', action='store_true', default=False, help='Run the computation and store the result to a cache file.')

@@ -2,8 +2,8 @@ import tensorflow as tf
 from tensorflow.python.framework.ops import get_stats_for_node_def
 import numpy as np
 
-from nnmodel.core.stats import NativeStats
-# FIXME: NYI from nnmodel.core.trace import average_traces
+from dnnamo.core.stats import NativeStats
+# FIXME: NYI from dnnamo.core.trace import average_traces
 
 
 def copy_tf_graph(graph):
@@ -110,7 +110,7 @@ class TFNativeStats(NativeStats):
       tensor = h.get_tensor_by_name(t)
       if 'dims' in t_stats:
         # FIXME: is_compatible only exists in TF versions beyond 0.8.0.
-        #        Uncomment this check when TF version is bumped in nnmodel.
+        #        Uncomment this check when TF version is bumped in dnnamo.
         #assert tensor.get_shape().is_compatible(t_stats['dims']), 'Dynamically-traced tensor shape information ('+str(t_stats['dims'])+') is incompatible with static graph shape ('+str(tensor.get_shape())+')'
         tensor.set_shape(t_stats['dims'])
       else:

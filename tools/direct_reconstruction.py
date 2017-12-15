@@ -1,7 +1,7 @@
-import nnmodel
-import nnmodel.frameworks
-import nnmodel.devices
-from nnmodel.core.trace import average_traces, Tracepoint, Trace
+import dnnamo
+import dnnamo.frameworks
+import dnnamo.devices
+from dnnamo.core.trace import average_traces, Tracepoint, Trace
 from tool_utilities import *
 
 class Tool(PlotTool):
@@ -19,8 +19,8 @@ class Tool(PlotTool):
 
   def _run(self, modelfiles):
     for modelfile in modelfiles:
-      frame = nnmodel.frameworks.FRAMEWORKS[self.args['framework']]()
-      dev = nnmodel.devices.DEVICES[self.args['device']]()
+      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
+      dev = dnnamo.devices.DEVICES[self.args['device']]()
       frame.load(modelfile)
       g = frame.graph()
       traces = frame.run_native_trace(n_steps=12)[1:-1] # avoid outliers

@@ -1,9 +1,9 @@
 import unittest
-import nnmodel
+import dnnamo
 import tensorflow as tf
 
-from nnmodel.core.primop import Primop
-from nnmodel.core.dgraph import DGraph
+from dnnamo.core.primop import Primop
+from dnnamo.core.dgraph import DGraph
 
 class Primop_example(Primop):
   def __init__(self):
@@ -13,7 +13,6 @@ class Primop_example(Primop):
 class DGraphTestCase(unittest.TestCase):
   @staticmethod
   def synth_dgraph():
-    DG = nnmodel
     DG = DGraph()
     # Add some nodes
     (p0,p1,p2) = [Primop_example() for _ in range(3)]

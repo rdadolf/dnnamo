@@ -1,6 +1,6 @@
-import nnmodel
-import nnmodel.frameworks
-from nnmodel.core.mpl_plot import *
+import dnnamo
+import dnnamo.frameworks
+from dnnamo.core.mpl_plot import *
 from tool_utilities import PlotTool
 from matplotlib.pyplot import cm
 from scipy.cluster import hierarchy
@@ -39,7 +39,7 @@ class Tool(PlotTool):
   def _run(self, modelfiles):
     self.data = []
     for modelfile in modelfiles:
-      Frame = nnmodel.frameworks.FRAMEWORKS[self.args['framework']]
+      Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
       frame = Frame()
       # pass batch_size in here.. also add a command line for it.
       frame.load(modelfile, device='/cpu:0')

@@ -1,5 +1,5 @@
 import unittest
-import nnmodel
+import dnnamo
 from synth import DGraphTestCase
 
 class TestSolver(DGraphTestCase):
@@ -9,6 +9,6 @@ class TestSolver(DGraphTestCase):
 
     for var in VALID_VARS:
       dg = self.synth_dgraph()
-      solver = nnmodel.Solver(dg, devicemap={'test'})
+      solver = dnnamo.Solver(dg, devicemap={'test'})
       value = solver.eval(var)
       assert value>=0, 'Invalid value produced by eval: '+str(value)

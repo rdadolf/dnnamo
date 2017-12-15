@@ -1,4 +1,4 @@
-from nnmodel.frameworks.tf import TFModel
+from dnnamo.frameworks.tf import TFModel
 
 import tensorflow as tf
 import numpy as np

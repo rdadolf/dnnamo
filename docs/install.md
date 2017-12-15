@@ -1,7 +1,7 @@
 # Prerequisites
-You'll need to install some software separately before building NNModel.
+You'll need to install some software separately before building Dnnamo.
 
-NNModel
+Dnnamo
 
   - Python 2.7
   - Numpy
@@ -31,7 +31,7 @@ You'll need to point your `PYTHONPATH` to the `install/tensorflow` directory in 
 
 # Running tests
 
-Currently, NNModel uses `nose` for testing. Run:
+Currently, Dnnamo uses `nose` for testing. Run:
 
 ```bash
 make test

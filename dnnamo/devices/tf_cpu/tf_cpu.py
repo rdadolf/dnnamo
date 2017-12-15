@@ -1,4 +1,4 @@
-from nnmodel.core.device import Device
+from dnnamo.core.device import Device
 #from .ubench import ubench
 
 class TF_CPU(Device):

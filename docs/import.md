@@ -1,9 +1,9 @@
-NNModel is intended to be minimally invasive with respect to existing neural networks, but different people write code in different ways.
-In order to allow NNModel to interact with user-supplied networks, it needs a couple of hooks, which are provided by wrapping the network in a simple Python object.
+Dnnamo is intended to be minimally invasive with respect to existing neural networks, but different people write code in different ways.
+In order to allow Dnnamo to interact with user-supplied networks, it needs a couple of hooks, which are provided by wrapping the network in a simple Python object.
 
 ## The Model Interface
 
-A model is either a python file or module which contains a subclass of `nnmodel.core.model.Model`.
+A model is either a python file or module which contains a subclass of `dnnamo.core.model.Model`.
 To make things easier, each framework provides a `[Framework]Model` class which can be inherited directly.
 Some frameworks will have functionality built in to these classes which will simplify the process.
 
@@ -39,7 +39,7 @@ Throwing an exception on improper values to a supported option is fine.
 ### The `run` Method
 
 Many neural networks have rather complicated main loops, from which control is not easily relinquished.
-Contrariwise, NNModel needs to have the ability to modify and control the way a network is run.
+Contrariwise, Dnnamo needs to have the ability to modify and control the way a network is run.
 The comprimise is a callback mechanism.
 A model writer must wrap their main loop in a `run` function, and they must modify it in two ways:
 
@@ -47,6 +47,6 @@ A model writer must wrap their main loop in a `run` function, and they must modi
  2. Add a mechanism to halt the run after a fixed number of calls to `runstep`.
 
 The `runstep` function is provided by the framework, and it executes a single step of the model (for many networks, this is equivalent to a single minibatch).
-This callback exists because NNModel must be able to run the model in a couple different ways, so different `runstep` functions are supplied dynamically for different execution modes.
+This callback exists because Dnnamo must be able to run the model in a couple different ways, so different `runstep` functions are supplied dynamically for different execution modes.
 
 ## A Sample Model Wrapper

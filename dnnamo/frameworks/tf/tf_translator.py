@@ -1,6 +1,6 @@
-from nnmodel.core.primop import *
-from nnmodel.core.dgraph import DGraph
-from nnmodel.core.translator import Translator
+from dnnamo.core.primop import *
+from dnnamo.core.dgraph import DGraph
+from dnnamo.core.translator import Translator
 
 
 _RULES = []

@@ -2,7 +2,7 @@
 
 die() { echo "ERROR: $@"; exit 1; }
 
-[ -d .git/hooks ] || die 'No .git/hooks directory found. Are you in the top-level nnmodel directory?'
+[ -d .git/hooks ] || die 'No .git/hooks directory found. Are you in the top-level dnnamo directory?'
 
 cat > .git/hooks/pre-commit <<EOF
 #!/bin/sh

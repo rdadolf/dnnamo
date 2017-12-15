@@ -1,6 +1,6 @@
 import unittest
 
-from nnmodel.core.model import Model
+from dnnamo.core.model import Model
 
 class BADSubModel(Model): pass
 

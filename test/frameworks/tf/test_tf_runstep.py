@@ -1,6 +1,6 @@
 import unittest
 
-from nnmodel.frameworks.tf import TFFramework
+from dnnamo.frameworks.tf import TFFramework
 
 class TestTFRunstep(unittest.TestCase):
   def test_existence_of_runsteps(self):

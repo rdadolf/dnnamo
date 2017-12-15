@@ -1,5 +1,5 @@
-import nnmodel
-import nnmodel.frameworks
+import dnnamo
+import dnnamo.frameworks
 from tool_utilities import BaselineTool
 
 class Tool(BaselineTool):
@@ -17,7 +17,7 @@ class Tool(BaselineTool):
 
   def _run(self, modelfiles):
     for modelfile in modelfiles:
-      frame = nnmodel.frameworks.FRAMEWORKS[self.args['framework']]()
+      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
       frame.load(modelfile)
       ops = [(primop.id,primop.optype,primop.device) for primop in frame.graph() if primop.optype!='undef' or self.args['undef']]
       self.data.append(ops)

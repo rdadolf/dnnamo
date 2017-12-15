@@ -1,5 +1,5 @@
 import unittest
-from nnmodel.frameworks.tf import TFFramework, TFModel
+from dnnamo.frameworks.tf import TFFramework, TFModel
 
 class TFTestException(Exception): pass
 class TFTestErrorInSetupModel(TFModel):

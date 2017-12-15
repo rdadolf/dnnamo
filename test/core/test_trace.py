@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from nnmodel.core.trace import Tracepoint, Trace, average_traces
+from dnnamo.core.trace import Tracepoint, Trace, average_traces
 
 class TestTrace(unittest.TestCase):
   def test_basic_trace_functions(self):

@@ -1,4 +1,4 @@
-from nnmodel.frameworks.tf import TFModel
+from dnnamo.frameworks.tf import TFModel
 
 class EmptyTFModel(TFModel):
   def model(self): return None

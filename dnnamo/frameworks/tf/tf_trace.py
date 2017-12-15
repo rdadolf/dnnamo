@@ -1,4 +1,4 @@
-from nnmodel.core.trace import Tracepoint,Trace
+from dnnamo.core.trace import Tracepoint,Trace
 
 class TFTracepoint(Tracepoint):
   def __init__(self, name, type, device, dt, t0=0, tensor_dims=None):

@@ -3,8 +3,8 @@ import os
 
 import tensorflow as tf
 
-#from nnmodel.core.trace import Trace
-from nnmodel.frameworks.tf.tf_trace import TFTracepoint, TFTrace
+#from dnnamo.core.trace import Trace
+from dnnamo.frameworks.tf.tf_trace import TFTracepoint, TFTrace
 
 class _DefaultRunstep(object):
   def __init__(self): pass

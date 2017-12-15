@@ -2,9 +2,9 @@ import unittest
 
 import numpy as np
 
-from nnmodel.core.stats import NativeStats
-from nnmodel.frameworks.tf import TFFramework
-from nnmodel.frameworks.tf.tf_stats import TFNativeStats, copy_tf_graph
+from dnnamo.core.stats import NativeStats
+from dnnamo.frameworks.tf import TFFramework
+from dnnamo.frameworks.tf.tf_stats import TFNativeStats, copy_tf_graph
 
 class TestCopyTFGraph(unittest.TestCase):
   def test_copy(self):

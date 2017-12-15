@@ -6,11 +6,11 @@ import random
 
 import tensorflow as tf
 
-from nnmodel.core.framework import Framework
-from nnmodel.frameworks.tf.tf_model import TFModel
-from nnmodel.frameworks.tf.tf_translator import TFTranslator
-from nnmodel.frameworks.tf.tf_runstep import _DefaultRunstep, _InstrumentedRunstep
-from nnmodel.frameworks.tf.tf_stats import TFNativeStats
+from dnnamo.core.framework import Framework
+from dnnamo.frameworks.tf.tf_model import TFModel
+from dnnamo.frameworks.tf.tf_translator import TFTranslator
+from dnnamo.frameworks.tf.tf_runstep import _DefaultRunstep, _InstrumentedRunstep
+from dnnamo.frameworks.tf.tf_stats import TFNativeStats
 
 class TFFramework(Framework):
   def __init__(self, model=None):
