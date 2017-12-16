@@ -12,7 +12,6 @@ install:
 
 script:
   - ./build/test.sh
-  - ./build/run-linter.sh
   - ./build/build-docs.sh
 
 notifications:
