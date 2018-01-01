@@ -58,10 +58,17 @@ class Framework(object):
     Args:
       n_steps: The number of steps to execute.
     '''
-    self._model.setup(setup_options=setup_options)
+    #self._model.setup(setup_options=setup_options)
     runner = self.DefaultRunstep()
-    self._model.run(runstep=runner, n_steps=n_steps)
-    self._model.teardown()
+    # FIXME: When the Model interface changed, run() was split into run_train()
+    #   and run_inference(). This function used to wrap run(), but it cannot
+    #   anymore. In order to maintain things in a semblence of working order, I
+    #   substituted run_inference.
+    #   In the end, this function should probably be split into two. Or, better
+    #   yet, it should be redesigned into something less broad ("run" does just
+    #   about everything, and maybe it shouldn't).
+    self._model.run_inference(runstep=runner, n_steps=n_steps)
+    #self._model.teardown()
     return None
 
   def run_native_trace(self, n_steps=1, setup_options=None):
@@ -73,10 +80,14 @@ class Framework(object):
     Returns:
       traces: An array of Trace objects, one for each step executed.
     '''
-    self._model.setup(setup_options=setup_options)
+    #self._model.setup(setup_options=setup_options)
     runner = self.InstrumentedRunstep()
-    self._model.run(runstep=runner, n_steps=n_steps)
-    self._model.teardown()
+    # FIXME: When the Model interface changed, run() was split into run_train()
+    #   and run_inference(). This function used to wrap run(), but it cannot
+    #   anymore. In order to maintain things in a semblence of working order, I
+    #   substituted run_inference.
+    self._model.run_inference(runstep=runner, n_steps=n_steps)
+    #self._model.teardown()
     self._traces = runner.traces
     return self._traces
 

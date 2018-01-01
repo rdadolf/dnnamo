@@ -1,5 +1,6 @@
 import unittest
 from dnnamo.frameworks.tf import TFFramework
+from dnnamo.core.model import BaseModel
 
 #FIXME
 #from synth import TFTestCase
@@ -7,26 +8,21 @@ from dnnamo.frameworks.tf import TFFramework
 class TestTFFramework(unittest.TestCase):
   def test_load(self):
     names = [
-      ('test/test_models/empty_models.py',None),
-      ('test//../test/test_models/empty_models.py',None),
-      ('test/test_models/empty_models.py','EmptyTFModel'),
-      ('test//../test/test_models/empty_models.py','EmptyTFModel'),
-      ('test/test_models/empty_models.py:EmptyTFModel',None),
-      ('test//../test/test_models/empty_models.py:EmptyTFModel',None),
-      ('test/test_models/empty_models.py:EmptyTFModel','EmptyTFModel'),
-      ('test//../test/test_models/empty_models.py:EmptyTFModel','EmptyTFModel'),
-      ('test/test_models/multiple_tf_models.py','EmptyTFModel1'),
-      ('test//../test/test_models/multiple_tf_models.py','EmptyTFModel1'),
-      ('test/test_models/multiple_tf_models.py:EmptyTFModel1',None),
-      ('test//../test/test_models/multiple_tf_models.py:EmptyTFModel1',None),
-      ('test/test_models/multiple_tf_models.py:EmptyTFModel1','EmptyTFModel1'),
-      ('test//../test/test_models/multiple_tf_models.py:EmptyTFModel1','EmptyTFModel1'),
+      #('test/test_models/empty_models.py',None),
+      #('test//../test/test_models/empty_models.py',None),
+      ('test/test_models/empty_models.py','EmptyImmutableModel'),
+      ('test//../test/test_models/empty_models.py','EmptyImmutableModel'),
+      ('test/test_models/empty_models.py:EmptyImmutableModel',None),
+      ('test//../test/test_models/empty_models.py:EmptyImmutableModel',None),
+      ('test/test_models/empty_models.py:EmptyImmutableModel','EmptyImmutableModel'),
+      ('test//../test/test_models/empty_models.py:EmptyImmutableModel','EmptyImmutableModel'),
     ]
     for filename,modelname in names:
       frame = TFFramework()
       print 'Loading:',filename,modelname
       frame.load(filename,modelname)
-      assert isinstance(frame.model(), TFModel), 'Model isnt actualy a TF model'
+      assert frame.model().is_dnnamo_model(), 'Model isnt actually a Dnnamo model'
+      assert isinstance(frame.model(), BaseModel), 'Model isnt actually a Dnnamo model'
   def test_failed_load(self):
     with self.assertRaises(IOError):
       frame = TFFramework()
@@ -61,10 +57,10 @@ class TestTFFramework(unittest.TestCase):
 
   def test_transitive_closure(self):
     frame = TFFramework()
-    frame.load('test/test_models/simple_nnet.py')
+    frame.load('test/test_models/simple_nnet.py','SimpleNNet')
     m = frame.model()
     closed_ops = frame._transitive_closure([m.loss,m.train])
-    all_ops = m.model().get_operations()
+    all_ops = m.get_graph().get_operations()
     trace = frame.run_native_trace(n_steps=3)[1]
 
     closed_names = set([op.name for op in closed_ops])

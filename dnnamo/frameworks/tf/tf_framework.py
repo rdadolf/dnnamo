@@ -95,7 +95,7 @@ class TFFramework(Framework):
       assert modelname in model_pairs, 'Model "'+str(modelname)+'" not found in source "'+str(source)+'"'
       Modelclass = model_pairs[modelname]
 
-    self._model = Modelclass(device=device, init_options=init_options)
+    self._model = Modelclass()
 
     return True
 

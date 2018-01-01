@@ -3,15 +3,22 @@ from dnnamo.core.model import DynamicModel
 import tensorflow as tf
 import numpy as np
 
-class NativeOpSampleModel0(DynamicModel):
+class SimpleNNet(DynamicModel):
   def __init__(self):
-    super(NativeOpSampleModel0,self).__init__()
+    super(SimpleNNet,self).__init__()
     self.session = None
     self.g = tf.Graph()
     self.minibatch = 32
     self.trainsize = 2048
-    with self.g.device(device):
-      self._create_graph()
+    #with self.g.device(device):
+    self._create_graph()
+    # NOTE This used to be called by an external entity (probably a Framework),
+    #   but we removed setup() and teardown() from the Model interface. To
+    #   simplify the port, we kept the old setup() function in this file, made it
+    #   internal, and call it only once now.
+    #   In this test instance, I don't think this causes problems, but in general
+    #   it is not necessarily safe.
+    self._setup()
 
   def _create_graph(self):
     # 100:10 NN
