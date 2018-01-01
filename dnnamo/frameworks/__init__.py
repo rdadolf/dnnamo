@@ -6,7 +6,3 @@ FRAMEWORKS = {
   #'theano': theano.TheanoFramework,
 }
 
-MODELS = {
-  'tf': tf.TFModel,
-  #'theano': theano.TheanoModel,
-}

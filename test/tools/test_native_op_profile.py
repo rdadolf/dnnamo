@@ -5,9 +5,9 @@ from tools.native_op_profile import Tool
 from .util import runtool, cleanup_cachefile
 
 MODELNAME = 'NativeOpSampleModel0'
-TESTFILE = 'test/examples/simple_nnet.py'
+TESTFILE = 'test/test_models/simple_nnet.py'
 MODELNAMES = ['NativeOpSampleModel0', 'NativeOpSampleModel0']
-TESTFILES = ['test/examples/simple_nnet.py', 'test/examples/simple_nnet.py']
+TESTFILES = ['test/test_models/simple_nnet.py', 'test/test_models/simple_nnet.py']
 SIMPLE_NNET_OP_COUNT = 27
 OP_COUNT_THRESHOLD = 3
 CACHEFILE = '/tmp/cachefile'

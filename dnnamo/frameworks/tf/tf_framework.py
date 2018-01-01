@@ -7,7 +7,7 @@ import random
 import tensorflow as tf
 
 from dnnamo.core.framework import Framework
-from dnnamo.frameworks.tf.tf_model import TFModel
+from dnnamo.core.model import BaseModel, ImmutableModel, StaticModel, DynamicModel
 from dnnamo.frameworks.tf.tf_translator import TFTranslator
 from dnnamo.frameworks.tf.tf_runstep import _DefaultRunstep, _InstrumentedRunstep
 from dnnamo.frameworks.tf.tf_stats import TFNativeStats
@@ -37,7 +37,7 @@ class TFFramework(Framework):
     # A modelname can also be asked for specifically by the framework.
     # This returns the separate components: (path,file-or-module,modelname)
     # The last element may be None, in which case the load function will
-    # attempt to find a load the single TFModel in the file or module.
+    # attempt to find a load the single Model in the file or module.
     if os.path.isfile(source) or ':' not in source:
       prefix,suffix = os.path.split( os.path.normpath(source) )
       return (prefix,suffix,modelname) # modelname could be None
@@ -49,21 +49,15 @@ class TFFramework(Framework):
     assert os.path.exists( path ), 'Cannot find model path: "'+str(path)+'"'
     return (prefix,suffix,modelname)
 
-  def _is_class_a_tfmodel(self,typ):
-    '''True if a *class* type is a subclass of TFModel.
+  def _is_class_a_model(self,typ):
+    '''True if a *class* type is a subclass of BaseModel.
 
     Only works on the class type itself, not instances of that class.'''
     try:
-      if issubclass(typ, TFModel) and typ!=TFModel:
+      if issubclass(typ, BaseModel) and typ!=BaseModel:
         return True
     except TypeError:
       pass
-    return False
-
-  def _is_valid_tfmodel(self,obj):
-    '''True if an object is an instance of TFModel.'''
-    if (obj is not None) and isinstance(obj, TFModel):
-      return True
     return False
 
   # pylint: disable=arguments-differ
@@ -92,7 +86,7 @@ class TFFramework(Framework):
       raise IOError('No such file or directory: '+str(source))
 
     # Load and instantiate the model class
-    model_pairs = dict(inspect.getmembers(m, self._is_class_a_tfmodel))
+    model_pairs = dict(inspect.getmembers(m, self._is_class_a_model))
     if modelname is None: # No model specified, auto-detect a single model class
       assert len(model_pairs)>0, 'No models found in source "'+str(source)+'"'
       assert len(model_pairs)==1, 'Multiple models found in source "'+str(source)+'": '+','.join([str(m) for m in model_pairs])

@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from .model import Model
+from .model import ImmutableModel, StaticModel, DynamicModel
 
 class Framework(object):
   __metaclass__ = ABCMeta

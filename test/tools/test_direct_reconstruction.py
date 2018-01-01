@@ -4,7 +4,7 @@ from tools.direct_reconstruction import Tool
 
 from .util import runtool
 
-TESTFILE = 'test/examples/simple_nnet.py'
+TESTFILE = 'test/test_models/simple_nnet.py'
 
 class TestDirectReconstruction(unittest.TestCase):
   def test_simply_run(self):

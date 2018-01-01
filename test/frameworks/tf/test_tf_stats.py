@@ -9,7 +9,7 @@ from dnnamo.frameworks.tf.tf_stats import TFNativeStats, copy_tf_graph
 class TestCopyTFGraph(unittest.TestCase):
   def test_copy(self):
     frame = TFFramework()
-    frame.load('test/examples/simple_nnet.py')
+    frame.load('test/test_models/simple_nnet.py')
     g = frame.native_model()
 
     h = copy_tf_graph(g)
@@ -42,7 +42,7 @@ class TestCopyTFGraph(unittest.TestCase):
 class TestTFStats(unittest.TestCase):
   def test_get_stats_from_framework(self):
     frame = TFFramework()
-    frame.load('test/examples/simple_nnet.py')
+    frame.load('test/test_models/simple_nnet.py')
     stats = frame.native_stats()
     assert stats is not None, 'Failed to get stats from framework'
     assert isinstance(stats, NativeStats), 'Got a bad return value from framework.native_stats(): '+str(type(stats))
@@ -54,7 +54,7 @@ class TestTFStats(unittest.TestCase):
 
   def test_computational_density(self):
     frame = TFFramework()
-    frame.load('test/examples/simple_nnet.py')
+    frame.load('test/test_models/simple_nnet.py')
     stats = frame.native_stats()
     g = frame.native_model()
 
@@ -67,15 +67,15 @@ class TestTFStats(unittest.TestCase):
   #@unittest.SkipTest
   def test_computational_density_values(self):
     frame = TFFramework()
-    frame.load('test/examples/simple_nnet.py')
+    frame.load('test/test_models/simple_nnet.py')
     stats = frame.native_stats()
     #g = frame.native_model()
 
     # Let's make sure the ops are reporting the right numbers.
     in_size = np.prod(frame.model().input.get_shape().as_list())
-    assert in_size == 3200, 'test/examples/simple_nnet has changed since this test case was written; it needs to be updated (and stop changing test files, make your own!)'
+    assert in_size == 3200, 'test/test_models/simple_nnet has changed since this test case was written; it needs to be updated (and stop changing test files, make your own!)'
     lab_size = np.prod(frame.model().labels.get_shape().as_list())
-    assert lab_size==320, 'test/examples/simple_nnet has changed since this test case was written; it needs to be updated (and stop changing test files, make your own!)'
+    assert lab_size==320, 'test/test_models/simple_nnet has changed since this test case was written; it needs to be updated (and stop changing test files, make your own!)'
 
     f32 = 4 # bytes
     for name,ref_flops,ref_bytes in [
@@ -90,7 +90,7 @@ class TestTFStats(unittest.TestCase):
   #@unittest.SkipTest
   def test_computational_density_partial(self):
     frame = TFFramework()
-    frame.load('test/examples/placeholder_nnet.py')
+    frame.load('test/test_models/placeholder_nnet.py')
     stats = frame.native_stats()
     #g = frame.native_model()
 

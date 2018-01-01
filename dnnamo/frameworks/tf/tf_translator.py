@@ -88,12 +88,12 @@ class TFTranslator(Translator):
     self._map = {}
     self._rmap = {}
 
-  def translate(self, tf_model):
+  def translate(self, model):
     if self._dgraph is not None:
       return self._dgraph
     self._dgraph = DGraph()
 
-    tf_graph = tf_model.model()
+    tf_graph = model.get_graph()
     # Add all ops as nodes in the dependence graph.
     for op in tf_graph.get_operations():
       for rule in _RULES:

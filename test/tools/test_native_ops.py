@@ -4,7 +4,7 @@ from tools.native_ops import Tool
 
 from .util import runtool, cleanup_cachefile
 
-TESTFILE = 'test/examples/simple_nnet.py'
+TESTFILE = 'test/test_models/simple_nnet.py'
 SIMPLE_NNET_OP_COUNT = 89 # the number of static ops in the simple_nnet graph
 OP_COUNT_THRESHOLD = 5 # eh, give it a little wiggle room
 CACHEFILE = '/tmp/cachefile'

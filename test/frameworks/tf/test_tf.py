@@ -1,47 +1,32 @@
 import unittest
-from dnnamo.frameworks.tf import TFFramework, TFModel
-
-class TFTestException(Exception): pass
-class TFTestErrorInSetupModel(TFModel):
-  def model(self): return None
-  def run(self, runstep=None, n_steps=1): pass
-  def setup(self, setup_options=None):
-    raise TFTestException('TFModel.setup() called')
-class TFTestErrorInTeardownModel(TFModel):
-  def model(self): return None
-  def run(self, runstep=None, n_steps=1): pass
-  def teardown(self):
-    raise TFTestException('TFModel.teardown() called')
+from dnnamo.frameworks.tf import TFFramework
 
 #FIXME
 #from synth import TFTestCase
 
 class TestTFFramework(unittest.TestCase):
   def test_load(self):
-    suffixes = ['.py','_module']
     names = [
-      ('test/examples/empty_tf_model{0}',None),
-      ('test//../test/examples/empty_tf_model{0}',None),
-      ('test/examples/empty_tf_model{0}','EmptyTFModel'),
-      ('test//../test/examples/empty_tf_model{0}','EmptyTFModel'),
-      ('test/examples/empty_tf_model{0}:EmptyTFModel',None),
-      ('test//../test/examples/empty_tf_model{0}:EmptyTFModel',None),
-      ('test/examples/empty_tf_model{0}:EmptyTFModel','EmptyTFModel'),
-      ('test//../test/examples/empty_tf_model{0}:EmptyTFModel','EmptyTFModel'),
-      ('test/examples/multiple_tf_models{0}','EmptyTFModel1'),
-      ('test//../test/examples/multiple_tf_models{0}','EmptyTFModel1'),
-      ('test/examples/multiple_tf_models{0}:EmptyTFModel1',None),
-      ('test//../test/examples/multiple_tf_models{0}:EmptyTFModel1',None),
-      ('test/examples/multiple_tf_models{0}:EmptyTFModel1','EmptyTFModel1'),
-      ('test//../test/examples/multiple_tf_models{0}:EmptyTFModel1','EmptyTFModel1'),
+      ('test/test_models/empty_models.py',None),
+      ('test//../test/test_models/empty_models.py',None),
+      ('test/test_models/empty_models.py','EmptyTFModel'),
+      ('test//../test/test_models/empty_models.py','EmptyTFModel'),
+      ('test/test_models/empty_models.py:EmptyTFModel',None),
+      ('test//../test/test_models/empty_models.py:EmptyTFModel',None),
+      ('test/test_models/empty_models.py:EmptyTFModel','EmptyTFModel'),
+      ('test//../test/test_models/empty_models.py:EmptyTFModel','EmptyTFModel'),
+      ('test/test_models/multiple_tf_models.py','EmptyTFModel1'),
+      ('test//../test/test_models/multiple_tf_models.py','EmptyTFModel1'),
+      ('test/test_models/multiple_tf_models.py:EmptyTFModel1',None),
+      ('test//../test/test_models/multiple_tf_models.py:EmptyTFModel1',None),
+      ('test/test_models/multiple_tf_models.py:EmptyTFModel1','EmptyTFModel1'),
+      ('test//../test/test_models/multiple_tf_models.py:EmptyTFModel1','EmptyTFModel1'),
     ]
-    for suffix in suffixes:
-      for filename_template,modelname in names:
-        frame = TFFramework()
-        filename = filename_template.format(suffix)
-        print 'Loading:',filename,modelname
-        frame.load(filename,modelname)
-        assert isinstance(frame.model(), TFModel), 'Model isnt actualy a TF model'
+    for filename,modelname in names:
+      frame = TFFramework()
+      print 'Loading:',filename,modelname
+      frame.load(filename,modelname)
+      assert isinstance(frame.model(), TFModel), 'Model isnt actualy a TF model'
   def test_failed_load(self):
     with self.assertRaises(IOError):
       frame = TFFramework()
@@ -76,7 +61,7 @@ class TestTFFramework(unittest.TestCase):
 
   def test_transitive_closure(self):
     frame = TFFramework()
-    frame.load('test/examples/simple_nnet.py')
+    frame.load('test/test_models/simple_nnet.py')
     m = frame.model()
     closed_ops = frame._transitive_closure([m.loss,m.train])
     all_ops = m.model().get_operations()
@@ -104,13 +89,3 @@ class TestTFFramework(unittest.TestCase):
 
     assert len(set(dg.devices))==1, 'More than one device found'
 
-
-  def test_run_calls_setup(self):
-    frame = TFFramework(TFTestErrorInSetupModel())
-    with self.assertRaises(TFTestException):
-      frame.run()
-
-  def test_run_calls_teardown(self):
-    frame = TFFramework(TFTestErrorInTeardownModel())
-    with self.assertRaises(TFTestException):
-      frame.run()

@@ -5,7 +5,7 @@ from tools.amdahl import Tool
 from .util import runtool
 
 MODELNAME = 'NativeOpSampleModel0'
-TESTFILE = 'test/examples/simple_nnet.py'
+TESTFILE = 'test/test_models/simple_nnet.py'
 CACHEFILE = '/tmp/cachefile'
 
 class TestNativeOpProfile(unittest.TestCase):
