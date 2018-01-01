@@ -4,25 +4,21 @@ site_description: 'Dnnamo: Tools for Analysis, Modeling, and Optimization of Dee
 google_analytics: ['UA-29492860-4', 'auto']
 
 site_dir: 'deploy'
+use_directory_urls: false
 theme: 'readthedocs'
 extra_css: [assets/dnnamo.css]
 
 pages:
-# * = not even close to being done
-  - 'Overview*': index.md
   - 'Getting Started':
+    - 'What is Dnnamo?': index.md # Default landing page
     - 'Installation': install.md
-    - 'Quick Start': quickstart.md
-    - 'Tools*': tool_list.md
-    - 'Models*': model_list.md
-    - 'Devices*': device_list.md
+    - 'Examples': examples.md # probably want a couple simple, pretty demos here
+  - 'Using Dnnamo':
+    - 'Analysis': user/analysis.md # maybe separate pages on tools/examples
+    - 'Modeling': user/modeling.md # maybe separate pages on tools/examples
+    - 'Optimization': user/optimization.md # maybe separate pages on tools/examples
   - 'Developing with Dnnamo':
-    - 'Frameworks*': dev/frameworks.md
-    - 'Models*': dev/models.md
-    - 'Primops*': dev/primops.md
-    - 'DGraphs*': dev/dgraphs.md
-#- 'Constraints': ?
-    - 'Devices*': dev/devices.md
-  - 'Extending Dnnamo':
-    - 'Building a New Tool*': new_tool.md
-    - 'Importing a New Model': import.md
+    - 'Models': dev/models.md
+    - 'Frameworks': dev/frameworks.md
+    - 'Primops': dev/primops.md
+
