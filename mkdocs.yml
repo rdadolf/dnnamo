@@ -19,6 +19,7 @@ pages:
     - 'Optimization': user/optimization.md # maybe separate pages on tools/examples
   - 'Developing with Dnnamo':
     - 'Models': dev/models.md
+    - 'Loaders': dev/loaders.md
     - 'Frameworks': dev/frameworks.md
     - 'Primops': dev/primops.md
 
