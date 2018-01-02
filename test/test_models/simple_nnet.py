@@ -83,3 +83,6 @@ class SimpleNNet(DynamicModel):
   def get_activations(self, runstep=None, *args, **kwargs):
     # FIXME: left blank pending a definition of "activation" (c.f. core/model.py)
     return dict()
+
+def __dnnamo_loader__():
+  return SimpleNNet()

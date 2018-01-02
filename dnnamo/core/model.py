@@ -50,6 +50,7 @@ class BaseModel(object):
 class ImmutableModel(BaseModel):
   __metaclass__ = ABCMeta
 
+  @property
   def is_dnnamo_model(self):
     '''A property which can be used to identify unknown objects as Dnnamo models.'''
     return True

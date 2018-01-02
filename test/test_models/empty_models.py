@@ -9,3 +9,7 @@ class EmptyDynamicModel(EmptyStaticModel):
   def run_train(self, runstep=None, n_steps=1, *args, **kwargs): pass
   def run_inference(self, runstep=None, n_steps=1, *args, **kwargs): pass
   def get_activations(self, runstep=None, *args, **kwargs): return dict()
+
+
+def __dnnamo_loader__():
+  return EmptyDynamicModel()

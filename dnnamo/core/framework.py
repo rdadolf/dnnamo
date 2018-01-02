@@ -26,9 +26,14 @@ class Framework(object):
     (prefix,_,suffix) = str(filename).rsplit(':')
     return (prefix,suffix)
 
-  @abstractmethod
-  def load(self, filename, **kwargs):
-    '''Loads a model from a file.'''
+  def load(self, loader, identifier, **kwargs):
+    '''Loads a model.
+
+    The loader parameter expects a Dnnamo Loader class type.
+    The identifier specifies which model to load, but its type depends on the
+    loader that was selected.'''
+    self._model = loader(identifier, **kwargs).load()
+    return self._model
 
   def native_model(self):
     '''Extract a native model representation.'''

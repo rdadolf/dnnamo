@@ -1,35 +1,33 @@
 import unittest
-from dnnamo.frameworks.tf import TFFramework
 from dnnamo.core.model import BaseModel
+from dnnamo.frameworks.tf import TFFramework
+from dnnamo.loaders import RunpyLoader
 
 #FIXME
 #from synth import TFTestCase
 
 class TestTFFramework(unittest.TestCase):
   def test_load(self):
-    names = [
-      #('test/test_models/empty_models.py',None),
-      #('test//../test/test_models/empty_models.py',None),
-      ('test/test_models/empty_models.py','EmptyImmutableModel'),
-      ('test//../test/test_models/empty_models.py','EmptyImmutableModel'),
-      ('test/test_models/empty_models.py:EmptyImmutableModel',None),
-      ('test//../test/test_models/empty_models.py:EmptyImmutableModel',None),
-      ('test/test_models/empty_models.py:EmptyImmutableModel','EmptyImmutableModel'),
-      ('test//../test/test_models/empty_models.py:EmptyImmutableModel','EmptyImmutableModel'),
+    loaders = [
+      RunpyLoader,
     ]
-    for filename,modelname in names:
-      frame = TFFramework()
-      print 'Loading:',filename,modelname
-      frame.load(filename,modelname)
-      assert frame.model().is_dnnamo_model(), 'Model isnt actually a Dnnamo model'
-      assert isinstance(frame.model(), BaseModel), 'Model isnt actually a Dnnamo model'
+    identifiers = [
+      ('test.test_models.empty_models',[ ]),
+      ('empty_models',['test/test_models']),
+      ('empty_models',['test/../test/test_models']),
+    ]
+    for loader in loaders:
+      for identifier,pypath in identifiers:
+        frame = TFFramework()
+        print 'Loading:',identifier,'with',pypath,'as extra sys.path arguments'
+        frame.load(loader, identifier, pypath=pypath)
+        assert frame.model().is_dnnamo_model, 'Model isnt actually a Dnnamo model'
+        assert isinstance(frame.model(), BaseModel), 'Model isnt actually a Dnnamo model'
+
   def test_failed_load(self):
-    with self.assertRaises(IOError):
-      frame = TFFramework()
-      frame.load('/nonexistent-path',None)
     with self.assertRaises(ImportError):
       frame = TFFramework()
-      frame.load('/','nonexistent-model')
+      frame.load(RunpyLoader, 'nonexistent_module')
 
   @unittest.SkipTest
   # FIXME: NYI
@@ -57,7 +55,7 @@ class TestTFFramework(unittest.TestCase):
 
   def test_transitive_closure(self):
     frame = TFFramework()
-    frame.load('test/test_models/simple_nnet.py','SimpleNNet')
+    frame.load(RunpyLoader, 'test/test_models/simple_nnet')
     m = frame.model()
     closed_ops = frame._transitive_closure([m.loss,m.train])
     all_ops = m.get_graph().get_operations()
