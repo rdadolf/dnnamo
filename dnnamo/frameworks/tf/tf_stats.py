@@ -36,7 +36,7 @@ class TFNativeStats(NativeStats):
     self._dst_tensormap = {} # dst_op -> [ in_tensor_name, ... ]
 
     # First, populate the src/dst maps via static analysis
-    graph = self._model.model()
+    graph = self._model.get_graph()
     for op in graph.get_operations():
       self._src_tensormap[op.name] = [t.name for t in op.outputs]
       for t in op.outputs:
@@ -96,7 +96,7 @@ class TFNativeStats(NativeStats):
     #      valid for the original graph as well.
 
     # 1 Create a copy
-    g = self._model.model()
+    g = self._model.get_graph()
     h = copy_tf_graph(g)
     # 2 Grab a trace (given)
     #for tp in self._meantrace:

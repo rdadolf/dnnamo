@@ -1,5 +1,6 @@
 import unittest
 
+from dnnamo.loaders import RunpyLoader
 from dnnamo.frameworks.tf import TFFramework
 
 class TestTFRunstep(unittest.TestCase):
@@ -12,12 +13,12 @@ class TestTFRunstep(unittest.TestCase):
 
   def test_run_with_default_runstep(self):
     frame = TFFramework()
-    frame.load('test/test_models/simple_nnet.py')
+    frame.load(RunpyLoader, 'simple_nnet', pypath='test/test_models')
     frame.run(n_steps=1)
 
   def test_run_native_trace(self):
     frame = TFFramework()
-    frame.load('test/test_models/simple_nnet.py')
+    frame.load(RunpyLoader, 'simple_nnet', pypath='test/test_models')
     traces = frame.run_native_trace(n_steps=1)
     assert isinstance(traces,list), 'TFFramework.run_native_trace returned an invalid result.'
     assert len(traces)>0, 'TFFramework.run_native_trace did not capture any traces.'
@@ -26,7 +27,7 @@ class TestTFRunstep(unittest.TestCase):
   @unittest.SkipTest
   def test_run_trace(self):
     frame = TFFramework()
-    frame.load('test/test_models/simple_nnet.py')
+    frame.load(RunpyLoader, 'simple_nnet', pypath='test/test_models')
     traces = frame.run_trace(n_steps=1)
     assert isinstance(traces,list), 'TFFramework.run_trace returned an invalid result.'
     assert len(traces)>0, 'TFFramework.run_trace did not capture any traces.'
