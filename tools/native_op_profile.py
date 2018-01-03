@@ -2,8 +2,9 @@ import numpy as np
 
 import dnnamo
 import dnnamo.frameworks
+from dnnamo.loaders import RunpyLoader
 from dnnamo.core.mpl_plot import *
-from tool_utilities import PlotTool
+from tool_utilities import PlotTool, path_to_loader_pair
 
 class Tool(PlotTool):
   TOOL_NAME='native_op_profile'
@@ -23,7 +24,8 @@ class Tool(PlotTool):
       Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
       frame = Frame()
       # pass batch_size in here.. also add a command line for it.
-      frame.load(modelfile, device='/cpu:0')
+      modname, pypath = path_to_loader_pair(modelfile)
+      frame.load(RunpyLoader, modname, pypath=pypath)
       #frame.load(modelfile, device='/cpu:0', init_options={'batch_size':self.args['batch']})
       #frame.load(modelfile)
       traces = frame.run_native_trace(n_steps=12, setup_options={'allow_soft_placement': True, 'inter_op_parallelism_threads':1, 'intra_op_parallelism_threads':8})

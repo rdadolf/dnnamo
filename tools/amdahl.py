@@ -2,8 +2,9 @@ import numpy as np
 
 import dnnamo
 import dnnamo.frameworks
+from dnnamo.loaders import RunpyLoader
 from dnnamo.core.mpl_plot import *
-from tool_utilities import PlotTool
+from tool_utilities import PlotTool, path_to_loader_pair
 
 class Tool(PlotTool):
   TOOL_NAME='amdahl'
@@ -24,7 +25,9 @@ class Tool(PlotTool):
       frame = Frame()
       print "HERE"
       print self.args['dev']
-      frame.load(modelfile, device='/%s:0'%self.args['dev'])
+      modname, pypath = path_to_loader_pair(modelfile)
+      frame.load(RunpyLoader, modname, pypath=pypath)
+      #frame.load(modelfile, device='/%s:0'%self.args['dev'])
       #frame.load(modelfile, device='/gpu:0')
       # Setup options:
       #   allow_soft_placement: True/False

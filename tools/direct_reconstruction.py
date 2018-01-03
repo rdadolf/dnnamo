@@ -1,6 +1,7 @@
 import dnnamo
 import dnnamo.frameworks
 import dnnamo.devices
+from dnnamo.loaders import RunpyLoader
 from dnnamo.core.trace import average_traces, Tracepoint, Trace
 from tool_utilities import *
 
@@ -21,7 +22,8 @@ class Tool(PlotTool):
     for modelfile in modelfiles:
       frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
       dev = dnnamo.devices.DEVICES[self.args['device']]()
-      frame.load(modelfile)
+      modname, pypath = path_to_loader_pair(modelfile)
+      frame.load(RunpyLoader, modname, pypath=pypath)
       g = frame.graph()
       traces = frame.run_native_trace(n_steps=12)[1:-1] # avoid outliers
       trace = average_traces(traces)

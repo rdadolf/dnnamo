@@ -1,7 +1,20 @@
 from abc import ABCMeta, abstractmethod
+import os.path
 
 import dnnamo
 from dnnamo.core.mpl_plot import *
+
+def path_to_loader_pair(path):
+  '''Converts a path to a (module, pypath) pair suitable for runpy.
+
+  Assuming that a path points to a valid python file or module which contains a
+  Dnnamo model that can be loaded with RunpyLoader.'''
+
+  p = os.path.normpath(path) # mostly so "/path/dir/" becomes "/path/dir"
+  pypath, modname = os.path.split(path)
+  if modname.endswith('.py'):
+    modname = modname[:-3]
+  return (modname, pypath)
 
 class BaselineTool(Cacher):
   __metaclass__ = ABCMeta

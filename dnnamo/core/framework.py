@@ -37,7 +37,7 @@ class Framework(object):
 
   def native_model(self):
     '''Extract a native model representation.'''
-    return self._model.model()
+    return self._model.get_graph()
 
   def model(self):
     '''Returns a reference to a Dnnamo Frame object wrapping the native model.'''

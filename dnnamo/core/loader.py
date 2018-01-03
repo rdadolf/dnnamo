@@ -32,11 +32,14 @@ class RunpyLoader(BaseLoader):
     sys.path and PYTHONPATH as appropriate.
 
     The pypath is a shortcut for temporarily adding paths to sys.path. This
-    argument is a list of paths which will be added to sys.path for the purpose
-    of loading this model only. The sys.path will not be modified'''
+    argument is a single string or list of strings which will be added to
+    sys.path for the purpose of loading this model only. The prior sys.path
+    will not be modified.'''
 
     self.identifier = identifier
-    if pypath is not None:
+    if type(pypath)==str:
+      self.pypath = [pypath]
+    elif pypath is not None:
       self.pypath = [os.path.abspath(p) for p in pypath]
     else:
       self.pypath = []
@@ -44,7 +47,13 @@ class RunpyLoader(BaseLoader):
   def load(self):
     old_syspath = sys.path
     sys.path[0:0] = self.pypath
-    env = runpy.run_module(self.identifier)
+    try:
+      env = runpy.run_module(self.identifier)
+    except ImportError as e:
+      if len(self.pypath)>0:
+        raise ImportError, 'Could not find a module named '+str(self.identifier)+' using the extra path '+str(self.pypath)
+      else:
+        raise ImportError, 'Could not find a module named '+str(self.identifier)
     sys.path = old_syspath
     print env.keys()
     try:

@@ -2,8 +2,9 @@ import numpy as np
 
 import dnnamo
 import dnnamo.frameworks
+from dnnamo.loaders import RunpyLoader
 from dnnamo.core.mpl_plot import *
-from tool_utilities import PlotTool
+from tool_utilities import PlotTool, path_to_loader_pair
 
 class Tool(PlotTool):
   TOOL_NAME='native_op_distribution'
@@ -21,7 +22,8 @@ class Tool(PlotTool):
     for modelfile in modelfiles:
       Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
       frame = Frame()
-      frame.load(modelfile)
+      modname, pypath = path_to_loader_pair(modelfile)
+      frame.load(RunpyLoader, modname, pypath=pypath)
       m = frame.native_model()
 
       if self.args['framework']=='tf':
