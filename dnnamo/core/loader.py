@@ -55,7 +55,6 @@ class RunpyLoader(BaseLoader):
       else:
         raise ImportError, 'Could not find a module named '+str(self.identifier)
     sys.path = old_syspath
-    print env.keys()
     try:
       model_function = env[self.PROTECTED_FUNCTION_NAME]
     except KeyError:

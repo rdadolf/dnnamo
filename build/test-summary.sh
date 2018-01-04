@@ -1,2 +1,2 @@
 #!/bin/bash
-pytest --no-print-logs --tb=no $@
+pytest --no-print-logs --ignore=models --tb=no $@

@@ -5,3 +5,8 @@ mkdocs
 pylint>1.7
 nose
 pytest>=3
+
+six
+sklearn
+librosa
+h5py
