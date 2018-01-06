@@ -1,6 +1,7 @@
 import dnnamo
 import dnnamo.frameworks
-from tool_utilities import BaselineTool
+from dnnamo.loaders import RunpyLoader
+from tool_utilities import BaselineTool, path_to_loader_pair
 
 class Tool(BaselineTool):
   TOOL_NAME='primops'
@@ -18,8 +19,9 @@ class Tool(BaselineTool):
   def _run(self, modelfiles):
     for modelfile in modelfiles:
       frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
-      frame.load(modelfile)
-      ops = [(primop.id,primop.optype,primop.device) for primop in frame.graph() if primop.optype!='undef' or self.args['undef']]
+      (modname, pypath) = path_to_loader_pair(modelfile)
+      frame.load(RunpyLoader, modname, pypath=pypath)
+      ops = [(primop.id,primop.optype,primop.device) for primop in frame.absgraph if primop.optype!='undef' or self.args['undef']]
       self.data.append(ops)
 
   def _output(self):

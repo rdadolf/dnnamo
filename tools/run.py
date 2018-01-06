@@ -16,6 +16,8 @@ tools = [
   'native_op_breakdown',
   'primops',
   'ubench_stats',
+  # Internal tools
+  '_primop_diag',
 ]
 
 
@@ -32,7 +34,7 @@ def main(argv):
     subparser.set_defaults(run=tooldict[toolname].run)
 
   args = parser.parse_args(argv)
-  print args
+  #print args
   args.run(vars(args))
 
 if __name__=='__main__':

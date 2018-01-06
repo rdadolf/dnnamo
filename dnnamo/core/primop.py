@@ -21,8 +21,7 @@ class Primop(object):
     primop_id = str(cls.optype)+'_'+str(c)
     return primop_id
 
-  # @property and @classmethod don't play nicely together.
-  # This is the workaround.
+  # @property and @classmethod don't play nicely together--this is a workaround.
   class classproperty(object):
     def __init__(self, func):
       self.func = classmethod(func)
@@ -39,6 +38,8 @@ class Primop(object):
 
   def __str__(self):
     return '<Primop_'+str(self.optype)+':'+str(self.id)+'>'
+
+
 
 # This is a primop for undefined operations.
 # It's valid in dependence graphs, but will obviously give unrealistic values if
