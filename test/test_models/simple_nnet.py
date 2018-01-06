@@ -30,7 +30,7 @@ class SimpleNNet(DynamicModel):
       self.b = tf.Variable(tf.zeros(shape=[10]), name='b')
       self.inference = tf.nn.softmax( tf.add(tf.matmul(self.input, self.W, name='matmul'), self.b, name='sum'), name='inference' )
 
-      self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits( self.inference, self.labels ), name='loss')
+      self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits( logits=self.inference, labels=self.labels ), name='loss')
       self.train = tf.train.GradientDescentOptimizer(1.0).minimize(self.loss)
 
   def get_graph(self):
