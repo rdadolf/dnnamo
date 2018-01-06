@@ -1,3 +1,4 @@
+import unittest
 from synth import AbstractGraphTestCase
 
 class TestAbstractGraph(AbstractGraphTestCase):
@@ -13,6 +14,7 @@ class TestAbstractGraph(AbstractGraphTestCase):
     deps_p2 = G.dep(p2)
     assert len(deps_p2)==1 and (deps_p2!=p2), 'Corrupted adjacency for p2'
 
+  @unittest.skip('Temporarily removed device support, pending API review.')
   def test_devices(self):
     G = self.G
     for primop in G:

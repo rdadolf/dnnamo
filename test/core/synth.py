@@ -2,13 +2,11 @@ import unittest
 import dnnamo
 import tensorflow as tf
 
-from dnnamo.core.primop import Primop
+from dnnamo.core.primop import PrimopTypes
 from dnnamo.core.absgraph import AbstractGraph
 
-class Primop_example(Primop):
-  def __init__(self):
-    super(Primop_example,self).__init__()
-    self.device = 'test'
+
+Primop_example = PrimopTypes.new('example',[])
 
 class AbstractGraphTestCase(unittest.TestCase):
   @staticmethod

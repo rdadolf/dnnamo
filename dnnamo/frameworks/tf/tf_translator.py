@@ -43,14 +43,14 @@ def convert_MatMul(op):
     dim_A = dim_A[::-1]
   if op.get_attr('transpose_b'):
     dim_B = dim_B[::-1]
-  return Primop_mmmul(dim_A,dim_B)
+  return Primop_mmmul({'dim_A':dim_A,'dim_B':dim_B}, source_op=op)
 
 # FIXME: Rule disabled. time_mvmul benchmark must handle >2-dimensional tensors
 #@translation_rule_matching('BiasAdd')
 def convert_BiasAdd(op):
   dim_A = op.inputs[0].get_shape().as_list()
   dim_b = op.inputs[1].get_shape().as_list()[0]
-  return Primop_mvmul(dim_A,dim_b)
+  return Primop_mvmul({'dim_A':dim_A,'dim_b':dim_b}, source_op=op)
 
 #FIXME: Rule disabled. time_conv() benchmark must handle >2-dimensional tensors
 #@translation_rule_matching('Conv2D')
@@ -59,7 +59,7 @@ def convert_Conv2D(op):
   dim_M = op.inputs[1].get_shape().as_list()
   #op.get_attr('strides') # FIXME
   #op.get_attr('padding') # FIXME
-  return Primop_conv(dim_M, dim_F)
+  return Primop_conv({'dim_M':dim_M, 'dim_F':dim_F}, source_op=op)
 
 # TODO: Top-90% native ops
 # CIFAR10:
@@ -78,7 +78,7 @@ def convert_Conv2D(op):
 def default(op):
   # NO PATTERN
   # RULE
-  return Primop_undef()
+  return Primop_undef({}, source_op=op)
 # End of Tensorflow translation rules
 ################################################################################
 

@@ -1,45 +1,94 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 # This is just the interface definition.
 class Primop(object):
   __meta__ = ABCMeta
 
-  def __init__(self):
-    self.device = None
-    self.id = type(self)._unique_id()
+  def __init__(self, parameters=None, source_op=None):
+    self._device = None
+    self._id = self._unique_id()
+    if parameters is not None:
+      self._params = {p:parameters[p] for p in self.parameter_names}
+    else:
+      self._params = {p:None for p in self.parameter_names}
+    self._source_op = source_op
 
-  @property
-  @abstractmethod
-  def args(self): pass
-
+  # Class-wide counter
   id_counter = 0
-
-  @classmethod
-  def _unique_id(cls):
+  # Instance function tracking class-wide counter
+  def _unique_id(self):
+    '''Returns an int guaranteed to be unique across all Primop subclasses.'''
     c = Primop.id_counter
     Primop.id_counter += 1
-    primop_id = str(cls.optype)+'_'+str(c)
+    primop_id = str(self.optype)+'_'+str(c)
     return primop_id
 
-  # @property and @classmethod don't play nicely together--this is a workaround.
-  class classproperty(object):
-    def __init__(self, func):
-      self.func = classmethod(func)
-    def __get__(self, *args):
-      return self.func.__get__(*args)()
+  # Factory-assigned properties
+  @abstractproperty
+  def optype(self): pass
+  @abstractproperty
+  def parameter_names(self): pass
 
-  @classproperty
-  def optype(cls):
-    # This is a little bit ugly, but it streamlines defining primops.
-    s = cls.__name__
-    assert s[0:7]=='Primop_', 'Invalid primop name: "'+s+'"'
-    assert len(s)>7, 'Invalid primop name: "'+s+'"'
-    return s[7:]
+  @property
+  def id(self):
+    return self._id
+  @property
+  def parameters(self):
+    return self._params
+  @property
+  def device(self):
+    return self._device
 
   def __str__(self):
     return '<Primop_'+str(self.optype)+':'+str(self.id)+'>'
 
+class PrimopTypes(object):
+  '''Singleton container class for all primitive operation types.'''
+  primops = {}
+  @classmethod
+  def _idempotent_primop_dict_init(cls):
+    print 'idempotent init called'
+    #if cls.primops is None:
+    #  print 'idempotent initialized'
+    #  cls.primops = dict()
+  @classmethod
+  def items(cls):
+    cls._idempotent_primop_dict_init()
+    return cls.primops.items()
+  @classmethod
+  def __iter__(cls):
+    for p in cls.primops:
+      yield p
+  @classmethod
+  def __len__(cls):
+    return len(cls.primops)
+  @classmethod
+  def __getitem__(cls, key):
+    return cls.primops[key]
 
+  @staticmethod
+  def new(optype, parameter_set, desc=None):
+    '''Shortcut for dynamically creating new Primop class types.
+    
+    In general, this function should not be used outside this file.'''
+    
+    primop_typename = 'Primop_'+str(optype)
+    # Create factory-assigned properties
+    def optype_prop(self): return optype
+    def parameter_names_prop(self): return [p for p in parameter_set] # copy
+    if desc is None:
+      desc = 'Dnnamo primitive operation.'
+    # Create new type
+    NewPrimop = type(primop_typename, (Primop,), {
+      'optype': property(optype_prop),
+      'parameter_names': property(parameter_names_prop),
+      '__doc__': desc,
+    })
+    # Record the new type
+    PrimopTypes._idempotent_primop_dict_init()
+    PrimopTypes.primops[optype] = NewPrimop
+    # Return new type to get its name assigned
+    return NewPrimop
 
 # This is a primop for undefined operations.
 # It's valid in dependence graphs, but will obviously give unrealistic values if
@@ -47,51 +96,17 @@ class Primop(object):
 # the source framework's operation space or intentionally ignore certain cheap
 # operations.
 class Primop_undef(Primop): pass
+Primop_undef = PrimopTypes.new('undef', [],
+  desc='Undefined Primop. Used when the native operation is unknown.')
 
 ##### Basic Linear Algebra Primitives #####
-
-class Primop_mmmul(Primop):
-  '''matrix-matrix multiplication, out = AB'''
-  def __init__(self, dim_A, dim_B):
-    super(Primop_mmmul,self).__init__()
-    self.dim_A = dim_A
-    self.dim_B = dim_B
-
-  @property
-  def args(self):
-    return (self.dim_A, self.dim_B)
-
-class Primop_mvmul(Primop):
-  '''Matrix-vector multiplication: out = Ab'''
-  def __init__(self, dim_A, dim_b):
-    super(Primop_mvmul,self).__init__()
-    self.dim_A = dim_A
-    self.dim_b = dim_b
-
-  @property
-  def args(self):
-    return (self.dim_A, self.dim_b)
-
-class Primop_vvadd(Primop):
-  '''Vector-vector addition: out = a+b'''
-  def __init__(self, dim_a, dim_b):
-    super(Primop_vvadd,self).__init__()
-    self.dim_a = dim_a
-    self.dim_b = dim_b
-
-  @property
-  def args(self):
-    return (self.dim_a, self.dim_b)
+Primop_mmmul = PrimopTypes.new('mmmul', ['dim_A','dim_B'],
+  desc='Matrix-matrix multiplication.')
+Primop_mvmul = PrimopTypes.new('mvmul', ['dim_A','dim_b'],
+  desc='Matrix-vector multiplication.')
+Primop_vvadd = PrimopTypes.new('vvadd', ['dim_a','dim_b'],
+  desc='Vector-vector addition.')
 
 ##### Neural Network Primitives #####
-
-class Primop_conv(Primop):
-  '''Convolution over a matrix M of a filter F'''
-  def __init__(self, dim_M, dim_F):
-    super(Primop_conv,self).__init__()
-    self.dim_M = dim_M
-    self.dim_F = dim_F
-
-  @property
-  def args(self):
-    return (self.dim_M, self.dim_F)
+Primop_conv = PrimopTypes.new('conv', ['dim_M, dim_F'],
+  desc='Convolution over a matrix M of a filter F.')
