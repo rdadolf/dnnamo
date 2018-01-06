@@ -11,7 +11,7 @@ class TestCopyTFGraph(unittest.TestCase):
   def test_copy(self):
     frame = TFFramework()
     frame.load(RunpyLoader, 'simple_nnet', pypath='test/test_models')
-    g = frame.native_model()
+    g = frame.graph
 
     h = copy_tf_graph(g)
 
@@ -49,18 +49,13 @@ class TestTFStats(unittest.TestCase):
     assert isinstance(stats, NativeStats), 'Got a bad return value from framework.native_stats(): '+str(type(stats))
     assert isinstance(stats, TFNativeStats), 'Got a bad return value from framework.native_stats(): '+str(type(stats))
 
-    for attr in ['_model','_traces','_meantrace','_flops','_params','_tensors','_src_tensormap','_dst_tensormap']:
-      assert hasattr(stats,attr), '_model not initialized in Stats'
-      assert getattr(stats,attr) is not None, '_model not initialized in Stats'
-
   def test_computational_density(self):
     frame = TFFramework()
     frame.load(RunpyLoader, 'simple_nnet', pypath='test/test_models')
     stats = frame.native_stats()
-    g = frame.native_model()
 
     # Make sure *everything* gives numerical values.
-    for op in g.get_operations():
+    for op in frame.graph.get_operations():
       flops,bytes = stats.computational_density(op.name)
       assert flops>=0, 'Bad flops value for op "'+str(op.name)+'": '+str(flops)
       assert bytes>=0, 'Bad bytes value for op "'+str(op.name)+'": '+str(bytes)
@@ -73,9 +68,10 @@ class TestTFStats(unittest.TestCase):
     #g = frame.native_model()
 
     # Let's make sure the ops are reporting the right numbers.
-    in_size = np.prod(frame.model().input.get_shape().as_list())
+    # NOTE: Only SimpleNNet supports model.input and model.labels
+    in_size = np.prod(frame.model.input.get_shape().as_list())
     assert in_size == 3200, 'test/test_models/simple_nnet has changed since this test case was written; it needs to be updated (and stop changing test files, make your own!)'
-    lab_size = np.prod(frame.model().labels.get_shape().as_list())
+    lab_size = np.prod(frame.model.labels.get_shape().as_list())
     assert lab_size==320, 'test/test_models/simple_nnet has changed since this test case was written; it needs to be updated (and stop changing test files, make your own!)'
 
     f32 = 4 # bytes

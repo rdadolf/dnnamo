@@ -17,9 +17,9 @@ class Tool(BaselineTool):
       frame = Frame()
       (modname, pypath) = path_to_loader_pair(modelfile)
       frame.load(RunpyLoader, modname, pypath=pypath)
-      m = frame.native_model()
+
       if self.args['framework']=='tf':
-        ops = [(op.name, op.type, op.device) for op in m.get_operations()]
+        ops = [(op.name, op.type, op.device) for op in frame.graph.get_operations()]
         self.data.append(ops)
       else:
         assert False, 'Unknown framework "'+str(self.args['framework'])+'"'

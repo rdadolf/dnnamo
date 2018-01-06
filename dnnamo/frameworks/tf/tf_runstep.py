@@ -13,7 +13,6 @@ class _DefaultRunstep(object):
 
 class _InstrumentedRunstep(object):
   def __init__(self):
-    self.native_model = None
     self.traces = []
     self.elapsed = None
     self.cpu_elapsed = None

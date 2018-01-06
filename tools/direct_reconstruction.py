@@ -24,7 +24,7 @@ class Tool(PlotTool):
       dev = dnnamo.devices.DEVICES[self.args['device']]()
       modname, pypath = path_to_loader_pair(modelfile)
       frame.load(RunpyLoader, modname, pypath=pypath)
-      g = frame.graph()
+      g = frame.absgraph
       traces = frame.run_native_trace(n_steps=12)[1:-1] # avoid outliers
       trace = average_traces(traces)
 

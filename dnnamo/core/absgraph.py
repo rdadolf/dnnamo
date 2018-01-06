@@ -1,5 +1,9 @@
-class DGraph(object):
-  '''A Dependence Graph, describing the relation between computational primitives (primops).'''
+class AbstractGraph(object):
+  '''An AbstractGraph is a simplified representation of a model's compuation.
+
+  The nodes of an AbstractGraph are primitive operations (Primops), which capture
+  performance behavior of similar native operations into a single type. The edges
+  of an AbstractGraph are data dependences, just as in a native graph.'''
 
   def __init__(self):
     self.primops = {} # list(primop, primop, ...)
@@ -25,7 +29,7 @@ class DGraph(object):
 
   def add_primop(self, p):
     '''Adds a primop to the graph and returns it.'''
-    assert p.id not in self.primops, 'Primop already added to DGraph.'
+    assert p.id not in self.primops, 'Primop already added to abstract graph.'
     self.primops[p.id] = p
     return p
 

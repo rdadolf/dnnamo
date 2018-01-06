@@ -1,5 +1,5 @@
 from dnnamo.core.primop import *
-from dnnamo.core.dgraph import DGraph
+from dnnamo.core.absgraph import AbstractGraph
 from dnnamo.core.translator import Translator
 
 
@@ -84,14 +84,14 @@ def default(op):
 
 class TFTranslator(Translator):
   def __init__(self):
-    self._dgraph = None
+    self._absgraph = None
     self._map = {}
     self._rmap = {}
 
   def translate(self, model):
-    if self._dgraph is not None:
-      return self._dgraph
-    self._dgraph = DGraph()
+    if self._absgraph is not None:
+      return self._absgraph
+    self._absgraph = AbstractGraph()
 
     tf_graph = model.get_graph()
     # Add all ops as nodes in the dependence graph.
@@ -102,7 +102,7 @@ class TFTranslator(Translator):
           break
       else:
         raise TypeError('No translation rule found for native operation: '+str(op))
-      self._dgraph.add_primop( primop )
+      self._absgraph.add_primop( primop )
       self._map[op.name] = primop.id
       self._rmap[primop.id] = op.name
 
@@ -114,11 +114,11 @@ class TFTranslator(Translator):
     for src_tf_op in tf_graph.get_operations():
       for tensor in src_tf_op.outputs:
         for dst_tf_op in tensor.consumers():
-          src_primop = self._dgraph[self._map[src_tf_op.name]]
-          dst_primop = self._dgraph[self._map[dst_tf_op.name]]
-          self._dgraph.add_dep( src_primop, dst_primop )
+          src_primop = self._absgraph[self._map[src_tf_op.name]]
+          dst_primop = self._absgraph[self._map[dst_tf_op.name]]
+          self._absgraph.add_dep( src_primop, dst_primop )
 
-    return self._dgraph
+    return self._absgraph
 
   def map_native_op(self, native_op_id):
     return self._map[native_op_id]

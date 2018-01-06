@@ -3,28 +3,28 @@ import dnnamo
 import tensorflow as tf
 
 from dnnamo.core.primop import Primop
-from dnnamo.core.dgraph import DGraph
+from dnnamo.core.absgraph import AbstractGraph
 
 class Primop_example(Primop):
   def __init__(self):
     super(Primop_example,self).__init__()
     self.device = 'test'
 
-class DGraphTestCase(unittest.TestCase):
+class AbstractGraphTestCase(unittest.TestCase):
   @staticmethod
-  def synth_dgraph():
-    DG = DGraph()
+  def synth_absgraph():
+    G = AbstractGraph()
     # Add some nodes
     (p0,p1,p2) = [Primop_example() for _ in range(3)]
-    [DG.add_primop(p) for p in (p0,p1,p2)]
+    [G.add_primop(p) for p in (p0,p1,p2)]
     # Add a nice set of circular dependencies
-    DG.add_dep(p0,p1)
-    DG.add_dep(p1,p2)
-    DG.add_dep(p2,p0)
-    return DG
+    G.add_dep(p0,p1)
+    G.add_dep(p1,p2)
+    G.add_dep(p2,p0)
+    return G
 
   def setUp(self):
-    self.DG = self.synth_dgraph()
+    self.G = self.synth_absgraph()
 
 class TFTestCase(unittest.TestCase):
   @staticmethod

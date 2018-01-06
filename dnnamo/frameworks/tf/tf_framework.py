@@ -17,11 +17,12 @@ class TFFramework(Framework):
     super(TFFramework, self).__init__(model)
     self._translator = TFTranslator()
 
-  def graph(self):
-    if self._dgraph is None:
+  @property
+  def absgraph(self):
+    if self._absgraph is None:
       assert self._model is not None, 'No model loaded. Run load(...) first.'
-      self._dgraph = self._translator.translate( self._model )
-    return self._dgraph
+      self._absgraph = self._translator.translate( self._model )
+    return self._absgraph
 
   def _transitive_closure(self, targets):
     # NOTE: Operational, but not currently used.
@@ -62,5 +63,5 @@ class TFFramework(Framework):
   DefaultRunstep = _DefaultRunstep
   InstrumentedRunstep = _InstrumentedRunstep
 
-  def _build_native_stats(self, native_model, trace):
-    return TFNativeStats(native_model, trace)
+  def _build_native_stats(self, graph, trace):
+    return TFNativeStats(graph, trace)

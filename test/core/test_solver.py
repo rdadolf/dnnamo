@@ -1,14 +1,14 @@
 import unittest
 import dnnamo
-from synth import DGraphTestCase
+from synth import AbstractGraphTestCase
 
-class TestSolver(DGraphTestCase):
+class TestSolver(AbstractGraphTestCase):
   @unittest.SkipTest
   def test_valid_eval_variables(self):
     VALID_VARS = ['time']
 
     for var in VALID_VARS:
-      dg = self.synth_dgraph()
-      solver = dnnamo.Solver(dg, devicemap={'test'})
+      g = self.synth_absgraph()
+      solver = dnnamo.Solver(g, devicemap={'test'})
       value = solver.eval(var)
       assert value>=0, 'Invalid value produced by eval: '+str(value)

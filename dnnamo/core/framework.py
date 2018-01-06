@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from .model import ImmutableModel, StaticModel, DynamicModel
+from .model import BaseModel, ImmutableModel, StaticModel, DynamicModel
 
 class Framework(object):
   __metaclass__ = ABCMeta
@@ -13,18 +13,12 @@ class Framework(object):
               from a file than to build it dynamically.)
     '''
     if model is not None:
-      assert isinstance(model, Model), 'Must supply a Model instance.'
+      assert isinstance(model, BaseModel), 'Must supply a Model instance.'
     self._model = model
-    self._graph = None
-    self._dgraph = None
+    self._absgraph = None
     self._translator = None
     self._traces = None
     self._stats = None
-
-  def _split_modelname(self, filename):
-    ''' '''
-    (prefix,_,suffix) = str(filename).rsplit(':')
-    return (prefix,suffix)
 
   def load(self, loader, identifier, **kwargs):
     '''Loads a model.
@@ -35,12 +29,14 @@ class Framework(object):
     self._model = loader(identifier, **kwargs).load()
     return self._model
 
-  def native_model(self):
-    '''Extract a native model representation.'''
+  @property
+  def graph(self):
+    '''Returns the underlying computational graph.'''
     return self._model.get_graph()
 
+  @property
   def model(self):
-    '''Returns a reference to a Dnnamo Frame object wrapping the native model.'''
+    '''Returns the current Dnnamo model.'''
     return self._model
 
   def translate_native_op(self, native_op_id):
@@ -54,8 +50,9 @@ class Framework(object):
     return self._translator.map_primop(primop_id)
 
   @abstractmethod
-  def graph(self):
-    '''Returns a DGraph.'''
+  def absgraph(self):
+    '''Returns an Abstract Graph representation of the model.'''
+    return self._absgraph
 
   def run(self, n_steps=1, setup_options=None):
     '''Executes a model for a finite number of steps.
@@ -106,6 +103,6 @@ class Framework(object):
       assert self._model is not None, 'Must load a model before collecting statistics'
       if self._traces is None:
         self.run_native_trace(n_steps=12)[1:-1]
-      self._stats = self._build_native_stats( self.model(), self._traces )
+      self._stats = self._build_native_stats( self.graph, self._traces )
     return self._stats
 

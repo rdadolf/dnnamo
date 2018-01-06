@@ -24,10 +24,9 @@ class Tool(PlotTool):
       frame = Frame()
       modname, pypath = path_to_loader_pair(modelfile)
       frame.load(RunpyLoader, modname, pypath=pypath)
-      m = frame.native_model()
 
       if self.args['framework']=='tf':
-        self.data.append( [modelfile, self._tf_breakdown(m)] )
+        self.data.append( [modelfile, self._tf_breakdown(frame.graph)] )
       else:
         assert False, 'Unknown framework "'+str(self.args['framework'])+'"'
 
@@ -50,9 +49,9 @@ class Tool(PlotTool):
       fig.tight_layout()
       fig.savefig(filename)
 
-  def _tf_breakdown(self, m):
+  def _tf_breakdown(self, graph):
     breakdown = {}
-    for op in m.get_operations():
+    for op in graph.get_operations():
       typ = op.type
       if typ not in breakdown:
         breakdown[typ] = 0

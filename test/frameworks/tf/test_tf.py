@@ -21,8 +21,8 @@ class TestTFFramework(unittest.TestCase):
         frame = TFFramework()
         print 'Loading:',identifier,'with',pypath,'as extra sys.path arguments'
         frame.load(loader, identifier, pypath=pypath)
-        assert frame.model().is_dnnamo_model, 'Model isnt actually a Dnnamo model'
-        assert isinstance(frame.model(), BaseModel), 'Model isnt actually a Dnnamo model'
+        assert frame.model.is_dnnamo_model, 'Model isnt actually a Dnnamo model'
+        assert isinstance(frame.model, BaseModel), 'Model isnt actually a Dnnamo model'
 
   def test_failed_load(self):
     with self.assertRaises(ImportError):
@@ -40,15 +40,15 @@ class TestTFFramework(unittest.TestCase):
   def test_basic_graph_extraction(self):
     g = self.synth_ff_network()
     t = TFFramework(g)
-    dg = t.graph()
+    absgraph = t.absgraph()
 
-    nodes = len(dg)
+    nodes = len(absgraph)
     print 'nodes:',nodes
     assert nodes>0, 'Empty dependence graph'
 
     edges = 0
-    for p in dg:
-      edges += len(dg.dep(p))
+    for p in absgraph:
+      edges += len(absgraph.dep(p))
     print 'edges:',edges
     assert edges>=nodes-1, 'Disconnected graph'
     # FIXME: more testing here
@@ -56,7 +56,7 @@ class TestTFFramework(unittest.TestCase):
   def test_transitive_closure(self):
     frame = TFFramework()
     frame.load(RunpyLoader, 'test/test_models/simple_nnet')
-    m = frame.model()
+    m = frame.model
     closed_ops = frame._transitive_closure([m.loss,m.train])
     all_ops = m.get_graph().get_operations()
     trace = frame.run_native_trace(n_steps=3)[1]
@@ -76,10 +76,10 @@ class TestTFFramework(unittest.TestCase):
   def test_device_mapping(self):
     g = self.synth_ff_network()
     t = tframe.TFFramework(g)
-    dg = t.graph()
+    absgraph = t.absgraph()
 
-    for primop in dg:
+    for primop in absgraph:
       assert primop.device is not None
 
-    assert len(set(dg.devices))==1, 'More than one device found'
+    assert len(set(absgraph.devices))==1, 'More than one device found'
 

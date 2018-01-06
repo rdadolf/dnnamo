@@ -15,8 +15,8 @@ def copy_tf_graph(graph):
 
 
 class TFNativeStats(NativeStats):
-  def __init__(self, model, traces):
-    self._model = model
+  def __init__(self, graph, traces):
+    self._graph = graph
     self._traces = traces
     # Parse collected data and generate useful data structures
     self._build_meantrace() # _meantrace
@@ -36,8 +36,7 @@ class TFNativeStats(NativeStats):
     self._dst_tensormap = {} # dst_op -> [ in_tensor_name, ... ]
 
     # First, populate the src/dst maps via static analysis
-    graph = self._model.get_graph()
-    for op in graph.get_operations():
+    for op in self._graph.get_operations():
       self._src_tensormap[op.name] = [t.name for t in op.outputs]
       for t in op.outputs:
         if t.name not in self._tensors:
@@ -71,7 +70,7 @@ class TFNativeStats(NativeStats):
 
         # FIXME: If we ever see a non-zero, un-traced tensor. Change this block.
         print tracepoint, tracepoint.tensor_dims, len(dynamic_tensor_dims)
-        static_outputs = graph.get_operation_by_name(src_op).outputs
+        static_outputs = self._graph.get_operation_by_name(src_op).outputs
         shapes = [t.get_shape().as_list() for t in static_outputs]
         print shapes
         #for s in shapes:
@@ -96,7 +95,7 @@ class TFNativeStats(NativeStats):
     #      valid for the original graph as well.
 
     # 1 Create a copy
-    g = self._model.get_graph()
+    g = self._graph
     h = copy_tf_graph(g)
     # 2 Grab a trace (given)
     #for tp in self._meantrace:
