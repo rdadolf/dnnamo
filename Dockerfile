@@ -13,6 +13,13 @@ RUN pip install --upgrade pip
 ADD requirements.txt /tmp
 RUN pip install --upgrade -r /tmp/requirements.txt
 
+# Install model dependencies
+ADD models/fathom_requirements.txt /tmp
+RUN pip install --upgrade -r /tmp/fathom_requirements.txt
+
+ADD models/dl_models_requirements.txt /tmp
+RUN pip install --upgrade -r /tmp/dl_models_requirements.txt
+
 # Add Dnnamo
 ADD . /dnnamo
 RUN chmod -R a+rw /dnnamo

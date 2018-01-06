@@ -1,0 +1,6 @@
+TensorFlow==0.12.1
+scipy
+sklearn
+six
+librosa
+h5py

@@ -1,12 +1,8 @@
-TensorFlow==0.12.1
+#TensorFlow==0.12.1
+TensorFlow==1.4
 scipy
 matplotlib
 mkdocs
 pylint>1.7
 nose
 pytest>=3
-
-six
-sklearn
-librosa
-h5py
