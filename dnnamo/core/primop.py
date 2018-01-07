@@ -45,23 +45,20 @@ class Primop(object):
 class PrimopTypes(object):
   '''Singleton container class for all primitive operation types.'''
   primops = {}
-  @classmethod
-  def _idempotent_primop_dict_init(cls):
-    print 'idempotent init called'
-    #if cls.primops is None:
-    #  print 'idempotent initialized'
-    #  cls.primops = dict()
+
   @classmethod
   def items(cls):
-    cls._idempotent_primop_dict_init()
     return cls.primops.items()
+
   @classmethod
   def __iter__(cls):
     for p in cls.primops:
       yield p
+
   @classmethod
   def __len__(cls):
     return len(cls.primops)
+
   @classmethod
   def __getitem__(cls, key):
     return cls.primops[key]
@@ -85,7 +82,6 @@ class PrimopTypes(object):
       '__doc__': desc,
     })
     # Record the new type
-    PrimopTypes._idempotent_primop_dict_init()
     PrimopTypes.primops[optype] = NewPrimop
     # Return new type to get its name assigned
     return NewPrimop

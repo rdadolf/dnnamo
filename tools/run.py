@@ -31,11 +31,10 @@ def main(argv):
     # FIXME: use inspect to load all classes which inherit from the Tool ABC
     tooldict[toolname] = importlib.import_module(toolname).Tool()
     subparser = tooldict[toolname].add_subparser(subparsers)
-    subparser.set_defaults(run=tooldict[toolname].run)
+    subparser.set_defaults(selected_tool=tooldict[toolname].run)
 
   args = parser.parse_args(argv)
-  #print args
-  args.run(vars(args))
+  args.selected_tool(vars(args))
 
 if __name__=='__main__':
   main(sys.argv[1:])

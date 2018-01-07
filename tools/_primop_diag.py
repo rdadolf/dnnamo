@@ -8,7 +8,7 @@ class Tool(BaselineTool):
 
   def add_subparser(self, argparser):
     super(Tool, self).add_subparser(argparser)
-    self.subparser.add_argument('--run', action='store_true', default=False, help='Return a prioritized translation list based on the fraction of time spent in each native operation type.')
+    self.subparser.add_argument('--prioritized', '-p', action='store_true', default=False, help='Return a prioritized translation list based on the fraction of time spent in each native operation type.')
     return self.subparser
 
   def _run(self, modelfiles):
@@ -19,7 +19,10 @@ class Tool(BaselineTool):
       (modname, pypath) = path_to_loader_pair(modelfile)
       frame.load(dnnamo.loaders.RunpyLoader, modname, pypath=pypath)
 
-      if self.args['run']:
+      #results = frame.analyze('abstractgraph',trigger='lazy')
+      #results.absgraph
+
+      if self.args['prioritized']:
         raise NotImplementedError, 'Timing-prioritized diagnosis not available yet.'
 
 
