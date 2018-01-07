@@ -1,46 +1,39 @@
 # Prerequisites
 You'll need to install some software separately before building Dnnamo.
 
-Dnnamo
-
-  - Python 2.7
-  - Numpy
-  - nose (optional)
-  - mkdocs (optional)
-
-Tensorflow
-
-  - bazel v1.5+
-  - C++11 compiler
-  - swig 3+
-  - CUDA toolkit v7.0 (optional)
-  - CuDNN v2 (optional)
-
-# Building Tensorflow
-To build a local copy of TensorFlow:
+The Dnnamo dependencies are kept in the top-level `requirements.txt` file.
+You can use pip to install these automatically:
 
 ```bash
-make configure
-make tensorflow
-make link
+pip install --upgrade -r requirements.txt
 ```
 
-Note that the `make configure` step invokes Tensorflow's `configure` script, which asks a number of questions about your system configuration. If you run into trouble, consult the [Tensorflow installation documentation](https://www.tensorflow.org/versions/master/get_started/os_setup.html#installing-from-sources).
-
-You'll need to point your `PYTHONPATH` to the `install/tensorflow` directory in order to pick up the copy of TensorFlow you just built.
+If you're planning on using one of the supported external workload suites, the requirements for those are in the `models` directory.
+Use pip the same way to install these requirements.
 
 # Running tests
 
-Currently, Dnnamo uses `nose` for testing. Run:
+Dnnamo uses pytest for testing, but it contains two shortcut scripts in the `build` directory.
 
 ```bash
-make test
+./build/test-summary.sh
 ```
+The summary script gives a short overview of all tests, omitting any output or logging. This is useful if you expect the tests to pass (such as on a clean installtion). If a test fails, it does not return output, so use the other script.
+
+```bash
+./build/test.sh
+```
+
+This runs testing in normal mode, where all output and tracebacks are captured when a test fails. Note that the script also passes through command-line arguments, so if you want to run a single test or drop into the debugger on failure, you can specify that here (the name of the test file or `--pdb`, respectively). These are pytest options.
 
 # Building documentation
 
 Make sure you have `mkdocs` installed, then run:
 
 ```bash
-make docs
+./build/build_docs.sh
 ```
+
+The documentation is placed in the `deploy` directory (created, if it doesn't exist).
+Note that this documentation can be used off-line, too.
+Just point a browser to the `deploy/index.html`
