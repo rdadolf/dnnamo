@@ -1,7 +1,7 @@
 import unittest
 from dnnamo.core.model import BaseModel
 from dnnamo.frameworks.tf import TFFramework
-from dnnamo.loaders import RunpyLoader
+from dnnamo.loader import RunpyLoader
 
 #FIXME
 #from synth import TFTestCase

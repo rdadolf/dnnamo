@@ -13,7 +13,7 @@ class FathomModel(ImmutableModel):
     raise NotImplementedError, 'Fathom does not have a standard weights interface.'
 
 
-class FathomLoader(BaseLoader):
+class TFFathomLoader(BaseLoader):
   def __init__(self, identifier, fathompath=None):
     '''Loader for the Fathom reference workloads.
 

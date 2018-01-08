@@ -2,7 +2,7 @@ import numpy as np
 
 import dnnamo
 import dnnamo.frameworks
-from dnnamo.loaders import RunpyLoader
+from dnnamo.loader import RunpyLoader
 from dnnamo.core.mpl_plot import *
 from tool_utilities import PlotTool, path_to_loader_pair
 

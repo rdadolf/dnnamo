@@ -5,7 +5,7 @@ import numpy as np
 from dnnamo.core.stats import NativeStats
 from dnnamo.frameworks.tf import TFFramework
 from dnnamo.frameworks.tf.tf_stats import TFNativeStats, copy_tf_graph
-from dnnamo.loaders import RunpyLoader
+from dnnamo.loader import RunpyLoader
 
 class TestCopyTFGraph(unittest.TestCase):
   def test_copy(self):

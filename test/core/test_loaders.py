@@ -1,14 +1,12 @@
 import unittest
-from dnnamo.frameworks.tf import TFFramework
-from dnnamo.frameworks.tf.loaders import *
 from dnnamo.core.model import BaseModel
 
-from dnnamo.loaders import RunpyLoader
+from dnnamo.loader import RunpyLoader
 
-class TestTFLoaders(unittest.TestCase):
+class TestCoreLoaders(unittest.TestCase):
   _names = [
     'test/test_models/empty_models',
-    'test/test_models/empty_models',
+    'test/test_models/simple_nnet',
   ]
   _loaders = [
     RunpyLoader,

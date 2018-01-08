@@ -17,7 +17,7 @@ class Tool(BaselineTool):
     for modelfile in modelfiles:
       frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
       (modname, pypath) = path_to_loader_pair(modelfile)
-      frame.load(dnnamo.loaders.RunpyLoader, modname, pypath=pypath)
+      frame.load(dnnamo.loader.RunpyLoader, modname, pypath=pypath)
 
       #results = frame.analyze('abstractgraph',trigger='lazy')
       #results.absgraph

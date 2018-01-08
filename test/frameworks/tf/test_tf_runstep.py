@@ -1,6 +1,6 @@
 import unittest
 
-from dnnamo.loaders import RunpyLoader
+from dnnamo.loader import RunpyLoader
 from dnnamo.frameworks.tf import TFFramework
 
 class TestTFRunstep(unittest.TestCase):

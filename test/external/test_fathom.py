@@ -1,7 +1,7 @@
 import unittest
 
 from dnnamo.frameworks.tf import TFFramework
-from dnnamo.loaders.tf import FathomLoader
+from dnnamo.loader import TFFathomLoader
 
 try:
   import fathom
@@ -11,22 +11,22 @@ except ImportError:
 
 
 @unittest.skipUnless(_FATHOM, 'No Fathom module found.')
-class TestFathomLoader(unittest.TestCase):
+class TestTFFathomLoader(unittest.TestCase):
   _models = ['Seq2Seq', 'MemNet', 'Speech', 'Autoenc', 'Residual', 'VGG', 'AlexNet', 'DeepQ' ]
 
   def test_seq2seq(self):
-    TFFramework().load(FathomLoader, 'Seq2Seq')
+    TFFramework().load(TFFathomLoader, 'Seq2Seq')
   def test_memnet(self):
-    TFFramework().load(FathomLoader, 'MemNet')
+    TFFramework().load(TFFathomLoader, 'MemNet')
   def test_speech(self):
-    TFFramework().load(FathomLoader, 'Speech')
+    TFFramework().load(TFFathomLoader, 'Speech')
   def test_autoenc(self):
-    TFFramework().load(FathomLoader, 'Autoenc')
+    TFFramework().load(TFFathomLoader, 'Autoenc')
   def test_residual(self):
-    TFFramework().load(FathomLoader, 'Residual')
+    TFFramework().load(TFFathomLoader, 'Residual')
   def test_vgg(self):
-    TFFramework().load(FathomLoader, 'VGG')
+    TFFramework().load(TFFathomLoader, 'VGG')
   def test_alexnt(self):
-    TFFramework().load(FathomLoader, 'AlexNet')
+    TFFramework().load(TFFathomLoader, 'AlexNet')
   def test_deepq(self):
-    TFFramework().load(FathomLoader, 'DeepQ')
+    TFFramework().load(TFFathomLoader, 'DeepQ')

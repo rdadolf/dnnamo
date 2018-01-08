@@ -1,7 +1,7 @@
 import dnnamo
 import dnnamo.frameworks
 import dnnamo.devices
-from dnnamo.loaders import RunpyLoader
+from dnnamo.loader import RunpyLoader
 from dnnamo.core.trace import average_traces, Tracepoint, Trace
 from tool_utilities import *
 

@@ -1,6 +1,6 @@
 import dnnamo
 import dnnamo.frameworks
-from dnnamo.loaders import RunpyLoader
+from dnnamo.loader import RunpyLoader
 from tool_utilities import BaselineTool, path_to_loader_pair
 
 class Tool(BaselineTool):
