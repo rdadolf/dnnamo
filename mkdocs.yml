@@ -21,5 +21,6 @@ pages:
     - 'Models': dev/models.md
     - 'Loaders': dev/loaders.md
     - 'Frameworks': dev/frameworks.md
+    - 'Analysis': dev/analysis.md
     - 'Primops': dev/primops.md
 

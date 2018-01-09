@@ -8,3 +8,9 @@ Frameworks provide a set of tools for interacting with models that leverage the 
 - `graph`: *(property)* Returns a computational graph object. This is specific to the underlying library the loaded model is using.
 
 - `model`: *(property)* Returns the currently loaded Dnnamo model object.
+
+- `analyze(analysis, trigger='demand')`: Runs the analysis on the loaded model. The `analysis` argument specifies which [Dnnamo analysis](/dev/analysis/index.html) to run. The `trigger` argument specifies whether the results of the analysis are allowed to be cached or not.
+
+    - `always`: Always re-execute the analysis and all related data collection (e.g., running the model for outputs).
+    - `never`: Return a cached answer if one is available, otherwise return `None`.
+    - `demand`: If a cached answer is available, return it. Otherwise, re-execute the analysis and all related data collection. This is the default.

@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from .model import BaseModel, ImmutableModel, StaticModel, DynamicModel
+from .manager import AnalysisManager, TransformManager
 
 class Framework(object):
   __metaclass__ = ABCMeta
@@ -15,8 +16,13 @@ class Framework(object):
     if model is not None:
       assert isinstance(model, BaseModel), 'Must supply a Model instance.'
     self._model = model
+    self._analysis_manager = AnalysisManager()
+    self._transform_manager = TransformManager()
+
     self._absgraph = None
+
     self._translator = None
+
     self._traces = None
     self._stats = None
 
@@ -53,6 +59,9 @@ class Framework(object):
   def absgraph(self):
     '''Returns an Abstract Graph representation of the model.'''
     return self._absgraph
+
+  def analyze(self, analysis, trigger='demand'):
+    raise NotImplementedError
 
   def run(self, n_steps=1, setup_options=None):
     '''Executes a model for a finite number of steps.
