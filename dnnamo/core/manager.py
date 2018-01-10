@@ -6,12 +6,13 @@ class GenericManager(object):
   registry = {} # class => [InvalidationTag, ...]
 
   @classmethod
-  def _register(cls, new_class):
+  def register(cls, new_class):
     if new_class not in cls.registry:
       cls.registry[new_class] = new_class().invalidation_tags
 
   @classmethod
   def _deregister(cls, victim_class):
+    # Deregistration is not a normal use case. Mostly just for test.
     del cls.registry[victim_class]
 
 
@@ -24,57 +25,29 @@ class InvalidationTag(object):
   analyses are then re-executed lazily.'''
 
   NONE = 0
+  ALL = -1
   WEIGHT_VALUES = 1
   GRAPH_STRUCTURE = 2
 
 
 class AnalysisManager(GenericManager):
-  registered_analyses = {} # str => Analysis class
-  invalidation_map = {} # str => [InvalidationTag, ...]
-
   def __init__(self):
-    self._cache = {} # str => AnalysisResult | None
+    self._cache = {_:None for _ in self.registry.keys()} # str => AnalysisResult | None
     pass
 
-  def invalidate(self, invalidation_tag):
-    pass
+  def invalidate(self, tag_to_invalidate):
+    eviction_list = [cls for cls,tags in self.registry.items() \
+                         if ((InvalidationTag.ALL==tag_to_invalidate) \
+                         or  (InvalidationTag.NONE!=tag_to_invalidate \
+                              and tag_to_invalidate in tags) \
+                         or  (InvalidationTag.NONE!=tag_to_invalidate \
+                              and InvalidationTag.ALL in tags))]
+    for victim in eviction_list:
+      self._cache[victim] = None
 
   def run(self, analysis_name, model, trigger):
     if trigger=='always':
       self._cache[analysis_class]
-    pass
-
-#  @classmethod
-#  def _register(cls, analysis_name, analysis_class):
-#    print 'REGISTERING', analysis_name, analysis_class
-#    print '  (REGISTRY:',cls.registered_analyses,')'
-#    if analysis_name in cls.registered_analyses:
-#      print 'NAME CONFLICT:',cls.registered_analyses[analysis_name],analysis_class
-#      if cls.registered_analyses[analysis_name] is analysis_class:
-#        # Allow duplicate registration
-#        pass
-#      else:
-#        # Do not allow name collisions or re-definitions of analyses
-#        # This is either an import problem or a analysis name selection problem.
-#        # Either way, it is a problem and should be fixed.
-#        raise NameError, 'Analysis "'+str(analysis_name)+'" is already registered as '+str(cls.registered_analyses[analysis_name])+ ' (attempted to register '+str(analysis_class)+')'
-
-#    cls.registered_analyses[analysis_name] = analysis_class
-
-#    _ = analysis_class() # construct a throw-away object to get at properties
-#    tags = _.invalidation_tags
-#    if len(tags)<1:
-#      raise ValueError, 'Every Analysis must have a set of invalidation tags, even if it is only [InvalidationTag.NONE]. The Analysis '+str(analysis_class)+' declared its tags as: '+str(_)
-
-#    cls.invalidation_map[analysis_name] = [_ for _ in tags if _ is not InvalidationTag.NONE]
-
-#  @classmethod
-#  def _deregister(cls, analysis_name):
-#    if analysis_name in cls.registered_analyses:
-#      # Using only the first test catches cases when a class is partially-
-#      # registered (which implies that it's corrupted).
-#      del cls.registered_analyses[analysis_name]
-#      del cls.invalidation_map[analysis_name]
 
 
 class TransformManager(GenericManager):
