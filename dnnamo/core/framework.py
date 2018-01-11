@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from .model import BaseModel, ImmutableModel, StaticModel, DynamicModel
-from .manager import AnalysisManager, TransformManager
+from .datamanager import DataManager
 
 class Framework(object):
   __metaclass__ = ABCMeta
@@ -16,8 +16,7 @@ class Framework(object):
     if model is not None:
       assert isinstance(model, BaseModel), 'Must supply a Model instance.'
     self._model = model
-    self._analysis_manager = AnalysisManager()
-    self._transform_manager = TransformManager()
+    self._data_manager = DataManager()
 
     self._absgraph = None
 
