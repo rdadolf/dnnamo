@@ -1,65 +1,66 @@
 from dnnamo.core.primop import *
 from dnnamo.core.absgraph import AbstractGraph
-from dnnamo.core.translator import Translator
-
-
-_RULES = []
-def translation_rule(func):
-  global _RULES
-  _RULES.append(func)
-  return func
-
-def translation_rule_matching(optype):
-  def translation_rule(func):
-    global _RULES
-    def f(op):
-      if not (op.type==optype):
-        return None
-      return func(op)
-    _RULES.append(f)
-    return f
-  return translation_rule
+from dnnamo.core.translator import Rules, Match, Emit, Translator, MatchAny, EmitUndef
 
 ################################################################################
-# Tensorflow translation rules
-# NOTE: ORDER MATTERS! Rules will be pattern-matched according to the order in
-#       which they are declared in this file.
-# NOTE: ALWAYS wrap a translation rule with the @translation_rule decorator.
+# Match components
 
-# ---TEMPLATE---
-#@translation_rule
-#def convert_MatMul(op):
-#  # PATTERN
-#  if not matching-condition-using-op-goes-here
-#    return None
-#  # RULE
-#  return Primop_OPNAME( op.appropriate-argument-conversions )
+class MatchExactType(Match):
+  def __init__(self, t):
+    self.t=t
+  def match(self, op):
+    return op.type==self.t
 
-@translation_rule_matching('MatMul')
-def convert_MatMul(op):
-  dim_A = op.inputs[0].get_shape().as_list()
-  dim_B = op.inputs[1].get_shape().as_list()
-  if op.get_attr('transpose_a'):
-    dim_A = dim_A[::-1]
-  if op.get_attr('transpose_b'):
-    dim_B = dim_B[::-1]
-  return Primop_mmmul({'dim_A':dim_A,'dim_B':dim_B}, source_op=op)
+################################################################################
+# Emit components
 
-# FIXME: Rule disabled. time_mvmul benchmark must handle >2-dimensional tensors
-#@translation_rule_matching('BiasAdd')
-def convert_BiasAdd(op):
-  dim_A = op.inputs[0].get_shape().as_list()
-  dim_b = op.inputs[1].get_shape().as_list()[0]
-  return Primop_mvmul({'dim_A':dim_A,'dim_b':dim_b}, source_op=op)
+class EmitUnaryKronecker(Emit):
+  def emit(self, op):
+    return Primop_kronecker({'dim': op.inputs[0].get_shape().as_list()}, source_op=op)
 
-#FIXME: Rule disabled. time_conv() benchmark must handle >2-dimensional tensors
-#@translation_rule_matching('Conv2D')
-def convert_Conv2D(op):
-  dim_F = op.inputs[0].get_shape().as_list()
-  dim_M = op.inputs[1].get_shape().as_list()
-  #op.get_attr('strides') # FIXME
-  #op.get_attr('padding') # FIXME
-  return Primop_conv({'dim_M':dim_M, 'dim_F':dim_F}, source_op=op)
+class EmitBinaryKronecker(Emit):
+  def emit(self, op):
+    dim_a = op.inputs[0].get_shape().as_list()
+    dim_b = op.inputs[1].get_shape().as_list()
+    if len(dim_a)<1:
+      dim_a = dim_b
+    elif len(dim_b)<1:
+      dim_b = dim_a
+    # if both are <1, both are already [ ]
+    # if both are >1, then TF disallows input tensors with different dimensions
+    return Primop_kronecker({'dim': dim_a}, source_op=op)
+
+class EmitDot2D(Emit):
+  def emit(self, op):
+    dim_a = op.inputs[0].get_shape().as_list()
+    dim_b = op.inputs[1].get_shape().as_list()
+    # FIXME: Check if these transpose ops incur a performance cost
+    #   If they're just indexing tricks, then the below works.
+    if op.get_attr('transpose_a'):
+      dim_a = dim_a[::-1]
+    if op.get_attr('transpose_b'):
+      dim_b = dim_b[::-1]
+    return Primop_dot({'dim_a':dim_a, 'dim_b':dim_b, 'dim_reduce':1}, source_op=op)
+
+################################################################################
+# Translation rules
+
+class TFRules(Rules): pass
+
+TFRules.add(99, MatchAny(), EmitUndef())
+
+TFRules.add(50, MatchExactType('Add'), EmitBinaryKronecker())
+TFRules.add(50, MatchExactType('Sub'), EmitBinaryKronecker())
+TFRules.add(50, MatchExactType('Mul'), EmitBinaryKronecker())
+TFRules.add(50, MatchExactType('Div'), EmitBinaryKronecker())
+TFRules.add(50, MatchExactType('FloorDiv'), EmitBinaryKronecker())
+TFRules.add(50, MatchExactType('RealDiv'), EmitBinaryKronecker())
+TFRules.add(50, MatchExactType('TruncateMod'), EmitBinaryKronecker())
+TFRules.add(50, MatchExactType('FloorMod'), EmitBinaryKronecker())
+
+TFRules.add(50, MatchExactType('MatMul'), EmitDot2D())
+
+#Rule(50, MatchExactType('Conv2D'), EmitConv2d())
 
 # TODO: Top-90% native ops
 # CIFAR10:
@@ -72,37 +73,24 @@ def convert_Conv2D(op):
 #   LRN
 #   BiasAdd
 
-
-# NOTE: This MUST be the last rule.
-@translation_rule
-def default(op):
-  # NO PATTERN
-  # RULE
-  return Primop_undef({}, source_op=op)
 # End of Tensorflow translation rules
 ################################################################################
 
 class TFTranslator(Translator):
   def __init__(self):
-    self._absgraph = None
     self._map = {}
     self._rmap = {}
 
   def translate(self, model):
     # Caching is handled at the framework level, so if this translate method is
     # called, it means we definitely want to rebuild the abstract graph.
-    self._absgraph = AbstractGraph()
+    absgraph = AbstractGraph()
 
     tf_graph = model.get_graph()
     # Add all ops as nodes in the dependence graph.
     for op in tf_graph.get_operations():
-      for rule in _RULES:
-        primop = rule(op)
-        if primop is not None:
-          break
-      else:
-        raise TypeError('No translation rule found for native operation: '+str(op))
-      self._absgraph.add_primop( primop )
+      primop = self.emit_primop(TFRules, op)
+      absgraph.add_primop( primop )
       self._map[op.name] = primop.id
       self._rmap[primop.id] = op.name
 
@@ -114,11 +102,11 @@ class TFTranslator(Translator):
     for src_tf_op in tf_graph.get_operations():
       for tensor in src_tf_op.outputs:
         for dst_tf_op in tensor.consumers():
-          src_primop = self._absgraph[self._map[src_tf_op.name]]
-          dst_primop = self._absgraph[self._map[dst_tf_op.name]]
-          self._absgraph.add_dep( src_primop, dst_primop )
+          src_primop = absgraph[self._map[src_tf_op.name]]
+          dst_primop = absgraph[self._map[dst_tf_op.name]]
+          absgraph.add_dep( src_primop, dst_primop )
 
-    return self._absgraph
+    return absgraph
 
   def map_native_op(self, native_op_id):
     return self._map[native_op_id]

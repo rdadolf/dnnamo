@@ -19,8 +19,9 @@ class PrimopDiagnosticTool(BaselineTool):
       (modname, pypath) = path_to_loader_pair(modelfile)
       frame.load(dnnamo.loader.RunpyLoader, modname, pypath=pypath)
 
-      #results = frame.analyze('abstractgraph',trigger='lazy')
-      #results.absgraph
+      for primop in frame.absgraph:
+        if primop.optype!='undef':
+          self.data[primop.id] = (primop.source_op.type, primop.optype)
 
       if self.args['prioritized']:
         raise NotImplementedError, 'Timing-prioritized diagnosis not available yet.'
@@ -30,4 +31,5 @@ class PrimopDiagnosticTool(BaselineTool):
   def _output(self):
     for k,v in self.data.items():
       print k,'=>',v
+
 ToolRegistry.register(PrimopDiagnosticTool)

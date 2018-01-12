@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractproperty
 
 # This is just the interface definition.
 class Primop(object):
-  __meta__ = ABCMeta
+  __metaclass__ = ABCMeta
 
   def __init__(self, parameters=None, source_op=None):
     self._device = None
@@ -38,6 +38,9 @@ class Primop(object):
   @property
   def device(self):
     return self._device
+  @property
+  def source_op(self):
+    return self._source_op
 
   def __str__(self):
     return '<Primop_'+str(self.optype)+':'+str(self.id)+'>'
@@ -86,23 +89,35 @@ class PrimopTypes(object):
     # Return new type to get its name assigned
     return NewPrimop
 
+
+################################################################################
+# Primop definitions
+
 # This is a primop for undefined operations.
 # It's valid in dependence graphs, but will obviously give unrealistic values if
 # it is used for modeling. Still, it's useful to let us purposefully under-cover
 # the source framework's operation space or intentionally ignore certain cheap
 # operations.
-class Primop_undef(Primop): pass
 Primop_undef = PrimopTypes.new('undef', [],
   desc='Undefined Primop. Used when the native operation is unknown.')
 
-##### Basic Linear Algebra Primitives #####
-Primop_mmmul = PrimopTypes.new('mmmul', ['dim_A','dim_B'],
-  desc='Matrix-matrix multiplication.')
-Primop_mvmul = PrimopTypes.new('mvmul', ['dim_A','dim_b'],
-  desc='Matrix-vector multiplication.')
-Primop_vvadd = PrimopTypes.new('vvadd', ['dim_a','dim_b'],
-  desc='Vector-vector addition.')
+Primop_zero = PrimopTypes.new('zero', [],
+  desc='A free or zero-cost operation.')
 
-##### Neural Network Primitives #####
-Primop_conv = PrimopTypes.new('conv', ['dim_M, dim_F'],
-  desc='Convolution over a matrix M of a filter F.')
+# FIXME: I'm not sure how to implement fixed-cost operations. It might be hard
+# to unify them. For instance, let's say there's two native op types A and B.
+# On platform X, A costs 1, B costs 2. On platform Y, A costs 3, B costs 2.
+# Since primops are supposed to use a single cost model to represent different
+# operations, this won't work.
+#Primop_fixed = PrimopTypes.new('fixed', [],
+#  desc='A constant-cost operation.')
+
+Primop_kronecker = PrimopTypes.new('kronecker', ['dim'],
+  desc='A kronecker (element-wise matrix) operation.')
+
+Primop_dot = PrimopTypes.new('dot', ['dim_a', 'dim_b', 'dim_reduce'],
+  desc='Inner (dot) product. This includes N-dimensional matrix multiplication.')
+
+Primop_convolution = PrimopTypes.new('convolution', ['dim_a', 'dim_b'],
+  desc='Convolution over a matrix a with a filter b')
+

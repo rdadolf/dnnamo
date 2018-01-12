@@ -40,4 +40,4 @@ class TestTFTranslator(unittest.TestCase):
       primop_id = translator.map_native_op( t.op.name )
 
       primop = dg[primop_id]
-      assert primop.optype=='mmmul', 'Incorrect primop type for tf.MatMul: '+str(primop)
+      assert primop.optype=='dot', 'Incorrect primop type for tf.MatMul: '+str(primop)
