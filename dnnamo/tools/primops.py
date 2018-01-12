@@ -1,18 +1,18 @@
 import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
-from .tool_utilities import BaselineTool, path_to_loader_pair
+from .tool_utilities import BaselineTool, path_to_loader_pair, ToolRegistry
 
-class Tool(BaselineTool):
+class PrimopsTool(BaselineTool):
   TOOL_NAME='primops'
   TOOL_SUMMARY='Prints a list of the primitive operations in a model.'
 
   def __init__(self):
-    super(Tool,self).__init__()
+    super(PrimopsTool,self).__init__()
     self.data = []
 
   def add_subparser(self, argparser):
-    super(Tool,self).add_subparser(argparser)
+    super(PrimopsTool,self).add_subparser(argparser)
     self.subparser.add_argument('--undef',action='store_true',default=False,help='Display undefined Primops.')
     return self.subparser
 
@@ -28,3 +28,5 @@ class Tool(BaselineTool):
     for ops in self.data:
       for op in ops:
         print ','.join(map(str,op))
+
+ToolRegistry.register(PrimopsTool)

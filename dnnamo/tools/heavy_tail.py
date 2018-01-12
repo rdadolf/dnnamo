@@ -5,14 +5,14 @@ import numpy as np
 import dnnamo
 import dnnamo.frameworks
 from dnnamo.core.mpl_plot import *
-from .tool_utilities import PlotTool
+from .tool_utilities import PlotTool, ToolRegistry
 
-class Tool(PlotTool):
+class HeavyTailTool(PlotTool):
   TOOL_NAME='heavy_tail'
   TOOL_SUMMARY='Estimates the heavy-tailed-ness of the time distribution for a model.'
 
   def add_subparser(self, argparser):
-    super(Tool,self).add_subparser(argparser)
+    super(HeavyTailTool,self).add_subparser(argparser)
     self.subparser.add_argument('--print', action='store_true', default=False, help='Print a sorted list of the most time-consuming native operations.')
     return self.subparser
 
@@ -100,3 +100,5 @@ class Tool(PlotTool):
       fig.tight_layout()
       fig.savefig(filename)
     return
+
+ToolRegistry.register(HeavyTailTool)

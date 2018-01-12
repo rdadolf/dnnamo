@@ -1,14 +1,14 @@
 import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
-from .tool_utilities import BaselineTool, path_to_loader_pair
+from .tool_utilities import BaselineTool, path_to_loader_pair, ToolRegistry
 
-class Tool(BaselineTool):
+class NativeOpsTool(BaselineTool):
   TOOL_NAME='native_ops'
   TOOL_SUMMARY='Prints a list of the framework-specific operations in a model.'
 
   def __init__(self):
-    super(Tool,self).__init__()
+    super(NativeOpsTool,self).__init__()
     self.data = []
 
   def _run(self, modelfiles):
@@ -29,3 +29,4 @@ class Tool(BaselineTool):
       for op in ops:
         print ','.join(map(str,op))
 
+ToolRegistry.register(NativeOpsTool)

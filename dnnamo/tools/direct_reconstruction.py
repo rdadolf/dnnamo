@@ -3,18 +3,18 @@ import dnnamo.frameworks
 import dnnamo.devices
 from dnnamo.loader import RunpyLoader
 from dnnamo.core.trace import average_traces, Tracepoint, Trace
-from .tool_utilities import *
+from .tool_utilities import PlotTool, path_to_loader_pair, ToolRegistry
 
-class Tool(PlotTool):
+class DirectReconstructionTool(PlotTool):
   TOOL_NAME='direct_reconstruction'
   TOOL_SUMMARY='Attempt to mimic the performance behavior of a neural network by aggregating a set of primop microbenchmarks.'
 
   def __init__(self):
-    super(Tool,self).__init__()
+    super(DirectReconstructionTool,self).__init__()
     self.data = []
 
   def add_subparser(self, argparser):
-    super(Tool,self).add_subparser(argparser)
+    super(DirectReconstructionTool,self).add_subparser(argparser)
     self.subparser.add_argument('--device', default='tf_cpu', help='Specify the dvice to use as a target for the reconstruction.')
     return self.subparser
 
@@ -47,7 +47,7 @@ class Tool(PlotTool):
         self.data.append( [[native_tp.name, native_tp.type, native_tp.dt],[recon_tp.name, recon_tp.type, recon_tp.dt]] )
 
   def _output(self):
-    super(Tool,self)._output()
+    super(DirectReconstructionTool,self)._output()
 
     nat_sum,prim_sum = 0,0
     for (nat_name,nat_type,nat_dt),(prim_name,prim_type,prim_dt) in self.data:
@@ -78,3 +78,5 @@ class Tool(PlotTool):
 
     fig.tight_layout()
     fig.savefig(filename)
+
+ToolRegistry.register(DirectReconstructionTool)

@@ -4,14 +4,14 @@ import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
 from dnnamo.core.mpl_plot import *
-from .tool_utilities import PlotTool, path_to_loader_pair
+from .tool_utilities import PlotTool, path_to_loader_pair, ToolRegistry
 
-class Tool(PlotTool):
+class NativeOpProfileTool(PlotTool):
   TOOL_NAME='native_op_profile'
   TOOL_SUMMARY='Computes a breakdown of the time spent in each native operation type.'
 
   def add_subparser(self, argparser):
-    super(Tool,self).add_subparser(argparser)
+    super(NativeOpProfileTool,self).add_subparser(argparser)
     self.subparser.add_argument('--print', action='store_true', default=False, help='Print a sorted list of the most time-consuming native operations.')
     self.subparser.add_argument('--threshold', action='store', type=float, default=101, help='Only consider the most time-consuming operations whose cumulative runtime is above a certain percentage of the total.')
     # comment this out
@@ -128,4 +128,4 @@ class Tool(PlotTool):
     #fig.tight_layout()
     fig.savefig(filename)
 
-
+ToolRegistry.register(NativeOpProfileTool)

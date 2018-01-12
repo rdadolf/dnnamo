@@ -1,6 +1,8 @@
 import argparse
 import os.path
 
+# FIXME: add temporary directory context manager
+
 def runtool(t, cmd):
   parser = argparse.ArgumentParser()
   subs = parser.add_subparsers()

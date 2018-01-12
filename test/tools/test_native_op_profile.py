@@ -1,6 +1,6 @@
 import unittest
 
-from tools.native_op_profile import Tool
+from dnnamo.tools.native_op_profile import NativeOpProfileTool
 
 from .util import runtool, cleanup_cachefile
 
@@ -15,22 +15,22 @@ CACHEFILE = '/tmp/cachefile'
 class TestNativeOpProfile(unittest.TestCase):
   def test_simple_run(self):
     cmd='native_op_profile --framework=tf --noplot '+TESTFILE
-    runtool(Tool(), cmd)
+    runtool(NativeOpProfileTool(), cmd)
 
   def test_multiple_models(self):
     cmd = 'native_op_profile --framework=tf --noplot '+' '.join(TESTFILES)
-    runtool(Tool(), cmd)
+    runtool(NativeOpProfileTool(), cmd)
 
   def test_zero_threshold(self):
     cmd='native_op_profile --framework=tf --noplot --threshold 0 --print '+TESTFILE
-    t = Tool()
+    t = NativeOpProfileTool()
     runtool(t, cmd)
     print t.data[0][1]
     assert len(t.data[0][1])==0, 'A zero threshold should give zero op types.'
 
   def test_full_threshold(self):
     cmd='native_op_profile --framework=tf --noplot --threshold 100 --print '+TESTFILE
-    t = Tool()
+    t = NativeOpProfileTool()
     runtool(t, cmd)
     print t.data[0][1]
     #assert len(t.data[0][1])==SIMPLE_NNET_OP_COUNT, 'Incorrectly thresholded some data vlues.'
@@ -45,12 +45,12 @@ class TestNativeOpProfile(unittest.TestCase):
   def test_cachefile(self):
     with cleanup_cachefile(CACHEFILE):
       cmd = 'native_op_profile --cachefile='+str(CACHEFILE)+' --writecache '+TESTFILE
-      t = Tool()
+      t = NativeOpProfileTool()
       runtool(t, cmd)
       assert t.data[0][0]==TESTFILE, 'Corrupted cache: "'+str(t.data[0][0])+'"'
 
       cmd2 = 'native_op_profile --cachefile='+str(CACHEFILE)+' --readcache '
-      t = Tool()
+      t = NativeOpProfileTool()
       runtool(t, cmd2)
       assert t.data[0][0]==TESTFILE, 'Corrupted cache: "'+str(t.data[0][0])+'"'
 

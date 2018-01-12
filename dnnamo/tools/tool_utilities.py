@@ -56,7 +56,6 @@ class BaselineTool(Cacher):
   def _run(self, modelfiles): pass
 
 
-
 class PlotTool(BaselineTool):
   def add_subparser(self, argparser):
     super(PlotTool, self).add_subparser(argparser)
@@ -70,3 +69,15 @@ class PlotTool(BaselineTool):
 
   @abstractmethod
   def _plot(self, filename): pass
+
+
+class ToolRegistry(object):
+  registry = {}
+
+  @classmethod
+  def register(cls, ToolClass):
+    cls.registry[ToolClass.TOOL_NAME] = ToolClass
+
+  @classmethod
+  def all_tools(cls):
+    return cls.registry.items()

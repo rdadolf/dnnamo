@@ -3,17 +3,17 @@ import numpy as np
 import dnnamo
 import dnnamo.frameworks
 from dnnamo.core.mpl_plot import *
-from .tool_utilities import PlotTool
+from .tool_utilities import PlotTool, ToolRegistry
 
-class Tool(PlotTool):
+class NativeOpDensityTool(PlotTool):
   TOOL_NAME='native_op_density'
   TOOL_SUMMARY='Computes a breakdown of the counts of each native operation type in a model.'
 
   def __init__(self):
-    super(Tool,self).__init__()
+    super(NativeOpDensityTool,self).__init__()
 
   def add_subparser(self, argparser):
-    super(Tool,self).add_subparser(argparser)
+    super(NativeOpDensityTool,self).add_subparser(argparser)
     return self.subparser
 
   def _run(self, modelfiles):
@@ -64,3 +64,4 @@ class Tool(PlotTool):
       fig.tight_layout()
       fig.savefig(filename)
 
+ToolRegistry.register(NativeOpDensityTool)

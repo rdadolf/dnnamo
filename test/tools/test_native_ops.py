@@ -1,6 +1,6 @@
 import unittest
 
-from tools.native_ops import Tool
+from dnnamo.tools.native_ops import NativeOpsTool
 
 from .util import runtool, cleanup_cachefile
 
@@ -12,11 +12,11 @@ CACHEFILE = '/tmp/cachefile'
 class TestNativeOps(unittest.TestCase):
   def test_simple_run(self):
     cmd='native_ops --framework=tf '+TESTFILE
-    runtool(Tool(), cmd)
+    runtool(NativeOpsTool(), cmd)
 
   def test_op_count(self):
     cmd='native_ops --framework=tf '+TESTFILE
-    t = Tool()
+    t = NativeOpsTool()
     runtool(t, cmd)
 
     # FIXME: This is too brittle. We need to find a better way.
@@ -27,7 +27,7 @@ class TestNativeOps(unittest.TestCase):
   def test_cachefile(self):
     with cleanup_cachefile(CACHEFILE):
       cmd = 'native_ops --cachefile='+str(CACHEFILE)+' --writecache '+TESTFILE
-      t = Tool()
+      t = NativeOpsTool()
       runtool(t, cmd)
 
       # FIXME: This is too brittle. We need to find a better way.
@@ -35,7 +35,7 @@ class TestNativeOps(unittest.TestCase):
       assert len(t.data[0])>0, 'No ops found.'
 
       cmd2 = 'native_ops --cachefile='+str(CACHEFILE)+' --readcache '
-      t = Tool()
+      t = NativeOpsTool()
       runtool(t, cmd2)
 
       # FIXME: This is too brittle. We need to find a better way.

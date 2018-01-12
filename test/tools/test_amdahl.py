@@ -1,6 +1,6 @@
 import unittest
 
-from tools.amdahl import Tool
+from dnnamo.tools.amdahl import AmdahlTool
 
 from .util import runtool
 
@@ -12,4 +12,4 @@ class TestNativeOpProfile(unittest.TestCase):
   def test_simple_run(self):
     for i in range(1,9):
       cmd='amdahl --framework=tf --noplot --threads '+str(i)+' '+TESTFILE
-      runtool(Tool(), cmd)
+      runtool(AmdahlTool(), cmd)

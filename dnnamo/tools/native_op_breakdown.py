@@ -1,18 +1,26 @@
-from scipy.cluster import hierarchy
+import numpy as np
+
+from matplotlib.pyplot import cm
+from matplotlib.colors import LogNorm
 
 import dnnamo
 from dnnamo.core.mpl_plot import *
 
-from .tool_utilities import PlotTool
+from .tool_utilities import PlotTool, ToolRegistry
 
-class Tool(PlotTool):
-  TOOL_NAME='dendrogram'
-  TOOL_SUMMARY='Plots a dendrogram for all considered models showing hierarchical clustering.'
+class NativeOpBreakdownTool(PlotTool):
+  TOOL_NAME='native_op_breakdown'
+  TOOL_SUMMARY='Computes a breakdown of the cumulative time spent in each native operation type.'
 
   # make the names more readable
-  rename_dict = {'ApplyGradientDescent': 'ApplySGD', 'SoftmaxCrossEntropyWithLogits': 'CrossEntropy',
-                 'RandomStandardNormal': 'RandomNormal', 'AddN': 'Add', 'BiasAdd': 'Add', 'BatchMatMul': 'MatMul',
-                 'Conv2DBackpropFilter': 'Conv2DBackFilter', 'Conv2DBackpropInput': 'Conv2DBackInput'}
+  rename_dict = {'ApplyGradientDescent': 'ApplySGD',
+                 'SoftmaxCrossEntropyWithLogits': 'CrossEntropy',
+                 'RandomStandardNormal': 'RandomNormal',
+                 'AddN': 'Add',
+                 'BiasAdd': 'Add',
+                 'BatchMatMul': 'MatMul',
+                 'Conv2DBackpropFilter': 'Conv2DBackFilter',
+                 'Conv2DBackpropInput': 'Conv2DBackInput'}
   # order of Ops in the table/plot includes categories
   table_list_order = [ 'Add', 'Sub', 'Mul', 'Div', 'Pow', 'Softmax', #Elementwise
                        'MatMul', #Matrix
@@ -29,7 +37,7 @@ class Tool(PlotTool):
   sorted_op_name_times = []
 
   def add_subparser(self, argparser):
-    super(Tool,self).add_subparser(argparser)
+    super(NativeOpBreakdownTool,self).add_subparser(argparser)
     self.subparser.add_argument('--print', action='store_true', default=False, help='Print a sorted list of the most time-consuming native operations.')
     self.subparser.add_argument('--threshold', action='store', type=float, default=101, help='Only consider the most time-consuming operations whose cumulative runtime is above a certain percentage of the total.')
     # comment this out
@@ -118,11 +126,10 @@ class Tool(PlotTool):
     if not self.args['noplot']:
       self._plot(self.args['plotfile'])
 
-  def rename_models(self, bad_names):
+  def rename_models(self):
     names = ['alexnet', 'atari', 'vgg', 'residual', 'autoencoder', 'speech', 'memn2n', 'seq2seq']
     new_names = []
-    print bad_names
-    for m_name in bad_names:
+    for m_name in self.model_name_order:
       for name in names:
         if name in m_name:
           new_names.append(name)
@@ -130,35 +137,40 @@ class Tool(PlotTool):
     return new_names
 
   def _plot(self, filename):
-    (fig, ax) = plt.subplots(1, 1, figsize=(8, 5))
+    fnt_size = 5
+    (_, ax) = plt.subplots(1, 1, figsize=(3,8))
 
-    plot_results = []
+    nice_names = self.rename_models()
+
+    norm_results = []
     for res_list in self.sorted_op_name_times:
-      plot_results.append([float(xx) for xx in res_list])
+      norm_results.append([float(xx)/float(sum(res_list)) for xx in res_list])
 
-    Z = hierarchy.linkage(plot_results, method='average', metric='cosine')
-    dn = hierarchy.dendrogram(Z, orientation='right', color_threshold=0.0)
+    for y in range(len(norm_results)):
+      for x in range(len(norm_results[0])):
+        plt.text(x + 0.5 , y + 0.45, '%d' % int(100*norm_results[y][x]),
+                  horizontalalignment='center', verticalalignment='center',
+                  color='k', fontsize=fnt_size)
 
-    dn['color_list'] = ['k',]*len(dn['color_list'])
-    xt = ax.get_yticklabels()
-    x_order = []
-    for xx in xt:
-      x_order.append(int(xx._text))
-    real_labels = [self.model_name_order[xx] for xx in x_order]
-    nice_names = self.rename_models(real_labels)
-    real_x_labels = nice_names
+    dy = 1
+    dx = 1
+    y, x = np.mgrid[slice(0, len(norm_results) + dy, dy),
+                    slice(0, len(norm_results[0]) + dx, dx)]
+    cmap=cm.Reds
+    plt.pcolor(x, y, norm_results, alpha=0.75, linestyle='solid',edgecolors='k',
+                  norm=LogNorm(vmin=0.01, vmax=0.90), cmap=cmap)
 
-    ax.set_yticklabels(real_x_labels, fontsize=24)
+    plt.yticks(np.arange(0.5, len(norm_results), 1), nice_names)
+    plt.xticks(np.arange(0.5, len(self.table_list_order), 1), self.table_list_order, rotation='vertical')
+    plt.tick_params(axis='both', which='both', left='off', right='off',bottom='off', top='off')
+
+    ax.set_aspect('equal')
+    ax.set_xlim(0, len(self.table_list_order))
+
     for tick in ax.xaxis.get_major_ticks():
-      tick.label.set_fontsize(20)
+      tick.label.set_fontsize(fnt_size)
+    for tick in ax.yaxis.get_major_ticks():
+      tick.label.set_fontsize(fnt_size)
+    plt.savefig('heat.pdf', bbox_inches='tight')
 
-    ax.set_xlim(-.01, 1.01)
-
-    ax.xaxis.set_ticks_position('bottom')
-
-    ax.spines['top'].set_visible(False)
-    ax.spines['left'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-
-    fig.savefig('den.pdf', bbox_inches='tight')
-
+ToolRegistry.register(NativeOpBreakdownTool)

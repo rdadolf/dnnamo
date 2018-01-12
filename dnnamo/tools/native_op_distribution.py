@@ -4,17 +4,17 @@ import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
 from dnnamo.core.mpl_plot import *
-from .tool_utilities import PlotTool, path_to_loader_pair
+from .tool_utilities import PlotTool, path_to_loader_pair, ToolRegistry
 
-class Tool(PlotTool):
+class NativeOpDistributionTool(PlotTool):
   TOOL_NAME='native_op_distribution'
   TOOL_SUMMARY='Computes a breakdown of the counts of each native operation type in a model.'
 
   def __init__(self):
-    super(Tool,self).__init__()
+    super(NativeOpDistributionTool,self).__init__()
 
   def add_subparser(self, argparser):
-    super(Tool,self).add_subparser(argparser)
+    super(NativeOpDistributionTool,self).add_subparser(argparser)
     return self.subparser
 
   def _run(self, modelfiles):
@@ -57,3 +57,5 @@ class Tool(PlotTool):
         breakdown[typ] = 0
       breakdown[typ] += 1
     return breakdown
+
+ToolRegistry.register(NativeOpDistributionTool)

@@ -4,13 +4,13 @@ import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
 from dnnamo.core.mpl_plot import *
-from .tool_utilities import PlotTool, path_to_loader_pair
+from .tool_utilities import PlotTool, path_to_loader_pair, ToolRegistry
 
-class Tool(PlotTool):
+class AmdahlTool(PlotTool):
   TOOL_NAME='amdahl'
   TOOL_SUMMARY='Demonstrates the effect of intra-op parallelism on timing profiles.'
   def add_subparser(self, argparser):
-    super(Tool,self).add_subparser(argparser)
+    super(AmdahlTool,self).add_subparser(argparser)
     self.subparser.add_argument('--print', action='store_true', default=False, help='Print a sorted list of the most time-consuming native operations.')
     self.subparser.add_argument('--threshold', action='store', type=float, default=101, help='Only consider the most time-consuming operations whose cumulative runtime is above a certain percentage of the total.')
     self.subparser.add_argument('--threads', action='store', type=int, default=8, help='Set an upper bound on the thread parallelism within an operation.')
@@ -139,3 +139,4 @@ class Tool(PlotTool):
     #fig.tight_layout()
     fig.savefig(filename)
 
+ToolRegistry.register(AmdahlTool)
