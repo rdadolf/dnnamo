@@ -89,8 +89,8 @@ class TFTranslator(Translator):
     self._rmap = {}
 
   def translate(self, model):
-    if self._absgraph is not None:
-      return self._absgraph
+    # Caching is handled at the framework level, so if this translate method is
+    # called, it means we definitely want to rebuild the abstract graph.
     self._absgraph = AbstractGraph()
 
     tf_graph = model.get_graph()

@@ -15,7 +15,7 @@ class TestDataManager(unittest.TestCase):
     class GoodPass2(TransformPass):
       def run(self, frame): pass
       @property
-      def invalidation_tags(self): return [Datatag.graph]
+      def invalidation_tags(self): return [Datatag.weights]
     class BadPass(TransformPass):
       def run(self, frame): pass
 

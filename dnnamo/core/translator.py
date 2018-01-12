@@ -5,7 +5,8 @@ class Translator(object):
   __metaclass__ = ABCMeta
 
   @abstractmethod
-  def translate(self, native_graph): pass
+  def translate(self, model):
+    '''Return an AbstractGraph object from a Dnnamo model.'''
 
   @abstractmethod
   def map_native_op(self, native_op_id): pass

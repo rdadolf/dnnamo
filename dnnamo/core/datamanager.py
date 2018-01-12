@@ -1,6 +1,9 @@
-from abc import ABCMeta, abstractmethod, abstractproperty
-
 class _TagMeta(type): pass
+# This metaclass let's us designate all the tag classes as "special", which
+# makes it possible to identify them in a __dict__ or dir() lookup. It would
+# probably have been possible to use Enum's, but NONE and ALL would've been
+# weird. So maybe this implementation is a bit more complicated, but the
+# interface that everyone else sees is fairly clean.
 class Datatag(object):
   '''Categories of data.
 
@@ -14,7 +17,6 @@ class Datatag(object):
   class NONE(object): pass # not actually tags
   class ALL(object): pass # not actually tags
   # Static data
-  class graph(object): __metaclass__=_TagMeta # FIXME: do we even need this?
   class absgraph(object): __metaclass__=_TagMeta
   class weights(object): __metaclass__=_TagMeta
   # Dynamic data
@@ -23,7 +25,7 @@ class Datatag(object):
 
   @classmethod
   def get_all_tags(cls):
-    return [k for k,v in cls.__dict__.items() if isinstance(v,_TagMeta)]
+    return [v for _,v in cls.__dict__.items() if isinstance(v,_TagMeta)]
 
 
 class DataManager(object):
@@ -53,3 +55,10 @@ class DataManager(object):
     for victim in eviction_list:
       self._cache[victim] = None
 
+  def __getitem__(self, tag):
+    return self._cache[tag]
+
+  def __setitem__(self, tag, key):
+    if key is None:
+      raise ValueError, 'Cannot insert invalid entries into data manager: '+str(tag)+' -> '+str(key)
+    self._cache[tag] = key

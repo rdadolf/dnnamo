@@ -1,13 +1,6 @@
-import sys
-import os.path
-import imp
-import inspect
-import random
-
 import tensorflow as tf
 
 from dnnamo.core.framework import Framework
-from dnnamo.core.model import BaseModel, ImmutableModel, StaticModel, DynamicModel
 from dnnamo.frameworks.tf.tf_translator import TFTranslator
 from dnnamo.frameworks.tf.tf_runstep import _DefaultRunstep, _InstrumentedRunstep
 from dnnamo.frameworks.tf.tf_stats import TFNativeStats
@@ -17,12 +10,10 @@ class TFFramework(Framework):
     super(TFFramework, self).__init__(model)
     self._translator = TFTranslator()
 
+
   @property
-  def absgraph(self):
-    if self._absgraph is None:
-      assert self._model is not None, 'No model loaded. Run load(...) first.'
-      self._absgraph = self._translator.translate( self._model )
-    return self._absgraph
+  def translator(self):
+    return self._translator
 
   def _transitive_closure(self, targets):
     # NOTE: Operational, but not currently used.
