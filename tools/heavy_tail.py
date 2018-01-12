@@ -5,7 +5,7 @@ import numpy as np
 import dnnamo
 import dnnamo.frameworks
 from dnnamo.core.mpl_plot import *
-from tool_utilities import PlotTool
+from .tool_utilities import PlotTool
 
 class Tool(PlotTool):
   TOOL_NAME='heavy_tail'

@@ -1,5 +1,5 @@
 import unittest
-from synth import AbstractGraphTestCase
+from .synth import AbstractGraphTestCase
 
 class TestAbstractGraph(AbstractGraphTestCase):
   def test_adjacency_constraints(self):

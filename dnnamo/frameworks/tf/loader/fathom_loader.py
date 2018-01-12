@@ -1,15 +1,16 @@
-from dnnamo.core.model import ImmutableModel
-from dnnamo.core.loader import BaseLoader
-
 import importlib
 import sys
+
+from ....core.model import ImmutableModel
+from ....core.loader import BaseLoader
+
 
 class FathomModel(ImmutableModel):
   def __init__(self, ModelClass):
     self._fathommodel = ModelClass()
   def get_graph(self):
     return self._fathommodel.G
-  def get_weights(self):
+  def get_weights(self, keys=None):
     raise NotImplementedError, 'Fathom does not have a standard weights interface.'
 
 

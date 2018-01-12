@@ -1,5 +1,5 @@
 import unittest
-import dnnamo
+
 import tensorflow as tf
 
 from dnnamo.core.primop import PrimopTypes

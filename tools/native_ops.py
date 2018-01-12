@@ -1,7 +1,7 @@
 import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
-from tool_utilities import BaselineTool, path_to_loader_pair
+from .tool_utilities import BaselineTool, path_to_loader_pair
 
 class Tool(BaselineTool):
   TOOL_NAME='native_ops'

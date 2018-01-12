@@ -1,5 +1,4 @@
 import unittest
-import dnnamo
 
 from dnnamo.core.primop import Primop, PrimopTypes
 

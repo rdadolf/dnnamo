@@ -5,18 +5,18 @@ from dnnamo.core.model import BaseModel, ImmutableModel, StaticModel, DynamicMod
 class BADImmutableModel(ImmutableModel): pass
 class GOODImmutableModel(ImmutableModel):
   def get_graph(self): return None # framework-specific return can be anything
-  def get_weights(self): return dict() # any dict, even an empty one, is valid
+  def get_weights(self,keys=None): return dict() # any dict, even an empty one, is valid
 
 class BADStaticModel(StaticModel): pass
 class GOODStaticModel(StaticModel):
   def get_graph(self): return None # framework-specific return can be anything
-  def get_weights(self): return dict() # any dict, even an empty one, is valid
+  def get_weights(self,keys=None): return dict() # any dict, even an empty one, is valid
   def set_weights(self, kv): pass
 
 class BADDynamicModel(DynamicModel): pass
 class GOODDynamicModel(DynamicModel):
   def get_graph(self): return None # framework-specific return can be anything
-  def get_weights(self): return dict() # any dict, even an empty one, is valid
+  def get_weights(self,keys=None): return dict() # any dict, even an empty one, is valid
   def set_weights(self, kv): pass
   def run_train(self, runstep=None, n_steps=1, *args, **kwargs): pass
   def run_inference(self, runstep=None, n_steps=1, *args, **kwargs): pass

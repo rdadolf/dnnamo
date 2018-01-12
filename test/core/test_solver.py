@@ -1,6 +1,7 @@
 import unittest
 import dnnamo
-from synth import AbstractGraphTestCase
+
+from .synth import AbstractGraphTestCase
 
 class TestSolver(AbstractGraphTestCase):
   @unittest.SkipTest

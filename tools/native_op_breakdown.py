@@ -1,11 +1,12 @@
 import numpy as np
 
-import dnnamo
-import dnnamo.frameworks
-from dnnamo.core.mpl_plot import *
-from tool_utilities import PlotTool
 from matplotlib.pyplot import cm
 from matplotlib.colors import LogNorm
+
+import dnnamo
+from dnnamo.core.mpl_plot import *
+
+from .tool_utilities import PlotTool
 
 class Tool(PlotTool):
   TOOL_NAME='native_op_breakdown'

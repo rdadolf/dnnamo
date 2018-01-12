@@ -133,7 +133,7 @@ class Framework(object):
 
 
   @abstractmethod
-  def _build_native_stats(self, native_model, traces):
+  def _build_native_stats(self, graph, traces):
     '''Create a new Stats object, collecting data if necessary.'''
 
   def native_stats(self):

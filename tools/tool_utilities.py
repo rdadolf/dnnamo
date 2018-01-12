@@ -11,7 +11,7 @@ def path_to_loader_pair(path):
   Dnnamo model that can be loaded with RunpyLoader.'''
 
   p = os.path.normpath(path) # mostly so "/path/dir/" becomes "/path/dir"
-  pypath, modname = os.path.split(path)
+  pypath, modname = os.path.split(p)
   if modname.endswith('.py'):
     modname = modname[:-3]
   return (modname, pypath)

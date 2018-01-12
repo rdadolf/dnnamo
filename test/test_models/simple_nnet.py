@@ -1,7 +1,7 @@
-from dnnamo.core.model import DynamicModel
-
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+
+from dnnamo.core.model import DynamicModel
 
 class SimpleNNet(DynamicModel):
   def __init__(self):
@@ -36,7 +36,8 @@ class SimpleNNet(DynamicModel):
   def get_graph(self):
     return self.g
 
-  def get_weights(self):
+  def get_weights(self, keys=None):
+    # FIXME: implement key filtering
     return {'W': self.W, 'b': self.b}
 
   def set_weights(self, kv):
@@ -66,7 +67,7 @@ class SimpleNNet(DynamicModel):
 
   def run_train(self, runstep=None, n_steps=1, *args, **kwargs):
     b0,b1 = 0,self.minibatch
-    for step in range(0,n_steps):
+    for _ in range(0,n_steps):
       b0 = (b0+self.minibatch)%self.trainsize
       b1 = min( (b0+self.minibatch), self.trainsize)
       _,loss = runstep(self.session, fetches=[self.train, self.loss], feed_dict={self.input: self.example_data[b0:b1], self.labels: self.example_labels[b0:b1]})
@@ -74,7 +75,7 @@ class SimpleNNet(DynamicModel):
 
   def run_inference(self, runstep=None, n_steps=1, *args, **kwargs):
     b0,b1 = 0,self.minibatch
-    for step in range(0,n_steps):
+    for _ in range(0,n_steps):
       b0 = (b0+self.minibatch)%self.trainsize
       b1 = min( (b0+self.minibatch), self.trainsize)
       inf = runstep(self.session, fetches=[self.inference], feed_dict={self.input: self.example_data[b0:b1]})

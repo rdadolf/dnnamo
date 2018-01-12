@@ -3,7 +3,7 @@ import dnnamo.frameworks
 import dnnamo.devices
 from dnnamo.loader import RunpyLoader
 from dnnamo.core.trace import average_traces, Tracepoint, Trace
-from tool_utilities import *
+from .tool_utilities import *
 
 class Tool(PlotTool):
   TOOL_NAME='direct_reconstruction'

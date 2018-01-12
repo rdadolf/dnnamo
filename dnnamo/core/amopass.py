@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod, abstractproperty 
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 class AMOPass(object):
   __metaclass__ = ABCMeta
@@ -7,7 +7,7 @@ class AMOPass(object):
   @abstractmethod
   def run(self, frame):
     '''Run the pass. This is where all the heavy lifting happens.'''
-  
+
 
 class AnalysisPass(AMOPass):
   __metaclass__ = ABCMeta

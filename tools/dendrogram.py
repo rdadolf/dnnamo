@@ -1,9 +1,9 @@
-import dnnamo
-import dnnamo.frameworks
-from dnnamo.core.mpl_plot import *
-from tool_utilities import PlotTool
-from matplotlib.pyplot import cm
 from scipy.cluster import hierarchy
+
+import dnnamo
+from dnnamo.core.mpl_plot import *
+
+from .tool_utilities import PlotTool
 
 class Tool(PlotTool):
   TOOL_NAME='dendrogram'

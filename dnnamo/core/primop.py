@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractproperty
 
 # This is just the interface definition.
 class Primop(object):
@@ -66,9 +66,9 @@ class PrimopTypes(object):
   @staticmethod
   def new(optype, parameter_set, desc=None):
     '''Shortcut for dynamically creating new Primop class types.
-    
+
     In general, this function should not be used outside this file.'''
-    
+
     primop_typename = 'Primop_'+str(optype)
     # Create factory-assigned properties
     def optype_prop(self): return optype

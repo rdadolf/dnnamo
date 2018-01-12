@@ -1,6 +1,8 @@
 from abc import ABCMeta, abstractmethod
 
 class BaseLoader(object):
+  __metaclass__=ABCMeta
+
   @abstractmethod
   def __init__(self, identifier): pass
 

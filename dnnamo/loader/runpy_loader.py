@@ -34,14 +34,18 @@ class RunpyLoader(BaseLoader):
     sys.path[0:0] = self.pypath
     try:
       env = runpy.run_module(self.identifier)
-    except ImportError as e:
+    except ImportError:
       if len(self.pypath)>0:
         raise ImportError, 'Could not find a module named '+str(self.identifier)+' using the extra path '+str(self.pypath)
       else:
         raise ImportError, 'Could not find a module named '+str(self.identifier)
     sys.path = old_syspath
+
+    # This try block doesn't create the model, because we only want to capture
+    # KeyErrors from the env lookup. If the user's load function throws one, we
+    # want those to pass through.
     try:
-      model_function = env[self.PROTECTED_FUNCTION_NAME]
+      _ = env[self.PROTECTED_FUNCTION_NAME]
     except KeyError:
       raise NameError, 'no '+str(self.PROTECTED_FUNCTION_NAME)+' function found in module '+str(self.identifier)
 

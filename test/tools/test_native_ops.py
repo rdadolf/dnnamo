@@ -29,7 +29,7 @@ class TestNativeOps(unittest.TestCase):
       cmd = 'native_ops --cachefile='+str(CACHEFILE)+' --writecache '+TESTFILE
       t = Tool()
       runtool(t, cmd)
-    
+
       # FIXME: This is too brittle. We need to find a better way.
       #assert abs(len(t.data[0])-SIMPLE_NNET_OP_COUNT)<OP_COUNT_THRESHOLD, 'Native op count in simple_nnet doesnt match: '+str(len(t.data[0]))+' vs '+str(SIMPLE_NNET_OP_COUNT)+'(expected)'
       assert len(t.data[0])>0, 'No ops found.'

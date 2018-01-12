@@ -54,5 +54,5 @@ class TFFramework(Framework):
   DefaultRunstep = _DefaultRunstep
   InstrumentedRunstep = _InstrumentedRunstep
 
-  def _build_native_stats(self, graph, trace):
-    return TFNativeStats(graph, trace)
+  def _build_native_stats(self, graph, traces):
+    return TFNativeStats(graph, traces)

@@ -4,7 +4,7 @@ import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
 from dnnamo.core.mpl_plot import *
-from tool_utilities import PlotTool, path_to_loader_pair
+from .tool_utilities import PlotTool, path_to_loader_pair
 
 class Tool(PlotTool):
   TOOL_NAME='native_op_distribution'

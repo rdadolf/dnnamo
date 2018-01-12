@@ -10,7 +10,7 @@ class SyntheticModelSkeleton(DynamicModel):
     self._g = tf.Graph()
 
   def get_graph(self): return self._g
-  def get_weights(self): return {}
+  def get_weights(self, keys=None): return {}
   def set_weights(self, kv): pass
   def run_train(self, runstep=None, n_steps=1, *args, **kwargs):
     raise NotImplementedError('Cannot run a synthetic test model.')
@@ -19,7 +19,7 @@ class SyntheticModelSkeleton(DynamicModel):
   def get_activations(self, runstep=None, *args, **kwargs):
     raise NotImplementedError('Cannot run a synthetic test model.')
 
-class SyntheticModel():
+class SyntheticModel(object):
   def __init__(self):
     self._m = SyntheticModelSkeleton()
   # Wraps the underlying TF graph context's __enter__ / __exit__
