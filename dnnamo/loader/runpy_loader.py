@@ -50,6 +50,5 @@ class RunpyLoader(BaseLoader):
       raise NameError, 'no '+str(self.PROTECTED_FUNCTION_NAME)+' function found in module '+str(self.identifier)
 
     m = env[self.PROTECTED_FUNCTION_NAME]()
-    print type(m)
     return m
 
