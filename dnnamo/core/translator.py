@@ -28,7 +28,7 @@ class MatchAny(Match):
   def match(self, op): return True
 
 class EmitUndef(Emit):
-  def emit(self, op): return Primop_undef()
+  def emit(self, op): return Primop_undef(source_op=op)
 
 ################################################################################
 

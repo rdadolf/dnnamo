@@ -1,6 +1,20 @@
-import dnnamo
+import tensorflow as tf
 
+from ..frameworks import FRAMEWORKS
+from ..loader import RunpyLoader
 from .tool_utilities import BaselineTool, path_to_loader_pair, ToolRegistry
+
+def dimstr(dim):
+  if dim.value is None:
+    return '?'
+  else:
+    return str(dim.value)
+def format_dims(tf_tensor):
+  try:
+    return '['+'x'.join([dimstr(d) for d in tf_tensor.shape])+']'
+  except ValueError:
+    pass
+  return '[unknown]'
 
 class PrimopDiagnosticTool(BaselineTool):
   TOOL_NAME='_primop_diag'
@@ -15,13 +29,26 @@ class PrimopDiagnosticTool(BaselineTool):
     self.data = dict()
 
     for modelfile in modelfiles:
-      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
+      frame = FRAMEWORKS[self.args['framework']]()
       (modname, pypath) = path_to_loader_pair(modelfile)
-      frame.load(dnnamo.loader.RunpyLoader, modname, pypath=pypath)
+      frame.load(RunpyLoader, modname, pypath=pypath)
 
+      unknown_ops = dict()
       for primop in frame.absgraph:
-        if primop.optype!='undef':
-          self.data[primop.id] = (primop.source_op.type, primop.optype)
+        src = primop.source_op
+        if primop.optype=='undef':
+          if src.type not in unknown_ops:
+            unknown_ops[src.type] = []
+          args = []
+          if src.op_def is not None: # None implies null-ary op
+            for argdef,arg in zip(src.op_def.input_arg, src.inputs):
+              s = str(argdef.name)+':'
+              if type(arg)==tf.Tensor:
+                s += 'T'+format_dims(arg)
+              else:
+                s += '(unknown type:'+str(type(argdef))+')'
+              args.append(s)
+          self.data[primop.id] = str(src.type)+'('+', '.join(args)+')'
 
       if self.args['prioritized']:
         raise NotImplementedError, 'Timing-prioritized diagnosis not available yet.'
