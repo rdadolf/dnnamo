@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
-from .primop import Primop_undef
+from .primop import Primop_undef, Primop_zero
 
 class Match(object):
   __metaclass__ = ABCMeta
@@ -29,6 +29,9 @@ class MatchAny(Match):
 
 class EmitUndef(Emit):
   def emit(self, op): return Primop_undef(source_op=op)
+
+class EmitZero(Emit):
+  def emit(self, op): return Primop_zero(source_op=op)
 
 ################################################################################
 

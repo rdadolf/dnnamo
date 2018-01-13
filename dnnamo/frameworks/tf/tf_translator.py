@@ -1,6 +1,6 @@
 from dnnamo.core.primop import *
 from dnnamo.core.absgraph import AbstractGraph
-from dnnamo.core.translator import Rules, Match, Emit, Translator, MatchAny, EmitUndef
+from dnnamo.core.translator import Rules, Match, Emit, Translator, MatchAny, EmitUndef, EmitZero
 
 ################################################################################
 # Match components
@@ -48,6 +48,11 @@ class EmitDot2D(Emit):
 class TFRules(Rules): pass
 
 TFRules.add(99, MatchAny(), EmitUndef())
+
+TFRules.add(50, MatchExactType('NoOp'), EmitZero())
+
+TFRules.add(50, MatchExactType('Const'), EmitZero()) #?
+TFRules.add(50, MatchExactType('Placeholder'), EmitZero()) #?
 
 TFRules.add(50, MatchExactType('Add'), EmitBinaryKronecker())
 TFRules.add(50, MatchExactType('Sub'), EmitBinaryKronecker())
