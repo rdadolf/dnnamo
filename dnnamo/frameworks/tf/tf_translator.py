@@ -14,11 +14,11 @@ class MatchExactType(Match):
 ################################################################################
 # Emit components
 
-class EmitUnaryKronecker(Emit):
+class EmitUnaryHadamard(Emit):
   def emit(self, op):
-    return Primop_kronecker({'dim': op.inputs[0].get_shape().as_list()}, source_op=op)
+    return Primop_hadamard({'dim': op.inputs[0].get_shape().as_list()}, source_op=op)
 
-class EmitBinaryKronecker(Emit):
+class EmitBinaryHadamard(Emit):
   def emit(self, op):
     dim_a = op.inputs[0].get_shape().as_list()
     dim_b = op.inputs[1].get_shape().as_list()
@@ -28,7 +28,7 @@ class EmitBinaryKronecker(Emit):
       dim_b = dim_a
     # if both are <1, both are already [ ]
     # if both are >1, then TF disallows input tensors with different dimensions
-    return Primop_kronecker({'dim': dim_a}, source_op=op)
+    return Primop_hadamard({'dim': dim_a}, source_op=op)
 
 class EmitDot2D(Emit):
   def emit(self, op):
@@ -54,14 +54,14 @@ TFRules.add(50, MatchExactType('NoOp'), EmitZero())
 TFRules.add(50, MatchExactType('Const'), EmitZero()) #?
 TFRules.add(50, MatchExactType('Placeholder'), EmitZero()) #?
 
-TFRules.add(50, MatchExactType('Add'), EmitBinaryKronecker())
-TFRules.add(50, MatchExactType('Sub'), EmitBinaryKronecker())
-TFRules.add(50, MatchExactType('Mul'), EmitBinaryKronecker())
-TFRules.add(50, MatchExactType('Div'), EmitBinaryKronecker())
-TFRules.add(50, MatchExactType('FloorDiv'), EmitBinaryKronecker())
-TFRules.add(50, MatchExactType('RealDiv'), EmitBinaryKronecker())
-TFRules.add(50, MatchExactType('TruncateMod'), EmitBinaryKronecker())
-TFRules.add(50, MatchExactType('FloorMod'), EmitBinaryKronecker())
+TFRules.add(50, MatchExactType('Add'), EmitBinaryHadamard())
+TFRules.add(50, MatchExactType('Sub'), EmitBinaryHadamard())
+TFRules.add(50, MatchExactType('Mul'), EmitBinaryHadamard())
+TFRules.add(50, MatchExactType('Div'), EmitBinaryHadamard())
+TFRules.add(50, MatchExactType('FloorDiv'), EmitBinaryHadamard())
+TFRules.add(50, MatchExactType('RealDiv'), EmitBinaryHadamard())
+TFRules.add(50, MatchExactType('TruncateMod'), EmitBinaryHadamard())
+TFRules.add(50, MatchExactType('FloorMod'), EmitBinaryHadamard())
 
 TFRules.add(50, MatchExactType('MatMul'), EmitDot2D())
 

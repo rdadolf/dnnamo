@@ -112,8 +112,8 @@ Primop_zero = PrimopTypes.new('zero', [],
 #Primop_fixed = PrimopTypes.new('fixed', [],
 #  desc='A constant-cost operation.')
 
-Primop_kronecker = PrimopTypes.new('kronecker', ['dim'],
-  desc='A kronecker (element-wise matrix) operation.')
+Primop_hadamard = PrimopTypes.new('hadamard', ['dim'],
+  desc='A hadamard (element-wise matrix) operation.')
 
 Primop_dot = PrimopTypes.new('dot', ['dim_a', 'dim_b', 'dim_reduce'],
   desc='Inner (dot) product. This includes N-dimensional matrix multiplication.')
