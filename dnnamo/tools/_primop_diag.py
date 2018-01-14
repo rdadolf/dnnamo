@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from ..frameworks import FRAMEWORKS
 from ..loader import RunpyLoader
-from .tool_utilities import BaselineTool, path_to_loader_pair, ToolRegistry
+from .tool_utilities import BaselineTool, ToolRegistry
 
 def dimstr(dim):
   if dim.value is None:
@@ -32,13 +32,12 @@ class PrimopDiagnosticTool(BaselineTool):
     self.subparser.add_argument('--prioritized', '-p', action='store_true', default=False, help='Return a prioritized translation list based on the fraction of time spent in each native operation type.')
     return self.subparser
 
-  def _run(self, modelfiles):
+  def _run(self, models):
     self.data = dict()
 
-    for modelfile in modelfiles:
+    for model in models:
       frame = FRAMEWORKS[self.args['framework']]()
-      (modname, pypath) = path_to_loader_pair(modelfile)
-      frame.load(RunpyLoader, modname, pypath=pypath)
+      frame.load(self.args['loader'], model, **self.args['loader_opts'])
 
       unknown_ops = dict()
       for primop in frame.absgraph:

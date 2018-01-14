@@ -4,7 +4,7 @@ import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
 from dnnamo.core.mpl_plot import *
-from .tool_utilities import PlotTool, path_to_loader_pair, ToolRegistry
+from .tool_utilities import PlotTool, ToolRegistry
 
 class NativeOpDistributionTool(PlotTool):
   TOOL_NAME='native_op_distribution'
@@ -17,23 +17,21 @@ class NativeOpDistributionTool(PlotTool):
     super(NativeOpDistributionTool,self).add_subparser(argparser)
     return self.subparser
 
-  def _run(self, modelfiles):
+  def _run(self, models):
     self.data = []
-    for modelfile in modelfiles:
-      Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
-      frame = Frame()
-      modname, pypath = path_to_loader_pair(modelfile)
-      frame.load(RunpyLoader, modname, pypath=pypath)
+    for model in models:
+      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
+      frame.load(self.args['loader'], model, **self.args['loader_opts'])
 
       if self.args['framework']=='tf':
-        self.data.append( [modelfile, self._tf_breakdown(frame.graph)] )
+        self.data.append( [model, self._tf_breakdown(frame.graph)] )
       else:
         assert False, 'Unknown framework "'+str(self.args['framework'])+'"'
 
   def _plot(self, filename):
     fig,ax = plt.subplots(1,1,figsize=(12,9))
-    modelfiles = [b[0] for b in self.data]
-    colors = make_clr(len(modelfiles))
+    models = [b[0] for b in self.data]
+    colors = make_clr(len(models))
     for modelnum,(modelname,breakdown) in enumerate(self.data):
       names,counts = map(np.array,zip(*breakdown.items()))
       names,counts = zip(*sorted(zip(names,counts),key=lambda x:x[1],reverse=True))

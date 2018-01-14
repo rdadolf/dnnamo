@@ -4,6 +4,16 @@ import sys
 from ....core.model import ImmutableModel
 from ....core.loader import BaseLoader
 
+FATHOM_MODELS = [
+  'Seq2Seq',
+  'MemNet',
+  'Speech',
+  'Autoenc',
+  'Residual',
+  'VGG',
+  'AlexNet',
+  'DeepQ',
+]
 
 class FathomModel(ImmutableModel):
   def __init__(self, ModelClass):
@@ -23,6 +33,8 @@ class TFFathomLoader(BaseLoader):
     imported by name. The optional fathompath parameter can be used to point to
     the installation location of the Fathom package.'''
 
+    if identifier not in FATHOM_MODELS:
+      raise KeyError, 'No '+str(identifier)+' model found in Fathom. Valid models are: '+', '.join(FATHOM_MODELS)
     self.identifier = identifier
     self.fathompath = fathompath
 

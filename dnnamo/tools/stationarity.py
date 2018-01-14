@@ -17,18 +17,18 @@ class StationarityTool(PlotTool):
     self.subparser.add_argument('--threshold', action='store', type=float, default=101, help='Only consider the most time-consuming operations whose cumulative runtime is above a certain percentage of the total.')
     return self.subparser
 
-  def _run(self, modelfiles):
+  def _run(self, models):
     self.data = []
-    for modelfile in modelfiles:
+    for model in models:
       Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
       frame = Frame()
-      frame.load(modelfile, device='/cpu:0')
-      #frame.load(modelfile)
+      frame.load(model, device='/cpu:0')
+      #frame.load(model)
       traces = frame.run_native_trace(n_steps=102, setup_options={'allow_soft_placement': True})
       # Hack off the first and last to avoid outliers.
       traces = traces[1:-1]
-      self.data.append( [modelfile, [sum([tp.dt for tp in trace]) for trace in traces]] )
-      #self.data.append( [modelfile, self._aggregate_types(traces)] )
+      self.data.append( [model, [sum([tp.dt for tp in trace]) for trace in traces]] )
+      #self.data.append( [model, self._aggregate_types(traces)] )
 
   #def _aggregate_types(self, traces):
     #breakdown = {} # op -> microseconds
@@ -45,7 +45,7 @@ class StationarityTool(PlotTool):
 
   #def _threshold(self):
   #  new_self_data = []
-  #  for modelfile,data in self.data:
+  #  for model,data in self.data:
   #    total_time = sum(data.values())
   #    print 'total_time',total_time
   #    threshold = total_time*self.args['threshold']/100.
@@ -58,8 +58,8 @@ class StationarityTool(PlotTool):
   #        break
   #      new_data[typ]=dt
   #      s += dt
-  #    new_self_data.append([modelfile,new_data])
-  #    #new_traces.append([modelfile,{typ:dt for typ,dt in data.items() if dt>lowerbound}])
+  #    new_self_data.append([model,new_data])
+  #    #new_traces.append([model,{typ:dt for typ,dt in data.items() if dt>lowerbound}])
   #  self.data = new_self_data
 
   def _output(self):
@@ -68,8 +68,8 @@ class StationarityTool(PlotTool):
     #self._threshold()
     #n_op_types_after = [len(data[1]) for data in self.data]
     if self.args['print']:
-      for ((modelfile,data),before,after) in zip(self.data,n_op_types_before,n_op_types_after):
-        print '# of op types for '+str(modelfile)+': '+str(before)+'->'+str(after)
+      for ((model,data),before,after) in zip(self.data,n_op_types_before,n_op_types_after):
+        print '# of op types for '+str(model)+': '+str(before)+'->'+str(after)
         for optype,dt in sorted(data.items(), key=lambda p:p[1], reverse=True):
           print '  '+str(optype)+': '+str(dt)
 
@@ -78,8 +78,8 @@ class StationarityTool(PlotTool):
 
   def _plot(self, filename):
     fig,ax = plt.subplots(1,1,figsize=(12,9))
-    modelfiles = [b[0] for b in self.data]
-    colors = make_clr(len(modelfiles))
+    models = [b[0] for b in self.data]
+    colors = make_clr(len(models))
     for modelnum,(modelname,data) in enumerate(self.data):
       ax.hist(np.array(data)+modelnum, label=modelname, color=colors[modelnum])
     #ax.set_ylim(0,100)
@@ -98,7 +98,7 @@ class StationarityTool(PlotTool):
 
     # FIXME: definitely needs work
     fig,ax = plt.subplots(1,1)
-    modelfiles = [b[0] for b in self.data]
+    models = [b[0] for b in self.data]
     maxcolors = max([len(b[1]) for b in self.data])
     colorsweep = make_clr(maxcolors)
     width=0.9
@@ -112,8 +112,8 @@ class StationarityTool(PlotTool):
           #print(n,c,b)
           ax.bar(modelnum, c, bottom=b, width=width, label=n, color=colorsweep[i], lw=0.1)
 
-    ax.set_xticks(np.arange(0,len(modelfiles))+width/2.)
-    ax.set_xticklabels(modelfiles, rotation=89)
+    ax.set_xticks(np.arange(0,len(models))+width/2.)
+    ax.set_xticklabels(models, rotation=89)
     ax.set_ylabel('Number of native ops')
     #fig.tight_layout()
     fig.savefig(filename)

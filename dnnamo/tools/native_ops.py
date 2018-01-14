@@ -1,7 +1,7 @@
 import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
-from .tool_utilities import BaselineTool, path_to_loader_pair, ToolRegistry
+from .tool_utilities import BaselineTool, ToolRegistry
 
 class NativeOpsTool(BaselineTool):
   TOOL_NAME='native_ops'
@@ -11,12 +11,10 @@ class NativeOpsTool(BaselineTool):
     super(NativeOpsTool,self).__init__()
     self.data = []
 
-  def _run(self, modelfiles):
-    for modelfile in modelfiles:
-      Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
-      frame = Frame()
-      (modname, pypath) = path_to_loader_pair(modelfile)
-      frame.load(RunpyLoader, modname, pypath=pypath)
+  def _run(self, models):
+    for model in models:
+      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
+      frame.load(self.args['loader'], model, **self.args['loader_opts'])
 
       if self.args['framework']=='tf':
         ops = [(op.name, op.type, op.device) for op in frame.graph.get_operations()]

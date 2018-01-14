@@ -1,7 +1,7 @@
 import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
-from .tool_utilities import BaselineTool, path_to_loader_pair, ToolRegistry
+from .tool_utilities import BaselineTool, ToolRegistry
 
 class PrimopsTool(BaselineTool):
   TOOL_NAME='primops'
@@ -16,11 +16,11 @@ class PrimopsTool(BaselineTool):
     self.subparser.add_argument('--undef',action='store_true',default=False,help='Display undefined Primops.')
     return self.subparser
 
-  def _run(self, modelfiles):
-    for modelfile in modelfiles:
+  def _run(self, models):
+    for model in models:
       frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
-      (modname, pypath) = path_to_loader_pair(modelfile)
-      frame.load(RunpyLoader, modname, pypath=pypath)
+      print self.args['loader_opts']
+      frame.load(self.args['loader'], model, **self.args['loader_opts'])
       ops = [(primop.id,primop.optype,primop.device) for primop in frame.absgraph if primop.optype!='undef' or self.args['undef']]
       self.data.append(ops)
 

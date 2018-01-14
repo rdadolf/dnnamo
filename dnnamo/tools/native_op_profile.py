@@ -4,7 +4,7 @@ import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
 from dnnamo.core.mpl_plot import *
-from .tool_utilities import PlotTool, path_to_loader_pair, ToolRegistry
+from .tool_utilities import PlotTool, ToolRegistry
 
 class NativeOpProfileTool(PlotTool):
   TOOL_NAME='native_op_profile'
@@ -18,21 +18,19 @@ class NativeOpProfileTool(PlotTool):
     # self.subparser.add_argument('--batch', action='store', type=int, default=32, help='Pass and sweep the batch size.')
     return self.subparser
 
-  def _run(self, modelfiles):
+  def _run(self, models):
     self.data = []
-    for modelfile in modelfiles:
-      Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
-      frame = Frame()
+    for model in models:
+      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
       # pass batch_size in here.. also add a command line for it.
-      modname, pypath = path_to_loader_pair(modelfile)
-      frame.load(RunpyLoader, modname, pypath=pypath)
-      #frame.load(modelfile, device='/cpu:0', init_options={'batch_size':self.args['batch']})
-      #frame.load(modelfile)
+      frame.load(self.args['loader'], model, **self.args['loader_opts'])
+      #frame.load(model, device='/cpu:0', init_options={'batch_size':self.args['batch']})
+      #frame.load(model)
       traces = frame.run_native_trace(n_steps=12, setup_options={'allow_soft_placement': True, 'inter_op_parallelism_threads':1, 'intra_op_parallelism_threads':8})
       #traces = frame.run_native_trace(n_steps=12, setup_options={'allow_soft_placement': True})
       # Hack off the first and last to avoid outliers.
       traces = traces[1:-1]
-      self.data.append( [modelfile, self._aggregate_types(traces)] )
+      self.data.append( [model, self._aggregate_types(traces)] )
 
   def _aggregate_types(self, traces):
     breakdown = {} # op -> microseconds
@@ -49,7 +47,7 @@ class NativeOpProfileTool(PlotTool):
 
   def _threshold(self):
     new_self_data = []
-    for modelfile,data in self.data:
+    for model,data in self.data:
       total_time = sum(data.values())
       print 'total_time',total_time
       threshold = total_time*self.args['threshold']/100.
@@ -62,8 +60,8 @@ class NativeOpProfileTool(PlotTool):
           break
         new_data[typ]=dt
         s += dt
-      new_self_data.append([modelfile,new_data])
-      #new_traces.append([modelfile,{typ:dt for typ,dt in data.items() if dt>lowerbound}])
+      new_self_data.append([model,new_data])
+      #new_traces.append([model,{typ:dt for typ,dt in data.items() if dt>lowerbound}])
     self.data = new_self_data
 
   def _output(self):
@@ -72,8 +70,8 @@ class NativeOpProfileTool(PlotTool):
     self._threshold()
     n_op_types_after = [len(data[1]) for data in self.data]
     if self.args['print']:
-      for ((modelfile,data),before,after) in zip(self.data,n_op_types_before,n_op_types_after):
-        print '# of op types for '+str(modelfile)+': '+str(before)+'->'+str(after)
+      for ((model,data),before,after) in zip(self.data,n_op_types_before,n_op_types_after):
+        print '# of op types for '+str(model)+': '+str(before)+'->'+str(after)
         for optype,dt in sorted(data.items(), key=lambda p:p[1], reverse=True):
           print '  '+str(optype)+': '+str(dt)
 
@@ -82,8 +80,8 @@ class NativeOpProfileTool(PlotTool):
 
   def _plot(self, filename):
     fig,ax = plt.subplots(1,1,figsize=(12,9))
-    modelfiles = [b[0] for b in self.data]
-    colors = make_clr(len(modelfiles))
+    models = [b[0] for b in self.data]
+    colors = make_clr(len(models))
     for modelnum,(modelname,breakdown) in enumerate(self.data):
       names,counts = map(np.array,zip(*breakdown.items()))
       names,counts = zip(*sorted(zip(names,counts),key=lambda x:x[1],reverse=True))
@@ -108,7 +106,7 @@ class NativeOpProfileTool(PlotTool):
 
     # FIXME: definitely needs work
     fig,ax = plt.subplots(1,1)
-    modelfiles = [b[0] for b in self.data]
+    models = [b[0] for b in self.data]
     maxcolors = max([len(b[1]) for b in self.data])
     colorsweep = make_clr(maxcolors)
     width=0.9
@@ -122,8 +120,8 @@ class NativeOpProfileTool(PlotTool):
           #print(n,c,b)
           ax.bar(modelnum, c, bottom=b, width=width, label=n, color=colorsweep[i], lw=0.1)
 
-    ax.set_xticks(np.arange(0,len(modelfiles))+width/2.)
-    ax.set_xticklabels(modelfiles, rotation=89)
+    ax.set_xticks(np.arange(0,len(models))+width/2.)
+    ax.set_xticklabels(models, rotation=89)
     ax.set_ylabel('Number of native ops')
     #fig.tight_layout()
     fig.savefig(filename)

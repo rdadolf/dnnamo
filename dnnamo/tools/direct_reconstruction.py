@@ -3,7 +3,7 @@ import dnnamo.frameworks
 import dnnamo.devices
 from dnnamo.loader import RunpyLoader
 from dnnamo.core.trace import average_traces, Tracepoint, Trace
-from .tool_utilities import PlotTool, path_to_loader_pair, ToolRegistry
+from .tool_utilities import PlotTool, ToolRegistry
 
 class DirectReconstructionTool(PlotTool):
   TOOL_NAME='direct_reconstruction'
@@ -18,12 +18,11 @@ class DirectReconstructionTool(PlotTool):
     self.subparser.add_argument('--device', default='tf_cpu', help='Specify the dvice to use as a target for the reconstruction.')
     return self.subparser
 
-  def _run(self, modelfiles):
-    for modelfile in modelfiles:
+  def _run(self, models):
+    for model in models:
       frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
       dev = dnnamo.devices.DEVICES[self.args['device']]()
-      modname, pypath = path_to_loader_pair(modelfile)
-      frame.load(RunpyLoader, modname, pypath=pypath)
+      frame.load(self.args['loader'], model, **self.args['loader_opts'])
       g = frame.absgraph
       traces = frame.run_native_trace(n_steps=12)[1:-1] # avoid outliers
       trace = average_traces(traces)

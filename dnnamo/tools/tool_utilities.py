@@ -1,20 +1,24 @@
 from abc import ABCMeta, abstractmethod
-import os.path
+import argparse
 
 import dnnamo
 from dnnamo.core.mpl_plot import *
 
-def path_to_loader_pair(path):
-  '''Converts a path to a (module, pypath) pair suitable for runpy.
+class LoaderArgAction(argparse.Action):
+  def __call__(self, parser, namespace, values, option_string):
+    assert option_string=='--loader' or option_string=='-l', 'invalid use of the LoaderArgAction: '+str(option_string)
+    setattr(namespace,'loader',getattr(dnnamo.loader,values))
 
-  Assuming that a path points to a valid python file or module which contains a
-  Dnnamo model that can be loaded with RunpyLoader.'''
-
-  p = os.path.normpath(path) # mostly so "/path/dir/" becomes "/path/dir"
-  pypath, modname = os.path.split(p)
-  if modname.endswith('.py'):
-    modname = modname[:-3]
-  return (modname, pypath)
+class LoaderOptsArgAction(argparse.Action):
+  def __init__(self, *args, **kwargs):
+    super(LoaderOptsArgAction,self).__init__(*args, **kwargs)
+    self.options = {}
+  def __call__(self, parser, namespace, values, option_string):
+    assert option_string=='--loader_opts', 'invalid use of the LoaderOptsArgAction: '+str(option_string)
+    k,v = values.split('=')
+    self.options[k] = v
+    #print 'Total:',self.options
+    setattr(namespace,'loader_opts', self.options)
 
 class BaselineTool(Cacher):
   __metaclass__ = ABCMeta
@@ -29,8 +33,10 @@ class BaselineTool(Cacher):
 
   def add_subparser(self, argparser):
     self.subparser = argparser.add_parser(self.TOOL_NAME, help=self.TOOL_SUMMARY)
-    self.subparser.add_argument('modelfiles', type=str, nargs='*', help='a list of model files or modules. If there are multiple models, add the name of the desired model after a ":".')
+    self.subparser.add_argument('models', type=str, nargs='*', help='a list of model identifiers. If there are multiple models, the tool will be run on each in the order specified.')
     self.subparser.add_argument('--framework', choices=dnnamo.frameworks.FRAMEWORKS.keys(), default='tf', help='specify which framework the models use')
+    self.subparser.add_argument('--loader','-l', choices=dnnamo.loader.__all__, type=str, action=LoaderArgAction, default=dnnamo.loader.RunpyLoader, help='A Dnnamo loader class which will be used to load the model.')
+    self.subparser.add_argument('--loader_opts', type=str, action=LoaderOptsArgAction, default={}, help='Specify additional options to the selected loader. Use the form key=value (no spaces).')
     self.subparser.add_argument('--cachefile', metavar='PATH', type=str, default=self.TOOL_NAME+'.cache', help='location for reading or writing pre-computed data')
     self.subparser.add_argument('--readcache', action='store_true', default=False, help='Do not run any computation. Use data from a cache file instead.')
     self.subparser.add_argument('--writecache', action='store_true', default=False, help='Run the computation and store the result to a cache file.')
@@ -42,7 +48,7 @@ class BaselineTool(Cacher):
     if self.args['readcache']:
       self.data = self._load(self.args['cachefile'])
     else:
-      self._run(self.args['modelfiles'])
+      self._run(self.args['models'])
 
     self._output()
 
@@ -53,7 +59,7 @@ class BaselineTool(Cacher):
   def _output(self): pass
 
   @abstractmethod
-  def _run(self, modelfiles): pass
+  def _run(self, models): pass
 
 
 class PlotTool(BaselineTool):

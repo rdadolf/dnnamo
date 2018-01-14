@@ -4,7 +4,7 @@ import dnnamo
 import dnnamo.frameworks
 from dnnamo.loader import RunpyLoader
 from dnnamo.core.mpl_plot import *
-from .tool_utilities import PlotTool, path_to_loader_pair, ToolRegistry
+from .tool_utilities import PlotTool, ToolRegistry
 
 class AmdahlTool(PlotTool):
   TOOL_NAME='amdahl'
@@ -18,17 +18,13 @@ class AmdahlTool(PlotTool):
     # add a device option
     return self.subparser
 
-  def _run(self, modelfiles):
+  def _run(self, models):
     self.data = []
-    for modelfile in modelfiles:
-      Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
-      frame = Frame()
-      print "HERE"
-      print self.args['dev']
-      modname, pypath = path_to_loader_pair(modelfile)
-      frame.load(RunpyLoader, modname, pypath=pypath)
-      #frame.load(modelfile, device='/%s:0'%self.args['dev'])
-      #frame.load(modelfile, device='/gpu:0')
+    for model in models:
+      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
+      frame.load(self.args['loader'], model, **self.args['loader_opts'])
+      #frame.load(model, device='/%s:0'%self.args['dev'])
+      #frame.load(model, device='/gpu:0')
       # Setup options:
       #   allow_soft_placement: True/False
       #     If you specify a device during graph construction (using the device
@@ -50,7 +46,7 @@ class AmdahlTool(PlotTool):
       traces = frame.run_native_trace(n_steps=12, setup_options={'allow_soft_placement':True, 'inter_op_parallelism_threads':1, 'intra_op_parallelism_threads':self.args['threads']})
       # Hack off the first and last to avoid outliers.
       traces = traces[1:-1]
-      self.data.append( [modelfile, self._aggregate_types(traces)] )
+      self.data.append( [model, self._aggregate_types(traces)] )
 
   def _aggregate_types(self, traces):
     breakdown = {} # op -> microseconds
@@ -65,7 +61,7 @@ class AmdahlTool(PlotTool):
 
   def _threshold(self):
     new_self_data = []
-    for modelfile,data in self.data:
+    for model,data in self.data:
       total_time = sum(data.values())
       print 'total_time',total_time
       threshold = total_time*self.args['threshold']/100.
@@ -78,8 +74,8 @@ class AmdahlTool(PlotTool):
           break
         new_data[typ]=dt
         s += dt
-      new_self_data.append([modelfile,new_data])
-      #new_traces.append([modelfile,{typ:dt for typ,dt in data.items() if dt>lowerbound}])
+      new_self_data.append([model,new_data])
+      #new_traces.append([model,{typ:dt for typ,dt in data.items() if dt>lowerbound}])
     self.data = new_self_data
 
   def _output(self):
@@ -88,8 +84,8 @@ class AmdahlTool(PlotTool):
     self._threshold()
     n_op_types_after = [len(data[1]) for data in self.data]
     if self.args['print']:
-      for ((modelfile,data),before,after) in zip(self.data,n_op_types_before,n_op_types_after):
-        print '# of op types for '+str(modelfile)+': '+str(before)+'->'+str(after)
+      for ((model,data),before,after) in zip(self.data,n_op_types_before,n_op_types_after):
+        print '# of op types for '+str(model)+': '+str(before)+'->'+str(after)
         for optype,dt in sorted(data.items(), key=lambda p:p[1], reverse=True):
           print '  '+str(optype)+': '+str(dt)
 
@@ -98,8 +94,8 @@ class AmdahlTool(PlotTool):
 
   def _plot(self, filename):
     fig,ax = plt.subplots(1,1,figsize=(12,9))
-    modelfiles = [b[0] for b in self.data]
-    colors = make_clr(len(modelfiles))
+    models = [b[0] for b in self.data]
+    colors = make_clr(len(models))
     for modelnum,(modelname,breakdown) in enumerate(self.data):
       names,counts = map(np.array,zip(*breakdown.items()))
       names,counts = zip(*sorted(zip(names,counts),key=lambda x:x[1],reverse=True))

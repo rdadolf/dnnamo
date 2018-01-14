@@ -5,8 +5,9 @@ from dnnamo.loader import RunpyLoader
 
 class TestCoreLoaders(unittest.TestCase):
   _names = [
-    'test/test_models/empty_models',
-    'test/test_models/simple_nnet',
+    'test/test_models/empty_models.py',
+    'test/test_models/simple_nnet.py',
+    'test/../test/test_models/simple_nnet.py',
   ]
   _loaders = [
     RunpyLoader,
@@ -22,8 +23,3 @@ class TestCoreLoaders(unittest.TestCase):
       for name in self._names:
         m = loader(name).load()
         assert isinstance(m,BaseModel), 'loader returned a non-model object: '+str(m)
-
-  @unittest.SkipTest
-  def test_load_with_pypath(self):
-    # FIXME: NYI
-    pass

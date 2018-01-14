@@ -36,13 +36,12 @@ class DendrogramTool(PlotTool):
     # self.subparser.add_argument('--batch', action='store', type=int, default=32, help='Pass and sweep the batch size.')
     return self.subparser
 
-  def _run(self, modelfiles):
+  def _run(self, models):
     self.data = []
-    for modelfile in modelfiles:
-      Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
-      frame = Frame()
+    for model in models:
+      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
       # pass batch_size in here.. also add a command line for it.
-      frame.load(modelfile, device='/cpu:0')
+      frame.load(self.args['loader'], model, **self.args['loader_opts'])
       #frame.load(modelfile, device='/cpu:0', init_options={'batch_size':self.args['batch']})
       #frame.load(modelfile)
       traces = frame.run_native_trace(n_steps=12, setup_options={'allow_soft_placement': True, 'inter_op_parallelism_threads':1, 'intra_op_parallelism_threads':8})

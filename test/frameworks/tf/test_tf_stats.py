@@ -10,7 +10,7 @@ from dnnamo.loader import RunpyLoader
 class TestCopyTFGraph(unittest.TestCase):
   def test_copy(self):
     frame = TFFramework()
-    frame.load(RunpyLoader, 'simple_nnet', pypath='test/test_models')
+    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
     g = frame.graph
 
     h = copy_tf_graph(g)
@@ -43,7 +43,7 @@ class TestCopyTFGraph(unittest.TestCase):
 class TestTFStats(unittest.TestCase):
   def test_get_stats_from_framework(self):
     frame = TFFramework()
-    frame.load(RunpyLoader, 'simple_nnet', pypath='test/test_models')
+    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
     stats = frame.native_stats()
     assert stats is not None, 'Failed to get stats from framework'
     assert isinstance(stats, NativeStats), 'Got a bad return value from framework.native_stats(): '+str(type(stats))
@@ -51,7 +51,7 @@ class TestTFStats(unittest.TestCase):
 
   def test_computational_density(self):
     frame = TFFramework()
-    frame.load(RunpyLoader, 'simple_nnet', pypath='test/test_models')
+    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
     stats = frame.native_stats()
 
     # Make sure *everything* gives numerical values.
@@ -63,7 +63,7 @@ class TestTFStats(unittest.TestCase):
   #@unittest.SkipTest
   def test_computational_density_values(self):
     frame = TFFramework()
-    frame.load(RunpyLoader, 'simple_nnet', pypath='test/test_models')
+    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
     stats = frame.native_stats()
     #g = frame.native_model()
 
@@ -91,7 +91,7 @@ class TestTFStats(unittest.TestCase):
   #@unittest.SkipTest
   def test_computational_density_partial(self):
     frame = TFFramework()
-    frame.load(RunpyLoader, 'simple_nnet', pypath='test/test_models')
+    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
     stats = frame.native_stats()
     #g = frame.native_model()
 

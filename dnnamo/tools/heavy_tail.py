@@ -16,16 +16,15 @@ class HeavyTailTool(PlotTool):
     self.subparser.add_argument('--print', action='store_true', default=False, help='Print a sorted list of the most time-consuming native operations.')
     return self.subparser
 
-  def _run(self, modelfiles):
+  def _run(self, models):
     self.data = []
-    for modelfile in modelfiles:
-      Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
-      frame = Frame()
-      frame.load(modelfile)
+    for model in models:
+      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
+      frame.load(self.args['loader'], model, **self.args['loader_opts'])
       traces = frame.run_native_trace(n_steps=12)
       # Hack off the first and last to avoid outliers.
       traces = traces[1:-1]
-      self.data.append( [modelfile, self._aggregate_types(traces)] )
+      self.data.append( [model, self._aggregate_types(traces)] )
 
   def _aggregate_types(self, traces):
     breakdown = {} # op -> microseconds

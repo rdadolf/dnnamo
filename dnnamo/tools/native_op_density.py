@@ -16,16 +16,15 @@ class NativeOpDensityTool(PlotTool):
     super(NativeOpDensityTool,self).add_subparser(argparser)
     return self.subparser
 
-  def _run(self, modelfiles):
+  def _run(self, models):
     self.data = []
-    for modelfile in modelfiles:
-      Frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]
-      frame = Frame()
-      frame.load(modelfile)
+    for model in models:
+      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
+      frame.load(self.args['loader'], model, **self.args['loader_opts'])
       m = frame.native_model()
 
       if self.args['framework']=='tf':
-        self.data.append( [modelfile, self._tf_stats(m,frame)] )
+        self.data.append( [model, self._tf_stats(m,frame)] )
       else:
         assert False, 'Unknown framework "'+str(self.args['framework'])+'"'
 
@@ -38,8 +37,8 @@ class NativeOpDensityTool(PlotTool):
 
   def _plot(self, filename):
     fig,ax = plt.subplots(1,1,figsize=(12,9))
-    modelfiles = [b[0] for b in self.data]
-    colors = make_clr(len(modelfiles))
+    models = [b[0] for b in self.data]
+    colors = make_clr(len(models))
     # plot reference grid
     for abs_log2_density in xrange(0,4):
       a,b = 1, 1./(2**abs_log2_density)

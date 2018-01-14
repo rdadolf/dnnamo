@@ -12,15 +12,15 @@ class TestTFFramework(unittest.TestCase):
       RunpyLoader,
     ]
     identifiers = [
-      ('test.test_models.empty_models',[ ]),
-      ('empty_models',['test/test_models']),
-      ('empty_models',['test/../test/test_models']),
+      'test.test_models.empty_models',
+      'test/test_models/empty_models.py',
+      'test/../test/test_models/empty_models.py', # FIXME
     ]
     for loader in loaders:
-      for identifier,pypath in identifiers:
+      for identifier in identifiers:
         frame = TFFramework()
-        print 'Loading:',identifier,'with',pypath,'as extra sys.path arguments'
-        frame.load(loader, identifier, pypath=pypath)
+        print 'Loading:',identifier
+        frame.load(loader, identifier)
         assert frame.model.is_dnnamo_model, 'Model isnt actually a Dnnamo model'
         assert isinstance(frame.model, BaseModel), 'Model isnt actually a Dnnamo model'
 
