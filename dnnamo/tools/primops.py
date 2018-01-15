@@ -21,7 +21,7 @@ class PrimopsTool(BaselineTool):
       frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
       print self.args['loader_opts']
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
-      ops = [(primop.id,primop.optype,primop.device) for primop in frame.absgraph if primop.optype!='undef' or self.args['undef']]
+      ops = [(primop.id,primop.optype,primop.device) for primop in frame.get_absgraph() if primop.optype!='undef' or self.args['undef']]
       self.data.append(ops)
 
   def _output(self):

@@ -1,4 +1,7 @@
 from abc import ABCMeta, abstractmethod
+import os
+import timeit
+
 from .model import BaseModel
 from .datamanager import Datatag, DataManager
 
@@ -51,13 +54,13 @@ class Framework(object):
   # Each of these methods corresponds to a Datatag, and their data is handled
   # by the DataManager.
 
-  @property
-  def absgraph(self):
+  def get_absgraph(self):
     '''Returns an Abstract Graph representation of the model.'''
     if self._data_manager[Datatag.absgraph] is None:
       self._data_manager[Datatag.absgraph] = self.translator.translate(self.model)
     return self._data_manager[Datatag.absgraph]
 
+  @property
   def get_weights(self, selector=None):
     '''Returns a dictionary of weights values from the model.
 
@@ -66,6 +69,17 @@ class Framework(object):
     if self._data_manager[Datatag.weights] is None:
       self._data_manager[Datatag.weights] = self.model.get_weights()
     return self._data_manager[Datatag.weights]
+
+  def get_rungraph(self):
+    '''Returns the native graph actually used during execution.
+
+    Note that depending on the framework and framework settings used, this may
+    or may not be identical to the graph return via the Framework.graph property.'''
+    return None
+
+  def get_timing(self):
+    '''Return timing information for all native operations.'''
+    return {} # native_op -> usecs
 
   ### AMO methods
 
@@ -90,11 +104,13 @@ class Framework(object):
     return self._translator.map_primop(primop_id)
 
 
-  def run(self, n_steps=1, setup_options=None):
+  # FIXME: I'm not sure that providing this is a good idea. It might be better
+  #   to push it into the data manager and provide more advanced support, like
+  #   warmup to eliminate first-run timing skew.
+  def run(self, n_steps=1):
     '''Executes a model for a finite number of steps.
 
-    Args:
-      n_steps: The number of steps to execute.
+    Returns the model's output and total running time in microseconds.
     '''
     #self._model.setup(setup_options=setup_options)
     runner = self.DefaultRunstep()
@@ -105,9 +121,15 @@ class Framework(object):
     #   In the end, this function should probably be split into two. Or, better
     #   yet, it should be redesigned into something less broad ("run" does just
     #   about everything, and maybe it shouldn't).
-    self.model.run_inference(runstep=runner, n_steps=n_steps)
-    #self._model.teardown()
-    return None
+
+    os_secs_0 = os.times()[0]
+    wall_secs_0 = timeit.default_timer()
+    output = self.model.run_inference(runstep=runner, n_steps=n_steps)
+    os_secs_1 = os.times()[0]
+    wall_secs_1 = timeit.default_timer()
+
+    dt = (wall_secs_1-wall_secs_0)*1000000. # to microseconds
+    return output, dt
 
   def run_native_trace(self, n_steps=1, setup_options=None):
     '''Executes a model, capturing a trace of its execution.

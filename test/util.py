@@ -12,7 +12,7 @@ def runtool(t, cmd):
   t.add_subparser(subs)
   args = vars(parser.parse_args(cmd.split()))
   print args
-  t.run(args)
+  return t.run(args)
 
 
 class cleanup_cachefile(object):

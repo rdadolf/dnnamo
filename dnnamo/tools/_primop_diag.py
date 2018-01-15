@@ -25,7 +25,7 @@ def format_dims_proto(tf_shape_proto):
 
 class PrimopDiagnosticTool(BaselineTool):
   TOOL_NAME='_primop_diag'
-  TOOL_SUMMARY='[INTERNAL] Assists in diagnosing Primop translation problems.'
+  TOOL_SUMMARY='[DEV] Assists in diagnosing Primop translation problems.'
 
   def add_subparser(self, argparser):
     super(PrimopDiagnosticTool, self).add_subparser(argparser)
@@ -40,7 +40,7 @@ class PrimopDiagnosticTool(BaselineTool):
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
 
       unknown_ops = dict()
-      for primop in frame.absgraph:
+      for primop in frame.get_absgraph():
         src = primop.source_op
 
         if primop.optype=='undef':

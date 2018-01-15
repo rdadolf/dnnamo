@@ -20,6 +20,7 @@ class Datatag(object):
   class absgraph(object): __metaclass__=_TagMeta
   class weights(object): __metaclass__=_TagMeta
   # Dynamic data
+  class rungraph(object): __metaclass__=_TagMeta
   class timing(object): __metaclass__=_TagMeta
   class ivalues(object): __metaclass__=_TagMeta # FIXME: Name on this one?
 

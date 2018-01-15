@@ -33,22 +33,28 @@ class BaselineTool(Cacher):
 
   def add_subparser(self, argparser):
     self.subparser = argparser.add_parser(self.TOOL_NAME, help=self.TOOL_SUMMARY)
-    self.subparser.add_argument('models', type=str, nargs='*', help='a list of model identifiers. If there are multiple models, the tool will be run on each in the order specified.')
+    self.subparser.add_argument('models', type=str, nargs='*', help='A list of model identifiers. Different loaders understand different types of identifiers (paths, model names, etc.).')
     self.subparser.add_argument('--framework', choices=dnnamo.frameworks.FRAMEWORKS.keys(), default='tf', help='specify which framework the models use')
-    self.subparser.add_argument('--loader','-l', choices=dnnamo.loader.__all__, type=str, action=LoaderArgAction, default=dnnamo.loader.RunpyLoader, help='A Dnnamo loader class which will be used to load the model.')
-    self.subparser.add_argument('--loader_opts', type=str, action=LoaderOptsArgAction, default={}, help='Specify additional options to the selected loader. Use the form key=value (no spaces).')
-    self.subparser.add_argument('--cachefile', metavar='PATH', type=str, default=self.TOOL_NAME+'.cache', help='location for reading or writing pre-computed data')
-    self.subparser.add_argument('--readcache', action='store_true', default=False, help='Do not run any computation. Use data from a cache file instead.')
-    self.subparser.add_argument('--writecache', action='store_true', default=False, help='Run the computation and store the result to a cache file.')
+    self.subparser.add_argument('--loader','-l', choices=dnnamo.loader.__all__, type=str, action=LoaderArgAction, default=dnnamo.loader.RunpyLoader, help='The Dnnamo loader class used to read in the model.')
+    self.subparser.add_argument('--loader_opts', type=str, action=LoaderOptsArgAction, default={}, help='Additional options to the selected loader (key=value).')
+    self.subparser.add_argument('--cachefile', metavar='PATH', type=str, default=self.TOOL_NAME+'.cache', help='Path where cache files are read from or written to.')
+    self.subparser.add_argument('--readcache', action='store_true', default=False, help='Use data from a cache file instead of running.')
+    self.subparser.add_argument('--writecache', action='store_true', default=False, help='Store data to a cache file after running.')
     return self.subparser
 
   def run(self, args):
-    # Note: if you override this, this line is generally still required.
+    # NOTE: if you override this, this line is generally still required.
+    # You should also generally consider adding the other functionality, too.
     self.args = args
+
     if self.args['readcache']:
       self.data = self._load(self.args['cachefile'])
     else:
-      self._run(self.args['models'])
+      if len(self.args['models'])<1:
+        print 'No models selected.'
+        return
+      else:
+        self._run(self.args['models'])
 
     self._output()
 
@@ -85,5 +91,8 @@ class ToolRegistry(object):
     cls.registry[ToolClass.TOOL_NAME] = ToolClass
 
   @classmethod
-  def all_tools(cls):
-    return cls.registry.items()
+  def sorted_tools(cls):
+    dev_sorted = [(k,v) for k,v in sorted(cls.registry.items(), key=lambda pair:pair[0]) if k.startswith('_')]
+    normal_sorted = [(k,v) for k,v in sorted(cls.registry.items(), key=lambda pair:pair[0]) if not k.startswith('_')]
+    return normal_sorted + dev_sorted
+    #return cls.registry.items()
