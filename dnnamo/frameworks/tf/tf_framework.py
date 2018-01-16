@@ -10,45 +10,20 @@ class TFFramework(Framework):
     super(TFFramework, self).__init__(model)
     self._translator = TFTranslator()
 
-
   @property
   def translator(self):
     return self._translator
 
-  def _transitive_closure(self, targets):
-    # NOTE: Operational, but not currently used.
-    #   Part of the problem is the need for a 'targets' argument, which is a
-    #   model-specific runtime parameter. This not usually convenient to get
-    #   when we would most want a static transitive closure function. I'm
-    #   leaving it in here in case it is useful later.
-    ops = set([])
-    op_queue = []
-    # Prime the queue
-    for t in targets:
-      if isinstance(t, tf.Tensor):
-        #print 'adding new op',t.op.name
-        op_queue.append(t.op)
-        ops.add(t.op)
-      else:
-        #print 'adding new op',t.name
-        op_queue.append(t)
-        ops.add(t)
-    # BFS the graph
-    while len(op_queue)>0:
-      op = op_queue[0]
-      op_queue = op_queue[1:]
-      for pre_op in [tensor.op for tensor in op.inputs]:
-        if pre_op not in ops:
-          #print 'adding new op',pre_op.name
-          ops.add(pre_op)
-          op_queue.append(pre_op)
-      for pre_op in op.control_inputs:
-        if pre_op not in ops:
-          #print 'adding new control op',pre_op.name
-          ops.add(pre_op)
-          op_queue.append(pre_op)
-    # All the ops necessary for computing the targets
-    return list(ops)
+  # FIXME:
+  # def run_instrumented(self, ...)
+  # Tensorflow returns captures rungraph and timing data using the same method:
+  # Session.run() with runmetadata. Instead of running this twice, just run it
+  # once whenever either is asked for and fill in both fields. This also makes
+  # the data more consistent.
+  # Note that we might also need to override get_timing() and get_rungraph() in
+  # order to make this work.
+
+  ### Older methods
 
   # This is a convenient shortcut so users don't have to go module surfing.
   DefaultRunstep = _DefaultRunstep
