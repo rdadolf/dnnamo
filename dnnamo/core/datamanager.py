@@ -17,6 +17,7 @@ class Datatag(object):
   class NONE(object): pass # not actually tags
   class ALL(object): pass # not actually tags
   # Static data
+  class graph(object): __metaclass__=_TagMeta
   class absgraph(object): __metaclass__=_TagMeta
   class weights(object): __metaclass__=_TagMeta
   # Dynamic data

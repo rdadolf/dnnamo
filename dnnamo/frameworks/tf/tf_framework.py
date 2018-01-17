@@ -2,8 +2,6 @@ import tensorflow as tf
 
 from dnnamo.core.framework import Framework
 from dnnamo.frameworks.tf.tf_translator import TFTranslator
-from dnnamo.frameworks.tf.tf_runstep import _DefaultRunstep, _InstrumentedRunstep
-from dnnamo.frameworks.tf.tf_stats import TFNativeStats
 
 class TFFramework(Framework):
   def __init__(self, model=None):
@@ -14,20 +12,17 @@ class TFFramework(Framework):
   def translator(self):
     return self._translator
 
-  # FIXME:
-  # def run_instrumented(self, ...)
-  # Tensorflow returns captures rungraph and timing data using the same method:
-  # Session.run() with runmetadata. Instead of running this twice, just run it
-  # once whenever either is asked for and fill in both fields. This also makes
-  # the data more consistent.
-  # Note that we might also need to override get_timing() and get_rungraph() in
-  # order to make this work.
+  def collect_rungraph(self):
+    raise NotImplementedError
 
-  ### Older methods
+  def collect_timing(self):
+    raise NotImplementedError
 
-  # This is a convenient shortcut so users don't have to go module surfing.
-  DefaultRunstep = _DefaultRunstep
-  InstrumentedRunstep = _InstrumentedRunstep
+  ### Internal
 
-  def _build_native_stats(self, graph, traces):
-    return TFNativeStats(graph, traces)
+  def _parse_rmd_proto(self, rmd):
+    '''Extracts Dnnamo-relevant information from the RunMetadata protobuf.'''
+    g = rmd.partition_graphs
+    stats = rmd.step_stats
+    # FIXME: investigate cost graph field of rmd
+

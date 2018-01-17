@@ -1,9 +1,9 @@
 import numpy as np
 import tensorflow as tf
 
-from dnnamo.core.model import DynamicModel
+from dnnamo.core.model import DnnamoModel
 
-class SimpleNNet(DynamicModel):
+class SimpleNNet(DnnamoModel):
   def __init__(self):
     super(SimpleNNet,self).__init__()
     self.session = None
@@ -33,7 +33,10 @@ class SimpleNNet(DynamicModel):
       self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits( logits=self.inference, labels=self.labels ), name='loss')
       self.train = tf.train.GradientDescentOptimizer(1.0).minimize(self.loss)
 
-  def get_graph(self):
+  def get_training_graph(self):
+    return self.g
+
+  def get_inference_graph(self):
     return self.g
 
   def get_weights(self, keys=None):
@@ -65,23 +68,33 @@ class SimpleNNet(DynamicModel):
       self.example_data = np.random.rand(self.trainsize,100)
       self.example_labels = np.random.rand(self.trainsize,10)
 
-  def run_train(self, runstep=None, n_steps=1, *args, **kwargs):
+  def run_inference(self, n_steps=1, *args, **kwargs):
     b0,b1 = 0,self.minibatch
+    outs = []
     for _ in range(0,n_steps):
       b0 = (b0+self.minibatch)%self.trainsize
       b1 = min( (b0+self.minibatch), self.trainsize)
-      _,loss = runstep(self.session, fetches=[self.train, self.loss], feed_dict={self.input: self.example_data[b0:b1], self.labels: self.example_labels[b0:b1]})
-    return loss
+      outs.append(self.session.run(fetches=[self.inference], feed_dict={self.input: self.example_data[b0:b1]}))
+    return outs
 
-  def run_inference(self, runstep=None, n_steps=1, *args, **kwargs):
+  def run_training(self, n_steps=1, *args, **kwargs):
     b0,b1 = 0,self.minibatch
+    outs = []
     for _ in range(0,n_steps):
       b0 = (b0+self.minibatch)%self.trainsize
       b1 = min( (b0+self.minibatch), self.trainsize)
-      inf = runstep(self.session, fetches=[self.inference], feed_dict={self.input: self.example_data[b0:b1]})
-    return inf
+      _,loss = self.session.run(fetches=[self.train, self.loss], feed_dict={self.input: self.example_data[b0:b1], self.labels: self.example_labels[b0:b1]})
+      outs.append( (loss,None) )
+    return outs
 
-  def get_activations(self, runstep=None, *args, **kwargs):
+  #FIXME: add profile_* methods using TF_Model support functions?
+  def profile_inference(self, n_steps=1, *args, **kwargs):
+    raise NotImplementedError
+
+  def profile_training(self, n_steps=1, *args, **kwargs):
+    raise NotImplementedError
+
+  def get_intermediates(self, *args, **kwargs):
     # FIXME: left blank pending a definition of "activation" (c.f. core/model.py)
     return dict()
 

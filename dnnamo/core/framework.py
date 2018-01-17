@@ -1,9 +1,19 @@
 from abc import ABCMeta, abstractmethod
+from functools import wraps
 import os
 import timeit
 
-from .model import BaseModel
+from .model import DnnamoModel
 from .datamanager import Datatag, DataManager
+
+def _datatag_accessor(function):
+  @wraps(function)
+  def wrapper(*args, **kwargs):
+    if 'mode' in kwargs:
+      if kwargs['mode'] not in ['training','inference']:
+        raise KeyError, 'mode argument must be either training or inference'
+    return function(*args, **kwargs)
+  return wrapper
 
 class Framework(object):
   __metaclass__ = ABCMeta
@@ -17,13 +27,12 @@ class Framework(object):
               from a file than to build it dynamically.)
     '''
     if model is not None:
-      if not isinstance(model, BaseModel):
+      if not isinstance(model, DnnamoModel):
         raise TypeError, 'Must supply a Dnnamo Model instance.'
     self._model = model
-    self._data_manager = DataManager()
+    # Keep separate data for separate modes (since the graphs can be different)
+    self._data_manager = {'training': DataManager(), 'inference': DataManager()}
 
-    self._traces = None
-    self._stats = None
 
   def load(self, loader, identifier, **kwargs):
     '''Loads a model.
@@ -39,11 +48,6 @@ class Framework(object):
     '''Returns the current Dnnamo model.'''
     return self._model
 
-  @property
-  def graph(self):
-    '''Returns the underlying computational graph.'''
-    return self.model.get_graph()
-
   ### Framework-specific (abstract) functionality methods
 
   @property
@@ -54,29 +58,39 @@ class Framework(object):
   # Each of these methods corresponds to a Datatag, and their data is handled
   # by the DataManager.
 
-  def get_absgraph(self):
-    '''Returns an Abstract Graph representation of the model.'''
-    if self._data_manager[Datatag.absgraph] is None:
-      self._data_manager[Datatag.absgraph] = self.translator.translate(self.model)
-    return self._data_manager[Datatag.absgraph]
+  @_datatag_accessor
+  def get_graph(self, mode='training'):
+    '''Returns the underlying computational graph.'''
+    if self._data_manager[mode][Datatag.graph] is None:
+      self.collect_graph(mode=mode)
+    return self._data_manager[mode][Datatag.graph]
 
-  @property
-  def get_weights(self, selector=None):
+  @_datatag_accessor
+  def get_absgraph(self, mode='training'):
+    '''Returns an Abstract Graph representation of the model.'''
+    if self._data_manager[mode][Datatag.absgraph] is None:
+      self.collect_absgraph(mode=mode)
+    return self._data_manager[mode][Datatag.absgraph]
+
+  @_datatag_accessor
+  def get_weights(self, selector=None, mode='training'):
     '''Returns a dictionary of weights values from the model.
 
     The optional selector argument allows callers to specify a class which can
     filter only certain weights to return.'''
-    if self._data_manager[Datatag.weights] is None:
-      self._data_manager[Datatag.weights] = self.model.get_weights()
-    return self._data_manager[Datatag.weights]
+    if self._data_manager[mode][Datatag.weights] is None:
+      self.collect_weights(mode=mode)
+    return self._data_manager[mode][Datatag.weights]
 
-  def get_rungraph(self):
+  @_datatag_accessor
+  def get_rungraph(self, mode='training'):
     '''Returns the native graph actually used during execution.
 
     Note that depending on the framework and framework settings used, this may
     or may not be identical to the graph return via the Framework.graph property.'''
     return None
 
+  @_datatag_accessor
   def get_timing(self):
     '''Return timing information for all native operations.'''
     return {} # native_op -> usecs
@@ -86,83 +100,41 @@ class Framework(object):
   def analyze(self, analysis, trigger='demand'):
     raise NotImplementedError
 
-  ### Others
+  ### Data collection
+  # These are the methods actually used to collect data from the models.
+  # It might seem a little redundant (why not just put this into the accessor),
+  # but this gives us more flexibility. For instance, if a framework supports
+  # a way of getting more than one piece of information at the same time, we can
+  # fuse several of these collection methods into a single call which populates
+  # the data manager's cache with the correct information. That way, if a user
+  # calls get_timing() and then get_rungraph(), for example, the framework would
+  # call the fused data collection routine on the first call, and the second
+  # would return immediately using cached data.
+  # 
+  # It's probably obvious, but users should usually not be calling these, since
+  # it bypasses the caching interface, which exists for a reason. We reinforce
+  # this by not returning anything from these functions. If the user really
+  # wants to force re-collecting data, then they should just invalidate the
+  # data manager's cache and call the accessor again.
 
-  # FIXME: Not sure I need this
-  # It *is* currently used to do one-off lookups for primop-native_op checks in
-  # tools/direct_reconstruction. There's probably a way to avoid having these
-  # two methods by making a better translation interface (or adding some things
-  # to AbstractGraph's in order to sidestep the need for doing those lookups.
-  def translate_native_op(self, native_op_id):
-    '''Returns the primop id(s) corresponding to a given native op.'''
-    assert self._translator is not None, 'No translator constructed. This is a bug.'
-    return self._translator.map_native_op(native_op_id)
-  # FIXME: Same as above.
-  def translate_primop(self, primop_id):
-    '''Returns the native op id(s) corresponding to a given primop.'''
-    assert self._translator is not None, 'No translator constructed. This is a bug.'
-    return self._translator.map_primop(primop_id)
+  def collect_graph(self, mode='training'):
+    if mode=='training':
+      self._data_manager['training'][Datatag.graph] = self.model.get_training_graph()
+    elif mode=='inference':
+      self._data_manager['inference'][Datatag.graph] = self.model.get_inference_graph()
+    else:
+      raise KeyError, 'Invalid mode: '+str(mode)
 
+  def collect_absgraph(self, mode='training'):
+    self._data_manager[mode][Datatag.absgraph] = self.translator.translate(self.get_graph(mode))
 
-  # FIXME: I'm not sure that providing this is a good idea. It might be better
-  #   to push it into the data manager and provide more advanced support, like
-  #   warmup to eliminate first-run timing skew.
-  def run(self, n_steps=1):
-    '''Executes a model for a finite number of steps.
-
-    Returns the model's output and total running time in microseconds.
-    '''
-    #self._model.setup(setup_options=setup_options)
-    runner = self.DefaultRunstep()
-    # FIXME: When the Model interface changed, run() was split into run_train()
-    #   and run_inference(). This function used to wrap run(), but it cannot
-    #   anymore. In order to maintain things in a semblence of working order, I
-    #   substituted run_inference.
-    #   In the end, this function should probably be split into two. Or, better
-    #   yet, it should be redesigned into something less broad ("run" does just
-    #   about everything, and maybe it shouldn't).
-
-    os_secs_0 = os.times()[0]
-    wall_secs_0 = timeit.default_timer()
-    output = self.model.run_inference(runstep=runner, n_steps=n_steps)
-    os_secs_1 = os.times()[0]
-    wall_secs_1 = timeit.default_timer()
-
-    dt = (wall_secs_1-wall_secs_0)*1000000. # to microseconds
-    return output, dt
-
-  def run_native_trace(self, n_steps=1, setup_options=None):
-    '''Executes a model, capturing a trace of its execution.
-
-    Args:
-      n_steps: The number of steps to execute.
-
-    Returns:
-      traces: An array of Trace objects, one for each step executed.
-    '''
-    #self._model.setup(setup_options=setup_options)
-    runner = self.InstrumentedRunstep()
-    # FIXME: When the Model interface changed, run() was split into run_train()
-    #   and run_inference(). This function used to wrap run(), but it cannot
-    #   anymore. In order to maintain things in a semblence of working order, I
-    #   substituted run_inference.
-    self.model.run_inference(runstep=runner, n_steps=n_steps)
-    #self._model.teardown()
-    self._traces = runner.traces
-    return self._traces
-
-  ### Internal utility methods
-
+  def collect_weights(self, mode='training'):
+    self._data_manager[Datatag.weights] = self.model.get_weights()
 
   @abstractmethod
-  def _build_native_stats(self, graph, traces):
-    '''Create a new Stats object, collecting data if necessary.'''
+  def collect_rungraph(self, mode='training'):
+    raise NotImplementedError
 
-  def native_stats(self):
-    '''Returns a (possibly cached) Stats object.'''
-    if self._stats is None:
-      assert self.model is not None, 'Must load a model before collecting statistics'
-      if self._traces is None:
-        self.run_native_trace(n_steps=12)[1:-1]
-      self._stats = self._build_native_stats( self.graph, self._traces )
-    return self._stats
+  @abstractmethod
+  def collect_timing(self, mode='training'):
+    raise NotImplementedError

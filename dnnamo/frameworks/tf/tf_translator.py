@@ -86,14 +86,13 @@ class TFTranslator(Translator):
     self._map = {}
     self._rmap = {}
 
-  def translate(self, model):
+  def translate(self, graph):
     # Caching is handled at the framework level, so if this translate method is
     # called, it means we definitely want to rebuild the abstract graph.
     absgraph = AbstractGraph()
 
-    tf_graph = model.get_graph()
     # Add all ops as nodes in the dependence graph.
-    for op in tf_graph.get_operations():
+    for op in graph.get_operations():
       primop = self.emit_primop(TFRules, op)
       absgraph.add_primop( primop )
       self._map[op.name] = primop.id
@@ -104,7 +103,7 @@ class TFTranslator(Translator):
     # TF doesn't have explicit op-op edges. It uses tensors as intermediaries.
     # Tensors can have multiple consumers, so they act as hyperedges.
     # To avoid adding duplicate edges, we only add an edge from the source node.
-    for src_tf_op in tf_graph.get_operations():
+    for src_tf_op in graph.get_operations():
       for tensor in src_tf_op.outputs:
         for dst_tf_op in tensor.consumers():
           src_primop = absgraph[self._map[src_tf_op.name]]

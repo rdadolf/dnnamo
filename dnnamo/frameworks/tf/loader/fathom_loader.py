@@ -1,7 +1,7 @@
 import importlib
 import sys
 
-from ....core.model import ImmutableModel
+from ....core.model import DnnamoModel
 from ....core.loader import BaseLoader
 
 FATHOM_MODELS = [
@@ -15,7 +15,7 @@ FATHOM_MODELS = [
   'DeepQ',
 ]
 
-class FathomModel(ImmutableModel):
+class FathomModel(DnnamoModel):
   def __init__(self, ModelClass):
     self._fathommodel = ModelClass()
   def get_graph(self):

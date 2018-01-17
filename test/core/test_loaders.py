@@ -1,5 +1,5 @@
 import unittest
-from dnnamo.core.model import BaseModel
+from dnnamo.core.model import DnnamoModel
 
 from dnnamo.loader import RunpyLoader
 
@@ -22,4 +22,5 @@ class TestCoreLoaders(unittest.TestCase):
     for loader in self._loaders:
       for name in self._names:
         m = loader(name).load()
-        assert isinstance(m,BaseModel), 'loader returned a non-model object: '+str(m)
+        assert isinstance(m,DnnamoModel), 'loader returned a non-model object: '+str(m)
+        assert m.is_dnnamo_model, 'loader returned a non-model object: '+str(m)

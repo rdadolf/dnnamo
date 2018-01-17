@@ -1,6 +1,5 @@
-import dnnamo
-import dnnamo.frameworks
-from dnnamo.loader import RunpyLoader
+from ..frameworks import FRAMEWORKS
+from ..loader import RunpyLoader
 from .tool_utilities import BaselineTool, ToolRegistry
 
 class PrimopsTool(BaselineTool):
@@ -18,7 +17,7 @@ class PrimopsTool(BaselineTool):
 
   def _run(self, models):
     for model in models:
-      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
+      frame = FRAMEWORKS[self.args['framework']]()
       print self.args['loader_opts']
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
       ops = [(primop.id,primop.optype,primop.device) for primop in frame.get_absgraph() if primop.optype!='undef' or self.args['undef']]

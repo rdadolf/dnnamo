@@ -1,25 +1,19 @@
 from abc import ABCMeta, abstractmethod, abstractproperty
 
-class BaseModel(object):
-  __metaclass__ = ABCMeta
-  @abstractproperty
-  def is_dnnamo_model(self):
-    '''The existence of is_dnnamo_model in the base class prevents instantiation.
-
-    All other Dnnamo models have a concrete is_dnnamo_model which returns True.'''
-
-class ImmutableModel(BaseModel):
-  __metaclass__ = ABCMeta
-
+class DnnamoModel(object):
   @property
   def is_dnnamo_model(self):
     '''A property which can be used to identify unknown objects as Dnnamo models.'''
     return True
 
-  @abstractmethod
-  def get_graph(self):
-    '''Returns a framework object with the computational graph of the model.'''
-  @abstractmethod
+  def get_inference_graph(self):
+    '''Returns a computational graph which includes the inference path of model.'''
+    raise NotImplementedError, 'This model does not implement this method.'
+
+  def get_training_graph(self):
+    '''Returns a computational graph which includes the training path of model.'''
+    raise NotImplementedError, 'This model does not implement this method.'
+
   def get_weights(self, keys=None):
     '''Returns a dictionary of the current weight values in the model.
 
@@ -28,11 +22,8 @@ class ImmutableModel(BaseModel):
 
     The options keys parameter allows only a subset of weights to be selected.
     This parameter can be any iterable, with key-like elements.'''
+    raise NotImplementedError, 'This model does not implement this method.'
 
-class StaticModel(ImmutableModel):
-  __metaclass__ = ABCMeta
-
-  @abstractmethod
   def set_weights(self, kv):
     '''Sets the specified weight values in the model.
 
@@ -40,29 +31,36 @@ class StaticModel(ImmutableModel):
     identifiers, and values are multi-dimensional numpy arrays of the correct
     size. Weights in the model but omitted in the kv dictionary will retain
     their previous values.'''
+    raise NotImplementedError, 'This model does not implement this method.'
 
-class DynamicModel(StaticModel):
-  __metaclass__ = ABCMeta
-
-  @abstractmethod
-  def run_train(self, runstep=None, n_steps=1, *args, **kwargs):
-    '''Trains the model for a fixed number of minibatch steps.
-
-    Returns a list of loss values of length n_steps.'''
-    # FIXME: Definition may change, and needs parameter documentation.
-
-  @abstractmethod
-  def run_inference(self, runstep=None, n_steps=1, *args, **kwargs):
+  def run_inference(self, n_steps=1, *args, **kwargs):
     '''Produce model estimates for a fixed number of inputs.
 
     Returns a list of output values of length n_steps.'''
-    # FIXME: Definition may change, and needs parameter documentation.
+    raise NotImplementedError, 'This model does not implement this method.'
 
-  @abstractmethod
-  def get_activations(self, runstep=None, *args, **kwargs):
+  def profile_inference(self, n_steps=1, *args, **kwargs):
+    '''Collect timing information for a fixed number of inputs.
+
+    Returns framework-specific profile data.'''
+    raise NotImplementedError, 'This model does not implement this method.'
+
+  def run_training(self, n_steps=1, *args, **kwargs):
+    '''Trains the model for a fixed number of training steps.
+
+    Returns a list of loss values of length n_steps.'''
+    raise NotImplementedError, 'This model does not implement this method.'
+
+  def profile_training(self, n_steps=1, *args, **kwargs):
+    '''Collects timing information for a fixed number of training steps.
+
+    Returns framework-specific profile data.'''
+    raise NotImplementedError, 'This model does not implement this method.'
+
+  def get_intermediates(self, *args, **kwargs):
     '''Produce a dictionary of all intermediate values for a single input.'''
-    # FIXME: Definition may change, and needs parameter documentation.
-
+    raise NotImplementedError, 'This model does not implement this method.'
+    # FIXME: Return an "IValues" object or something instead?
     # FIXME: The definition of "activation" is a bit tricky. If it's "any
     #   intermediate tensor in the computational graph", there are way too many
     #   to sift through. Defining them as the "output of a layer" gives us

@@ -11,7 +11,7 @@ class BaseLoader(object):
 
   @property
   def model(self):
-    '''Returns a cached Model object if already loaded, otherwise loads it.'''
+    '''Returns a cached DnnamoModel object if already loaded, otherwise loads it.'''
     # This is an optional function, so if it is not overridden, simply load the
     # model again.
     return self.load()

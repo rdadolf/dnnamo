@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 import argparse
 
 import dnnamo
-from dnnamo.core.mpl_plot import *
+from .mpl_plot import *
 
 class LoaderArgAction(argparse.Action):
   def __call__(self, parser, namespace, values, option_string):

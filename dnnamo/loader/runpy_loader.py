@@ -43,10 +43,14 @@ class RunpyLoader(BaseLoader):
     try:
       env = runpy.run_module(module)
     except ImportError:
+      # FIXME: This reports a generic import error even if the module *IS*
+      #   found, if the module itself raises an exception. This exception causes
+      #   the module import to fail, which raises an ImportError from runpy.
+      #   We need a better way to disambiguate the two cases.
       if len(pypath)>0:
-        raise ImportError, 'Could not find a module named '+str(module)+' using the extra path '+str(pypath)
+        raise ImportError, 'Error while finding or loading module named '+str(module)+' using the extra path '+str(pypath)
       else:
-        raise ImportError, 'Could not find a module named '+str(module)
+        raise ImportError, 'Error while finding or loading module named '+str(module)
     sys.path = old_syspath
 
     # This try block doesn't create the model, because we only want to capture

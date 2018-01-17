@@ -1,8 +1,7 @@
-import dnnamo
-import dnnamo.frameworks
-import dnnamo.devices
-from dnnamo.loader import RunpyLoader
-from dnnamo.core.trace import average_traces, Tracepoint, Trace
+import timeit
+
+from ..frameworks import FRAMEWORKS
+from ..loader import RunpyLoader
 from .tool_utilities import BaselineTool, ToolRegistry
 
 class MimicTool(BaselineTool):
@@ -21,7 +20,7 @@ class MimicTool(BaselineTool):
 
   def _run(self, models):
     for model in models:
-      frame = dnnamo.frameworks.FRAMEWORKS[self.args['framework']]()
+      frame = FRAMEWORKS[self.args['framework']]()
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
 
       actions = { 'profile': self._mimic_profile,
@@ -29,7 +28,10 @@ class MimicTool(BaselineTool):
                   'primop': self._mimic_primop,
                   'regression': self._mimic_regression }
       
-      _,true_time = frame.run(n_steps=1)
+      t0 = timeit.default_timer()
+      _ = frame.model.run_inference(n_steps=1)
+      t1 = timeit.default_timer()
+      true_time = (t1-t0)*1000000. # to microseconds
       mimic_time, components = actions[self.args['detail']](frame)
       self.data[model] = (true_time, mimic_time, components)
       return True

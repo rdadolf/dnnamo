@@ -47,8 +47,8 @@ class Translator(object):
     raise TypeError, 'Missing translation rule for native operation '+str(op)
 
   @abstractmethod
-  def translate(self, model):
-    '''Return an AbstractGraph object from a Dnnamo model.'''
+  def translate(self, graph):
+    '''Return an AbstractGraph object from a framework graph object.'''
 
   @abstractmethod
   def map_native_op(self, native_op_id): pass
