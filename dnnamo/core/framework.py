@@ -88,12 +88,16 @@ class Framework(object):
 
     Note that depending on the framework and framework settings used, this may
     or may not be identical to the graph return via the Framework.graph property.'''
-    return None
+    if self._data_manager[mode][Datatag.rungraph] is None:
+      self.collect_rungraph(mode=mode)
+    return self._data_manager[mode][Datatag.rungraph] # FIXME: what does this return?
 
   @_datatag_accessor
-  def get_timing(self):
+  def get_timing(self, mode='training'):
     '''Return timing information for all native operations.'''
-    return {} # native_op -> usecs
+    if self._data_manager[mode][Datatag.timing] is None:
+      self.collect_timing(mode=mode)
+    return self._data_manager[mode][Datatag.timing] # Profile object
 
   ### AMO methods
 

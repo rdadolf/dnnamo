@@ -1,6 +1,6 @@
 import timeit
 
-from ..frameworks import FRAMEWORKS
+from ..framework import FRAMEWORKS
 from ..loader import RunpyLoader
 from .tool_utilities import BaselineTool, ToolRegistry
 
@@ -52,7 +52,7 @@ class MimicTool(BaselineTool):
 
   def _mimic_profile(self, frame):
     timing_info = frame.get_timing()
-    t_sum = sum([usecs for op,usecs in timing_info.items()])
+    t_sum = sum([usecs for op,usecs in timing_info.aggregate('last').items()])
     return (t_sum, timing_info)
 
   def _mimic_framework(self, frame):

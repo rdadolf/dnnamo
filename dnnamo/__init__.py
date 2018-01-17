@@ -1,3 +1,3 @@
-import frameworks
+import framework
 
 import loader

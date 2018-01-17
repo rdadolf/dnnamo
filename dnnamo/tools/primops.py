@@ -1,4 +1,4 @@
-from ..frameworks import FRAMEWORKS
+from ..framework import FRAMEWORKS
 from ..loader import RunpyLoader
 from .tool_utilities import BaselineTool, ToolRegistry
 

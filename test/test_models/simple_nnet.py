@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 from dnnamo.core.model import DnnamoModel
+from dnnamo.framework.tf.tf_model import session_run, session_profile
 
 class SimpleNNet(DnnamoModel):
   def __init__(self):
@@ -23,8 +24,8 @@ class SimpleNNet(DnnamoModel):
   def _create_graph(self):
     # 100:10 NN
     with self.g.as_default():
-      self.input = tf.placeholder(tf.float32, shape=[self.minibatch, 100])
-      self.labels = tf.placeholder(tf.float32, shape=[self.minibatch, 10])
+      self.input = tf.placeholder(tf.float32, shape=[None, 100])
+      self.labels = tf.placeholder(tf.float32, shape=[None, 10])
       glorot_bounds = np.sqrt(3.)/np.sqrt(10.+10.)
       self.W = tf.Variable(tf.random_uniform(shape=[100,10], minval=-glorot_bounds, maxval=glorot_bounds), name='W')
       self.b = tf.Variable(tf.zeros(shape=[10]), name='b')
@@ -68,31 +69,41 @@ class SimpleNNet(DnnamoModel):
       self.example_data = np.random.rand(self.trainsize,100)
       self.example_labels = np.random.rand(self.trainsize,10)
 
-  def run_inference(self, n_steps=1, *args, **kwargs):
+  def _inference(self, profile, n_steps=1, *args, **kwargs):
+    b0,b1 = 0, n_steps%self.trainsize
+    outs = []
+    fetches = [self.inference]
+    feed_dict = {self.input: self.example_data[b0:b1]}
+    if profile:
+      out = session_profile(self.session, fetches=fetches, feed_dict=feed_dict)
+    else:
+      out = session_run(self.session, fetches=fetches, feed_dict=feed_dict)
+    outs.append(out)
+    return outs
+  def run_inference(self, *args, **kwargs):
+    return self._inference(False, *args, **kwargs)
+  def profile_inference(self, *args, **kwargs):
+    return self._inference(True, *args, **kwargs)
+
+  def _training(self, profile, n_steps=1, *args, **kwargs):
     b0,b1 = 0,self.minibatch
     outs = []
     for _ in range(0,n_steps):
       b0 = (b0+self.minibatch)%self.trainsize
       b1 = min( (b0+self.minibatch), self.trainsize)
-      outs.append(self.session.run(fetches=[self.inference], feed_dict={self.input: self.example_data[b0:b1]}))
+      fetches = [self.train, self.loss]
+      feed_dict = {self.input: self.example_data[b0:b1], self.labels: self.example_labels[b0:b1]}
+      if profile:
+        out = session_profile(self.session, fetches=fetches, feed_dict=feed_dict)
+      else:
+        _,loss = session_run(self.session, fetches=fetches, feed_dict=feed_dict)
+        out = (loss, None)
+      outs.append(out)
     return outs
-
-  def run_training(self, n_steps=1, *args, **kwargs):
-    b0,b1 = 0,self.minibatch
-    outs = []
-    for _ in range(0,n_steps):
-      b0 = (b0+self.minibatch)%self.trainsize
-      b1 = min( (b0+self.minibatch), self.trainsize)
-      _,loss = self.session.run(fetches=[self.train, self.loss], feed_dict={self.input: self.example_data[b0:b1], self.labels: self.example_labels[b0:b1]})
-      outs.append( (loss,None) )
-    return outs
-
-  #FIXME: add profile_* methods using TF_Model support functions?
-  def profile_inference(self, n_steps=1, *args, **kwargs):
-    raise NotImplementedError
-
-  def profile_training(self, n_steps=1, *args, **kwargs):
-    raise NotImplementedError
+  def run_training(self, *args, **kwargs):
+    return self._training(False, *args, **kwargs)
+  def profile_training(self, *args, **kwargs):
+    return self._training(True, *args, **kwargs)
 
   def get_intermediates(self, *args, **kwargs):
     # FIXME: left blank pending a definition of "activation" (c.f. core/model.py)

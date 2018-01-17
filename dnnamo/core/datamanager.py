@@ -1,9 +1,17 @@
-class _TagMeta(type): pass
-# This metaclass let's us designate all the tag classes as "special", which
-# makes it possible to identify them in a __dict__ or dir() lookup. It would
-# probably have been possible to use Enum's, but NONE and ALL would've been
-# weird. So maybe this implementation is a bit more complicated, but the
-# interface that everyone else sees is fairly clean.
+from abc import ABCMeta, abstractmethod
+
+class _TagMeta(ABCMeta):
+  def __str__(self): return str('Datatag:'+str(self.__name__))
+class TagName(object):
+  __metaclass__=_TagMeta
+  @abstractmethod
+  def _invalid(self): pass # Do not instantiate Datatag types.
+# This let's us designate all the tag classes as "special", which makes it
+# possible to identify them in a __dict__ or dir() lookup. It would probably
+# have been possible to use Enum's, but NONE and ALL would've been weird. So
+# maybe this implementation is a bit more complicated, but the interface that
+# everyone else sees is fairly clean.
+
 class Datatag(object):
   '''Categories of data.
 
@@ -17,13 +25,13 @@ class Datatag(object):
   class NONE(object): pass # not actually tags
   class ALL(object): pass # not actually tags
   # Static data
-  class graph(object): __metaclass__=_TagMeta
-  class absgraph(object): __metaclass__=_TagMeta
-  class weights(object): __metaclass__=_TagMeta
+  class graph(TagName): pass
+  class absgraph(TagName): pass
+  class weights(TagName): pass
   # Dynamic data
-  class rungraph(object): __metaclass__=_TagMeta
-  class timing(object): __metaclass__=_TagMeta
-  class ivalues(object): __metaclass__=_TagMeta # FIXME: Name on this one?
+  class rungraph(TagName): pass
+  class timing(TagName): pass
+  class ivalues(TagName): pass # FIXME: Name on this one?
 
   @classmethod
   def get_all_tags(cls):
@@ -60,7 +68,7 @@ class DataManager(object):
   def __getitem__(self, tag):
     return self._cache[tag]
 
-  def __setitem__(self, tag, key):
-    if key is None:
-      raise ValueError, 'Cannot insert invalid entries into data manager: '+str(tag)+' -> '+str(key)
-    self._cache[tag] = key
+  def __setitem__(self, tag, value):
+    if value is None:
+      raise ValueError, 'Attempted to insert None into data manager tag "'+str(tag)+'". This probably means the corresponding data collector failed.'
+    self._cache[tag] = value

@@ -1,10 +1,8 @@
 import unittest
 from dnnamo.core.model import DnnamoModel
-from dnnamo.frameworks.tf import TFFramework
+from dnnamo.framework.tf import TFFramework
 from dnnamo.loader import RunpyLoader
 
-#FIXME
-#from synth import TFTestCase
 
 class TestTFFramework(unittest.TestCase):
   def test_load(self):
@@ -12,9 +10,12 @@ class TestTFFramework(unittest.TestCase):
       RunpyLoader,
     ]
     identifiers = [
-      'test.test_models.empty_models',
-      'test/test_models/empty_models.py',
-      'test/../test/test_models/empty_models.py', # FIXME
+      'test.test_models.empty_model',
+      'test/test_models/empty_model.py',
+      'test/../test/test_models/empty_model.py',
+      'test.test_models.simple_nnet',
+      'test/test_models/simple_nnet.py',
+      'test/../test/test_models/simple_nnet.py',
     ]
     for loader in loaders:
       for identifier in identifiers:
@@ -29,27 +30,28 @@ class TestTFFramework(unittest.TestCase):
       frame = TFFramework()
       frame.load(RunpyLoader, 'nonexistent_module')
 
-  @unittest.SkipTest
-  # FIXME: NYI
-  def test_model_instance_in_constructor(self):
-    # model = ...
-    #frame = TFFramework(model)
-    pass
+  def test_graph_datatag_accessors(self):
+    frame = TFFramework()
+    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
+    assert frame.get_graph(mode='training') is not None, 'No training graph returned.'
+    assert frame.get_graph(mode='inference') is not None, 'No inference graph returned.'
 
-  @unittest.SkipTest
-  def test_basic_graph_extraction(self):
-    g = self.synth_ff_network()
-    t = TFFramework(g)
-    absgraph = t.absgraph()
+  def test_abstract_datatag_accessors(self):
+    frame = TFFramework()
+    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
+    assert frame.get_absgraph(mode='training') is not None, 'No abstract graph returned.'
+    assert frame.get_absgraph(mode='inference') is not None, 'No abstract graph returned.'
 
-    nodes = len(absgraph)
-    print 'nodes:',nodes
-    assert nodes>0, 'Empty dependence graph'
+  # FIXME
+  @unittest.skip('The test models dont know how to export weights yet.')
+  def test_weight_datatag_accessors(self):
+    frame = TFFramework()
+    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
+    assert frame.get_weights(mode='training') is not None, 'No weights returned.'
+    assert frame.get_weights(mode='inference') is not None, 'No weights returned.'
 
-    edges = 0
-    for p in absgraph:
-      edges += len(absgraph.dep(p))
-    print 'edges:',edges
-    assert edges>=nodes-1, 'Disconnected graph'
-    # FIXME: more testing here
-
+  def test_get_timing(self):
+    frame = TFFramework()
+    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
+    assert frame.get_timing(mode='training') is not None, 'No timing returned.'
+    assert frame.get_timing(mode='inference') is not None, 'No timing returned.'

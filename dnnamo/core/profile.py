@@ -11,6 +11,12 @@ class Profile(object):
   def __setitem__(self, key, value):
     self._profile[key] = value
 
+  def __len__(self):
+    return len(self._profile)
+
+  def items(self):
+    return self._profile.items()
+
   def add(self, key, value):
     if key not in self._profile:
       self._profile[key] = []

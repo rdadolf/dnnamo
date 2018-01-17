@@ -3,7 +3,7 @@ import unittest
 import tensorflow as tf
 
 from dnnamo.core.model import DnnamoModel
-from dnnamo.frameworks.tf.tf_translator import TFTranslator
+from dnnamo.framework.tf.tf_translator import TFTranslator
 
 class SyntheticModelSkeleton(DnnamoModel):
   def __init__(self):

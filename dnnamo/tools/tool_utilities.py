@@ -34,7 +34,7 @@ class BaselineTool(Cacher):
   def add_subparser(self, argparser):
     self.subparser = argparser.add_parser(self.TOOL_NAME, help=self.TOOL_SUMMARY)
     self.subparser.add_argument('models', type=str, nargs='*', help='A list of model identifiers. Different loaders understand different types of identifiers (paths, model names, etc.).')
-    self.subparser.add_argument('--framework', choices=dnnamo.frameworks.FRAMEWORKS.keys(), default='tf', help='specify which framework the models use')
+    self.subparser.add_argument('--framework', choices=dnnamo.framework.FRAMEWORKS.keys(), default='tf', help='specify which framework the models use')
     self.subparser.add_argument('--loader','-l', choices=dnnamo.loader.__all__, type=str, action=LoaderArgAction, default=dnnamo.loader.RunpyLoader, help='The Dnnamo loader class used to read in the model.')
     self.subparser.add_argument('--loader_opts', type=str, action=LoaderOptsArgAction, default={}, help='Additional options to the selected loader (key=value).')
     self.subparser.add_argument('--cachefile', metavar='PATH', type=str, default=self.TOOL_NAME+'.cache', help='Path where cache files are read from or written to.')

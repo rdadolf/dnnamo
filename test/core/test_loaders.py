@@ -5,7 +5,7 @@ from dnnamo.loader import RunpyLoader
 
 class TestCoreLoaders(unittest.TestCase):
   _names = [
-    'test/test_models/empty_models.py',
+    'test/test_models/empty_model.py',
     'test/test_models/simple_nnet.py',
     'test/../test/test_models/simple_nnet.py',
   ]

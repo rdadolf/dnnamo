@@ -1,6 +1,6 @@
 import unittest
 
-from dnnamo.frameworks.tf import TFFramework
+from dnnamo.framework.tf import TFFramework
 from dnnamo.loader import TFFathomLoader
 
 try:
