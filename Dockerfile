@@ -10,15 +10,13 @@ RUN apt-get update && apt-get install -y \
 RUN pip install --upgrade pip
 
 # Install dependencies
-ADD requirements.txt /tmp
+COPY requirements.txt /tmp/
 RUN pip install --upgrade -r /tmp/requirements.txt
 
 # Install model dependencies
-ADD models/fathom_requirements.txt /tmp
-RUN pip install --upgrade -r /tmp/fathom_requirements.txt
-
-ADD models/dl_models_requirements.txt /tmp
-RUN pip install --upgrade -r /tmp/dl_models_requirements.txt
+COPY models/*/*_requirements.txt /tmp/
+RUN cat /tmp/*_requirements.txt > /tmp/modelrequirements.txt
+RUN pip install --upgrade -r /tmp/modelrequirements.txt
 
 # Add Dnnamo
 ADD . /dnnamo
