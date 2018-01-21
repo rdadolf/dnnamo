@@ -29,8 +29,3 @@ class TestMimic(unittest.TestCase):
       assert mimic_time>0, 'Invalid mimic time'
 
       assert true_time > mimic_time, 'Impossible mimic time'
-
-      # This test is not a true constraint, but if it is not true, then there
-      # may be a problem.
-      assert true_time < 3*mimic_time, 'Mimic time substantially different than true_time. This could be an artifact of testing, but it may indicate a problem.'
-
