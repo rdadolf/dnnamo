@@ -1,3 +1,4 @@
-*
+*/*
 !.gitignore
-!*_requirements.txt
+!*/*_download.sh
+!*/*_requirements.txt
