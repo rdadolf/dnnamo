@@ -6,15 +6,6 @@ import timeit
 from .model import DnnamoModel
 from .datamanager import Datatag, DataManager
 
-def _datatag_accessor(function):
-  @wraps(function)
-  def wrapper(*args, **kwargs):
-    if 'mode' in kwargs:
-      if kwargs['mode'] not in ['training','inference']:
-        raise KeyError, 'mode argument must be either training or inference'
-    return function(*args, **kwargs)
-  return wrapper
-
 class Framework(object):
   __metaclass__ = ABCMeta
 
@@ -30,8 +21,7 @@ class Framework(object):
       if not isinstance(model, DnnamoModel):
         raise TypeError, 'Must supply a Dnnamo Model instance.'
     self._model = model
-    # Keep separate data for separate modes (since the graphs can be different)
-    self._data_manager = {'training': DataManager(), 'inference': DataManager()}
+    self._data_manager = DataManager()
 
 
   def load(self, loader, identifier, **kwargs):
@@ -58,46 +48,23 @@ class Framework(object):
   # Each of these methods corresponds to a Datatag, and their data is handled
   # by the DataManager.
 
-  @_datatag_accessor
-  def get_graph(self, mode='training'):
-    '''Returns the underlying computational graph.'''
-    if self._data_manager[mode][Datatag.graph] is None:
-      self.collect_graph(mode=mode)
-    return self._data_manager[mode][Datatag.graph]
+  def _get_datatag(self, tag):
+    tag.typecheck()
+    if self._data_manager[tag] is None:
+      self.collect(tag)
+    return self._data_manager[tag]
 
-  @_datatag_accessor
-  def get_absgraph(self, mode='training'):
-    '''Returns an Abstract Graph representation of the model.'''
-    if self._data_manager[mode][Datatag.absgraph] is None:
-      self.collect_absgraph(mode=mode)
-    return self._data_manager[mode][Datatag.absgraph]
+  def get_graph(self, mode='training', scope='static', ops='native'):
+    return self._get_datatag(Datatag('graph',mode=mode,scope=scope,ops=ops))
 
-  @_datatag_accessor
-  def get_weights(self, selector=None, mode='training'):
-    '''Returns a dictionary of weights values from the model.
+  def get_weights(self, mode='training'):
+    return self._get_datatag(Datatag('graph',mode=mode,scope='static',ops='native'))
 
-    The optional selector argument allows callers to specify a class which can
-    filter only certain weights to return.'''
-    if self._data_manager[mode][Datatag.weights] is None:
-      self.collect_weights(mode=mode)
-    return self._data_manager[mode][Datatag.weights]
+  def get_timing(self, mode='training', ops='native'):
+    return self._get_datatag(Datatag('graph',mode=mode,scope='dynamic',ops=ops))
 
-  @_datatag_accessor
-  def get_rungraph(self, mode='training'):
-    '''Returns the native graph actually used during execution.
-
-    Note that depending on the framework and framework settings used, this may
-    or may not be identical to the graph return via the Framework.graph property.'''
-    if self._data_manager[mode][Datatag.rungraph] is None:
-      self.collect_rungraph(mode=mode)
-    return self._data_manager[mode][Datatag.rungraph] # FIXME: what does this return?
-
-  @_datatag_accessor
-  def get_timing(self, mode='training'):
-    '''Return timing information for all native operations.'''
-    if self._data_manager[mode][Datatag.timing] is None:
-      self.collect_timing(mode=mode)
-    return self._data_manager[mode][Datatag.timing] # Profile object
+  def get_ivalues(self, mode='training'):
+    return self._get_datatag(Datatag('graph',mode=mode,scope='dynamic',ops='native'))
 
   ### AMO methods
 
@@ -116,29 +83,30 @@ class Framework(object):
   # would return immediately using cached data.
   # 
   # It's probably obvious, but users should usually not be calling these, since
-  # it bypasses the caching interface, which exists for a reason. We reinforce
-  # this by not returning anything from these functions. If the user really
-  # wants to force re-collecting data, then they should just invalidate the
-  # data manager's cache and call the accessor again.
+  # it bypasses the caching interface, which exists for a reason. If the user
+  # really wants to force re-collecting data, then they should just invalidate
+  # the data manager's cache and call the accessor again.
 
-  def collect_graph(self, mode='training'):
-    if mode=='training':
-      self._data_manager['training'][Datatag.graph] = self.model.get_training_graph()
-    elif mode=='inference':
-      self._data_manager['inference'][Datatag.graph] = self.model.get_inference_graph()
-    else:
-      raise KeyError, 'Invalid mode: '+str(mode)
+  def collect(self, datatag):
+    if datatag.name=='graph':
+      if datatag.ops=='native':
+        if datatag.scope=='static':
+          if datatag.mode=='training':
+            self._data_manager[datatag] = self.model.get_training_graph()
+          elif datatag.mode=='inference':
+            self._data_manager[datatag] = self.model.get_inference_graph()
+        elif datatag.scope=='dynamic':
+          raise NotImplementedError, 'Dynamic graphs' # FIXME
+      elif datatag.ops=='primitive':
+        self._data_manager[datatag] = self.translator.translate(self.get_graph(datatag.mode))
 
-  def collect_absgraph(self, mode='training'):
-    self._data_manager[mode][Datatag.absgraph] = self.translator.translate(self.get_graph(mode))
+    elif datatag.name=='weights':
+      raise NotImplementedError, 'weights' # FIXME
+      #self.model.get_weights() # FIXME: can't use this, need a mode switch
 
-  def collect_weights(self, mode='training'):
-    self._data_manager[Datatag.weights] = self.model.get_weights()
+    elif datatag.name=='timing':
+      raise NotImplementedError, 'timing' # FIXME
 
-  @abstractmethod
-  def collect_rungraph(self, mode='training'):
-    raise NotImplementedError
+    elif datatag.name=='ivalues':
+      raise NotImplementedError, 'ivalues' # FIXME
 
-  @abstractmethod
-  def collect_timing(self, mode='training'):
-    raise NotImplementedError
