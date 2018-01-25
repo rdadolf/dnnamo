@@ -35,40 +35,40 @@ class Datatag(namedtuple('Datatag',['name','mode','scope','ops'])):
     Fields must contain one of the allowed values or a wildcard.'''
 
     def _is_wildcard(value):
-      return ( (value is None) or (value=='all') )
+      return ( (value is None) or (value=='none') or (value=='all') )
 
     if (self.name not in self._names) and not _is_wildcard(self.name):
-      raise TypeError, 'Invalid name '+str(self.name)+' in '+str(self)+'. Must be None or one of: '+','.join(self._names)+',all'
+      raise TypeError, 'Invalid name '+str(self.name)+' in '+str(self)+'. Must be None or one of: '+','.join(self._names)+',none,all'
     if (self.mode not in self._modes) and not _is_wildcard(self.mode):
-      raise TypeError, 'Invalid mode '+str(self.mode)+' in '+str(self)+'. Must be None or one of: '+','.join(self._modes)+',all'
+      raise TypeError, 'Invalid mode '+str(self.mode)+' in '+str(self)+'. Must be None or one of: '+','.join(self._modes)+',none,all'
     if (self.scope not in self._scopes) and not _is_wildcard(self.scope):
-      raise TypeError, 'Invalid scope '+str(self.scope)+' in '+str(self)+'. Must be None or one of: '+','.join(self._scopes)+',all'
+      raise TypeError, 'Invalid scope '+str(self.scope)+' in '+str(self)+'. Must be None or one of: '+','.join(self._scopes)+',none,all'
     if (self.ops not in self._ops) and not _is_wildcard(self.ops):
-      raise TypeError, 'Invalid ops '+str(self.ops)+' in '+str(self)+'. Must be None or one of: '+','.join(self._ops)+',all'
+      raise TypeError, 'Invalid ops '+str(self.ops)+' in '+str(self)+'. Must be None or one of: '+','.join(self._ops)+',none,all'
 
     return self
 
   def expand_mask(self):
     '''Iterates over all possible datatags specified by this mask.'''
-    if self.name is None:
+    if self.name is None or self.name=='none':
       names = []
     elif self.name=='all':
       names = self._names
     else:
       names = [self.name]
-    if self.mode is None:
+    if self.mode is None or self.name=='none':
       modes = []
     elif self.mode=='all':
       modes = self._modes
     else:
       modes = [self.mode]
-    if self.scope is None:
+    if self.scope is None or self.name=='none':
       scopes = []
     elif self.scope=='all':
       scopes = self._scopes
     else:
       scopes = [self.scope]
-    if self.ops is None:
+    if self.ops is None or self.name=='none':
       ops = []
     elif self.ops=='all':
       ops = self._ops
@@ -82,7 +82,7 @@ class Datatag(namedtuple('Datatag',['name','mode','scope','ops'])):
             yield Datatag(name,mode,scope,op)
 
   @classmethod
-  def all_valid_datatags(cls):
+  def all(cls):
     '''Iterates over all possible datatags.'''
     return Datatag('all','all','all','all').expand_mask()
 
@@ -101,7 +101,7 @@ class DataManager(object):
     del cls.registry[victim_class]
 
   def __init__(self):
-    self._cache = {_:None for _ in Datatag.all_valid_datatags()}
+    self._cache = {_:None for _ in Datatag.all()}
 
   def invalidate(self, tag):
     for exact_tag in tag.mask_typecheck().expand_mask():
