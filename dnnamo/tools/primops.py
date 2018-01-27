@@ -20,7 +20,9 @@ class PrimopsTool(BaselineTool):
       frame = FRAMEWORKS[self.args['framework']]()
       print self.args['loader_opts']
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
-      ops = [(primop.id,primop.optype,primop.device) for primop in frame.get_absgraph() if primop.optype!='undef' or self.args['undef']]
+      # FIXME: model mode should be selectable from the CLI. Hardcoding it to
+      #   'training' is the wrong thing.
+      ops = [(primop.id,primop.optype) for primop in frame.get_graph(mode='training',scope='static',ops='primitive') if primop.optype!='undef' or self.args['undef']]
       self.data.append(ops)
 
   def _output(self):

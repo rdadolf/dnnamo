@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 from functools import wraps
 import os
 import timeit
@@ -40,7 +40,7 @@ class Framework(object):
 
   ### Framework-specific (abstract) functionality methods
 
-  @property
+  @abstractproperty
   def translator(self):
     '''Returns the instantiated, framework-specific translator object.'''
 
@@ -51,7 +51,7 @@ class Framework(object):
   def _get_datatag(self, tag):
     tag.typecheck()
     if self._data_manager[tag] is None:
-      self.collect(tag)
+      self._collect(tag)
     return self._data_manager[tag]
 
   def get_graph(self, mode='training', scope='static', ops='native'):
@@ -68,7 +68,7 @@ class Framework(object):
 
   ### AMO methods
 
-  def analyze(self, analysis, trigger='demand'):
+  def analyze(self, analysis):
     raise NotImplementedError
 
   ### Data collection
@@ -87,26 +87,90 @@ class Framework(object):
   # really wants to force re-collecting data, then they should just invalidate
   # the data manager's cache and call the accessor again.
 
-  def collect(self, datatag):
-    if datatag.name=='graph':
-      if datatag.ops=='native':
-        if datatag.scope=='static':
-          if datatag.mode=='training':
-            self._data_manager[datatag] = self.model.get_training_graph()
-          elif datatag.mode=='inference':
-            self._data_manager[datatag] = self.model.get_inference_graph()
-        elif datatag.scope=='dynamic':
-          raise NotImplementedError, 'Dynamic graphs' # FIXME
-      elif datatag.ops=='primitive':
-        self._data_manager[datatag] = self.translator.translate(self.get_graph(datatag.mode))
+  _collector_methods = {}
 
-    elif datatag.name=='weights':
-      raise NotImplementedError, 'weights' # FIXME
-      #self.model.get_weights() # FIXME: can't use this, need a mode switch
+  @classmethod
+  def _collector(cls,datatag):
+    '''Decorator for collector methods'''
+    if len(cls._collector_methods)==0: # only true once, ever.
+      cls._populate_default_collectors()
+    def tag_override_method(function):
+      cls._collector_methods[datatag] = function
+      return function
+    return tag_override_method
 
-    elif datatag.name=='timing':
-      raise NotImplementedError, 'timing' # FIXME
+  @classmethod
+  def _find_collector(cls, datatag):
+    for k,v in cls._collector_methods.items():
+      if datatag in k.expand_mask():
+        # NOTE: Returns the *first* collector---we do not support multiples
+        return v
 
-    elif datatag.name=='ivalues':
-      raise NotImplementedError, 'ivalues' # FIXME
+  def _collect(self, datatag):
+    datatag.typecheck() # Only allow collecting exact datatags, not masks
+    # In general, collecting two things at once is not usually correct.
+    #
+    # If the user is using two things, they will use both accessors, which
+    # will trigger both collectors.
+    #
+    # If the framework wants to fuse two collectors, it should be using
+    # more than one _collector decorator on the fused method, like this:
+    #   @Framework._collector(Datatag1)
+    #   @Framework._collector(Datatag2)
+    #   def _collect_both_1_and_2_simultaneously(self, ...): ...
+    f = self._find_collector(datatag)
+    if f is not None:
+      f(self,datatag)
+    else:
+      raise NotImplementedError('No framework method found to collect '+str(datatag))
 
+  # Python has no good way of calling decorators with access to the class
+  # they're defined in. I.E.
+  # this code...                   ...becomes this code:
+  #   class Foo(object):              class Foo(object):
+  #     def decorator(...): ...         def decorator(...): ...
+  #     @decorator                      def _func(self, ...): ...
+  #     def method(self, ...): ...      method = decorator(_func):
+  # Which means there's no good way to write a decorator that takes a
+  # class argument, because this is illegal:
+  #   class Foo(object):
+  #     def decorator(cls, ...): ...
+  #     def _func(self, ...): ...
+  #     method = Foo.decorator(_func) # Can't reference Foo from within Foo
+  #
+  # So instead, we try to sidestep the problem by populating the
+  # _collector_methods dictionary manually the first time they're accessed.
+  # XXX: I am not *entirely* sure that populating the dictionary with
+  #   unbound methods (i.e., cls._collect_...) and them calling them as
+  #   bound methods (i.e., f(self,datatag)) is actually correct. But it
+  #   seems to be working. Unfortunately, we have to keep the populate
+  #   function a @classmethod, since it is called by subclasses as a
+  #   decorator: @Framework._collector(...).
+  @classmethod
+  def _populate_default_collectors(cls):
+    if len(cls._collector_methods)==0:
+      cls._collector_methods = {
+        Datatag('graph','training','static','native'):
+          cls._collect_training_graph_from_model,
+        Datatag('graph','inference','static','native'):
+          cls._collect_inference_graph_from_model,
+        Datatag('graph','all','static','primitive'):
+          cls._collect_primitive_graph,
+        Datatag('weights','all','static','native'):
+          cls._collect_weights,
+      }
+
+  # Generic collector methods
+  def _collect_training_graph_from_model(self, datatag):
+    self._data_manager[datatag] = self.model.get_training_graph()
+
+  def _collect_inference_graph_from_model(self, datatag):
+    self._data_manager[datatag] = self.model.get_inference_graph()
+
+  def _collect_primitive_graph(self, datatag):
+    self._data_manager[datatag] = self.translator.translate(self.get_graph(datatag.mode))
+
+  def _collect_weights(self, datatag):
+    # FIXME: we can't use this yet. We need a mode switch.
+    # self.mode.get_weights()
+    raise NotImplementedError('No framework method found to collect '+str(datatag))

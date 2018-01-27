@@ -8,6 +8,20 @@ class Datatag(namedtuple('Datatag',['name','mode','scope','ops'])):
   Datatags are used to access caches as well as to invalidate them, such as
   when a transformation modifies a model and renders the cached data obsolete.'''
 
+  # VALID CHOICES FOR DATATAGS
+  # While we don't check for these, it's good to know that some
+  # combinations of datatags aren't ever used. For instance, there's no
+  # way you can collect static intermediate values, because they're
+  # computed at runtime. So while it's possible to describe using a
+  # datatag, no data will ever be associated with it.
+  ######################################################################
+  # name    modes scopes  ops
+  # graph   all   all     all
+  # weights all   static  native
+  # timing  all   dynamic all
+  # ivalues all   dynamic all
+  ######################################################################
+
   _names = ['graph','weights','timing','ivalues']
   _modes = ['training','inference']
   _scopes = ['static','dynamic']

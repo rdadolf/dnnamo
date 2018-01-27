@@ -40,7 +40,9 @@ class PrimopDiagnosticTool(BaselineTool):
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
 
       unknown_ops = dict()
-      for primop in frame.get_absgraph():
+      # FIXME: mode should be selectable from the CLI. Hardcoding it to training
+      #   is the wrong thing.
+      for primop in frame.get_graph(mode='training',scope='static',ops='primitive'):
         src = primop.source_op
 
         if primop.optype=='undef':
