@@ -28,10 +28,10 @@ class MatchAny(Match):
   def match(self, op): return True
 
 class EmitUndef(Emit):
-  def emit(self, op): return Primop_undef(source_op=op)
+  def emit(self, op): return Primop_undef(root=op)
 
 class EmitZero(Emit):
-  def emit(self, op): return Primop_zero(source_op=op)
+  def emit(self, op): return Primop_zero(root=op)
 
 ################################################################################
 

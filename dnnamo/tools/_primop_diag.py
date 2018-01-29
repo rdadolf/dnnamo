@@ -43,22 +43,22 @@ class PrimopDiagnosticTool(BaselineTool):
       # FIXME: mode should be selectable from the CLI. Hardcoding it to training
       #   is the wrong thing.
       for primop in frame.get_graph(mode='training',scope='static',ops='primitive'):
-        src = primop.source_op
+        root = primop.root
 
         if primop.optype=='undef':
-          if src.type not in unknown_ops:
-            unknown_ops[src.type] = []
+          if root.type not in unknown_ops:
+            unknown_ops[root.type] = []
           args = []
-          if src.op_def is not None:
+          if root.op_def is not None:
             # None implies no Tensor dataflow inputs (config args only)
-            for argdef,arg in zip(src.op_def.input_arg, src.inputs):
+            for argdef,arg in zip(root.op_def.input_arg, root.inputs):
               s = str(argdef.name)+':'
               if type(arg)==tf.Tensor:
                 s += 'T'+format_dims(arg)
               else:
                 s += '(unknown type:'+str(type(argdef))+')'
               args.append(s)
-          for attr_k, attr_v in src.node_def.attr.items():
+          for attr_k, attr_v in root.node_def.attr.items():
             s = attr_k+'*:'
             attr_type = attr_v.WhichOneof('value')
             if attr_type=='s':
@@ -100,7 +100,7 @@ class PrimopDiagnosticTool(BaselineTool):
 
             args.append(s)
           
-          self.data[primop.id] = str(src.type)+'('+', '.join(args)+')'
+          self.data[primop.id] = str(root.type)+'('+', '.join(args)+')'
 
       if self.args['prioritized']:
         raise NotImplementedError, 'Timing-prioritized diagnosis not available yet.'

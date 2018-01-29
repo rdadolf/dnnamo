@@ -14,31 +14,27 @@ class TFFramework(Framework):
   def translator(self):
     return self._translator
 
-  def collect_rungraph(self, mode):
-    self._collect_both_rungraph_and_timing(mode)
-
-  def collect_timing(self, mode):
-    self._collect_both_rungraph_and_timing(mode)
-
   ### Internal
 
-  def _collect_both_rungraph_and_timing(self, mode):
+  @Framework._collector(Datatag('graph','all','dynamic','native'))
+  @Framework._collector(Datatag('timing','all','dynamic','native'))
+  def _collect_both_rungraph_and_timing(self, datatag):
     # Tensorflow's profiling collects everything at once, so we fill all relevant
     # datamanager cache fields at the same time whenever either is called. Saves
     # us from having to run thing twice.
 
     # Grab RunMetadata protobuf
-    if mode=='training':
+    if datatag.mode=='training':
       rmds = self.model.profile_training(n_steps=10) # FIXME: how to set n_steps?
-    elif mode=='inference':
+    elif datatag.mode=='inference':
       rmds = self.model.profile_inference(n_steps=10) # FIXME: how to set n_steps?
     else:
       raise KeyError, 'Invalid mode: '+str(mode)
     # Parse it into understandable data
     rungraph,timing = self._parse_rmd_proto(rmds)
     # Set the data manager's cache
-    self._data_manager[mode][Datatag.timing] = timing
-    self._data_manager[mode][Datatag.rungraph] = rungraph
+    self._data_manager[Datatag('graph',datatag.mode,'dynamic','native')]=rungraph
+    self._data_manager[Datatag('timing',datatag.mode,'dynamic','native')]=timing
 
 
   def _parse_rmd_proto(self, rmds): # returns (<rungraph-object>, Profile)

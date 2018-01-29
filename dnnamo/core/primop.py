@@ -1,33 +1,33 @@
 from abc import ABCMeta, abstractproperty
+from op import DnnamoOp
+from identifier import OP
 
 # This is just the interface definition.
-class Primop(object):
+class Primop(DnnamoOp):
   __metaclass__ = ABCMeta
 
-  def __init__(self, parameters=None, source_op=None):
-    self._device = None
+  def __init__(self, parameters=None, root=None):
     self._id = self._unique_id()
     if parameters is not None:
       self._params = {p:parameters[p] for p in self.parameter_names}
     else:
       self._params = {p:None for p in self.parameter_names}
-    self._source_op = source_op
+    self._root = root
 
   # Class-wide counter
-  id_counter = 0
+  _id_counter = 0
   # Instance function tracking class-wide counter
   def _unique_id(self):
     '''Returns an int guaranteed to be unique across all Primop subclasses.'''
-    c = Primop.id_counter
-    Primop.id_counter += 1
-    primop_id = str(self.optype)+'_'+str(c)
-    return primop_id
+    return OP.unique(self.optype)
+    #c = Primop._id_counter
+    #Primop._id_counter += 1
+    #primop_id = str(self.optype)+'_'+str(c)
+    #return primop_id
 
-  # Factory-assigned properties
-  @abstractproperty
-  def optype(self): pass
-  @abstractproperty
-  def parameter_names(self): pass
+  # Factory-assigned properties:
+  # optype
+  # parameter_names
 
   @property
   def id(self):
@@ -36,14 +36,14 @@ class Primop(object):
   def parameters(self):
     return self._params
   @property
-  def device(self):
-    return self._device
+  def parameter_values(self):
+    return [self._params[k] for k in self.parameter_names]
   @property
-  def source_op(self):
-    return self._source_op
+  def root(self):
+    return self._root
 
   def __str__(self):
-    return '<Primop_'+str(self.optype)+':'+str(self.id)+'>'
+    return '<Primop_'+str(self.optype)+':'+str(self.id.s)+'>'
 
 class PrimopTypes(object):
   '''Singleton container class for all primitive operation types.'''
@@ -113,11 +113,23 @@ Primop_zero = PrimopTypes.new('zero', [],
 #  desc='A constant-cost operation.')
 
 Primop_hadamard = PrimopTypes.new('hadamard', ['dim'],
-  desc='A hadamard (element-wise matrix) operation.')
+  desc='''A hadamard (element-wise matrix) operation.
+
+  Parameters:
+    dim: a python list of integer dimensions of the input and output tensors.''')
 
 Primop_dot = PrimopTypes.new('dot', ['dim_a', 'dim_b', 'dim_reduce'],
-  desc='Inner (dot) product. This includes N-dimensional matrix multiplication.')
+  desc='''Inner (dot) product. This includes N-dimensional matrix multiplication.
+
+  Parameters:
+    dim_a: a python list of integer dimensions of the first input tensor.
+    dim_b: a python list of integer dimensions of the second input tensor.
+    dim_reduce: a single integer dimension the dot product reduces over.''')
 
 Primop_convolution = PrimopTypes.new('convolution', ['dim_a', 'dim_b'],
-  desc='Convolution over a matrix a with a filter b')
+  desc='''Convolution over a matrix a with a filter b.
+
+  Parameters:
+    dim_a: a python list of integer dimensions of the input tensor.
+    dim_b: a python list of integer dimensions of the filter.''')
 

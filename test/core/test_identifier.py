@@ -1,8 +1,8 @@
 import unittest
 
-from dnnamo.core.identifiers import T, OP
+from dnnamo.core.identifier import T, OP
 
-class TestIdentifiers(unittest.TestCase):
+class TestIdentifier(unittest.TestCase):
   # Some non-complicated tests just to make sure that identifiers are taking
   # unique values when they should and exact values otherwise.
 

@@ -39,8 +39,8 @@ class TestTFFramework(unittest.TestCase):
   def test_abstract_datatag_accessors(self):
     frame = TFFramework()
     frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
-    assert frame.get_absgraph(mode='training') is not None, 'No abstract graph returned.'
-    assert frame.get_absgraph(mode='inference') is not None, 'No abstract graph returned.'
+    assert frame.get_graph(mode='training',scope='static',ops='primitive') is not None, 'No abstract graph returned.'
+    assert frame.get_graph(mode='inference',scope='static',ops='primitive') is not None, 'No abstract graph returned.'
 
   # FIXME
   @unittest.skip('The test models dont know how to export weights yet.')
