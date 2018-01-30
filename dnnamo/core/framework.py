@@ -22,12 +22,9 @@ class _collector(object):
   registry = {} # datatag => method
 
   def __init__(self, datatag):
-    print 'init'
     self._tag = datatag
   def __call__(self, method):
     self.__class__.registry[self._tag] = method
-    print method,method.__class__
-    print self.__class__, self.__class__.registry
     return method
 
 
