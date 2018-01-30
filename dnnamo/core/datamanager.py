@@ -19,7 +19,7 @@ class Datatag(namedtuple('Datatag',['name','mode','scope','ops'])):
   # graph   all   all     all
   # weights all   static  native
   # timing  all   dynamic all
-  # ivalues all   dynamic all
+  # ivalues all   dynamic native
   ######################################################################
 
   _names = ['graph','weights','timing','ivalues']

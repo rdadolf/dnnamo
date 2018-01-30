@@ -4,6 +4,7 @@ from ...core.datamanager import Datatag
 from ...core.framework import Framework, _collector
 from ...core.profile import Profile
 from .tf_translator import TFTranslator
+from .tf_graph import TFGraph
 
 class _tf_collector(_collector):
   # This copies all of the collector methods from the core Framework registry.
@@ -21,7 +22,17 @@ class TFFramework(Framework):
   def translator(self):
     return self._translator
 
-  ### Internal
+  ### Collectors
+
+  @_tf_collector(Datatag('graph','all','static','native'))
+  def _collect_static_graphs(self, datatag):
+    if datatag.mode=='training':
+      g = TFGraph.from_graph(self.model.get_training_graph())
+    elif datatag.mode=='inference':
+      g = TFGraph.from_graph(self.model.get_inference_graph())
+    else:
+      raise TypeError, 'Invalid mode in datatag: '+str(datatag)
+    self._data_manager[Datatag('graph',datatag.mode,'static','native')] = g
 
   @_tf_collector(Datatag('graph','all','dynamic','native'))
   @_tf_collector(Datatag('timing','all','dynamic','native'))
@@ -43,6 +54,7 @@ class TFFramework(Framework):
     self._data_manager[Datatag('graph',datatag.mode,'dynamic','native')]=rungraph
     self._data_manager[Datatag('timing',datatag.mode,'dynamic','native')]=timing
 
+  ### Internal
 
   def _parse_rmd_proto(self, rmds): # returns (<rungraph-object>, Profile)
     '''Extracts Dnnamo-relevant information from the RunMetadata protobuf.'''

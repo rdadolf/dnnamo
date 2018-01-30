@@ -112,10 +112,3 @@ class TFTranslator(Translator):
 
     return absgraph
 
-  def map_native_op(self, native_op_id):
-    return self._map[native_op_id]
-
-  def map_primop(self, primop_id):
-    return self._rmap[primop_id]
-
-

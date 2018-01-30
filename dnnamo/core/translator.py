@@ -50,8 +50,8 @@ class Translator(object):
   def translate(self, graph):
     '''Return an AbstractGraph object from a framework graph object.'''
 
-  @abstractmethod
-  def map_native_op(self, native_op_id): pass
+  #@abstractmethod
+  #def map_native_op(self, native_op_id): pass
 
-  @abstractmethod
-  def map_primop(self, primop_id): pass
+  #@abstractmethod
+  #def map_primop(self, primop_id): pass
