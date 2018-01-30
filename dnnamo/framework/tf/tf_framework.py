@@ -1,11 +1,18 @@
 import tensorflow as tf
 
 from ...core.datamanager import Datatag
-from ...core.framework import Framework
+from ...core.framework import Framework, _collector
 from ...core.profile import Profile
 from .tf_translator import TFTranslator
 
+class _tf_collector(_collector):
+  # This copies all of the collector methods from the core Framework registry.
+  # This is a form of inheritance, which allows overriding collector methods.
+  registry = dict(_collector.registry)
+
 class TFFramework(Framework):
+  _collector_registry = _tf_collector
+
   def __init__(self, model=None):
     super(TFFramework, self).__init__(model)
     self._translator = TFTranslator()
@@ -16,8 +23,8 @@ class TFFramework(Framework):
 
   ### Internal
 
-  @Framework._collector(Datatag('graph','all','dynamic','native'))
-  @Framework._collector(Datatag('timing','all','dynamic','native'))
+  @_tf_collector(Datatag('graph','all','dynamic','native'))
+  @_tf_collector(Datatag('timing','all','dynamic','native'))
   def _collect_both_rungraph_and_timing(self, datatag):
     # Tensorflow's profiling collects everything at once, so we fill all relevant
     # datamanager cache fields at the same time whenever either is called. Saves
