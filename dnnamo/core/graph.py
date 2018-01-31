@@ -80,6 +80,22 @@ class DnnamoGraph(object):
   def tensors_incoming_to(self, op_id):
     return [_ for _ in self._tensors if op_id in _.srcs]
 
+  ### Lookups
+
+  def tensor(self, tensor_id):
+    '''Look up a tensor by T identifier. Returns a DnnamoTensor object.'''
+    try:
+      return self._tensors[tensor_id]
+    except KeyError:
+      raise KeyError('Tensor identifier '+str(tensor_id)+ ' doesnt exit in this graph.')
+
+  def op(self, op_id):
+    '''Look up an operation by OP identifier. Returns a DnnamoOp object.'''
+    try:
+      return self._ops[op_id]
+    except KeyError:
+      raise KeyError('Operation identifier '+str(op_id)+ 'doesnt exit in this graph.')
+
   ### Mutators
 
   def add_op(self, op):

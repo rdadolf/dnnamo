@@ -8,7 +8,7 @@ class PrimopsTool(BaselineTool):
 
   def __init__(self):
     super(PrimopsTool,self).__init__()
-    self.data = []
+    self.data = {} # model_identifier -> [(id,type), ...]
 
   def add_subparser(self, argparser):
     super(PrimopsTool,self).add_subparser(argparser)
@@ -22,12 +22,13 @@ class PrimopsTool(BaselineTool):
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
       # FIXME: model mode should be selectable from the CLI. Hardcoding it to
       #   'training' is the wrong thing.
-      ops = [(primop.id,primop.optype) for primop in frame.get_graph(mode='training',scope='static',ops='primitive') if primop.optype!='undef' or self.args['undef']]
-      self.data.append(ops)
+      g = frame.get_graph(mode='training',scope='static',ops='primitive')
+      self.data[model] = [(op.id, op.optype) for op in g.ops if op.optype!='undef' or self.args['undef']]
 
   def _output(self):
-    for ops in self.data:
-      for op in ops:
-        print ','.join(map(str,op))
+    for model,ops in self.data.items():
+      print '---Model: '+str(model)+'---'
+      for op_id,op_type in ops:
+        print '  '+str(op_id)+' '+str(op_type)
 
 ToolRegistry.register(PrimopsTool)
