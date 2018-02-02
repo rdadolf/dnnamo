@@ -35,20 +35,18 @@ class Framework(object):
   #   except with their own _collector subclass.
   _collector_registry = _collector
 
-  def __init__(self, model=None):
-    '''Frameworks can be built from several input sources.
+  def __init__(self, loader=None, identifier=None, **kwargs):
+    '''A general interface for interacting with neural networks.
 
     Args:
-      model: A Model instance of the appropriate type.
-             (This is not common---it is usually easier to pull the model
-              from a file than to build it dynamically.)
+      loader: a DnnamoLoader class
+      identifier: a string which the loader uses to load a model.
+      kwargs: any additional arguments for the loader
     '''
-    if model is not None:
-      if not isinstance(model, DnnamoModel):
-        raise TypeError, 'Must supply a Dnnamo Model instance.'
-    self._model = model
+    self._model = None
     self._data_manager = DataManager()
-
+    if loader is not None:
+      self.load(loader, identifier, **kwargs)
 
   def load(self, loader, identifier, **kwargs):
     '''Loads a model.
