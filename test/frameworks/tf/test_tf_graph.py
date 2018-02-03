@@ -27,3 +27,10 @@ class TestTFGraph(unittest.TestCase):
     tfg._check_dataflow_consistency(self._g)
 
 
+  def test_augment_from_rmd(self):
+    s = tf.Session()
+    opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE, output_partition_graphs=True)
+    rmd = tf.RunMetadata()
+    _ = s.run(self._a, {}, options=opts, run_metadata=rmd)
+    tfg = TFGraph.from_rmd(rmd)
+    tfg._check_dataflow_consistency(self._g)

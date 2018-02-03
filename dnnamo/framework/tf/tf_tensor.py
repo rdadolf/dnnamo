@@ -4,13 +4,22 @@ from ...core.tensor import DnnamoTensor
 class TFTensor(DnnamoTensor):
 
   @classmethod
-  def from_root_tensor(cls, root_graph, root_tensor):
+  def _fix_tensorname(cls,tensorname):
+    t = tensorname
+    # Output tensors in slot 0 can be canonically named without a slot.
+    if t.endswith(':0'):
+      t = t[:-2]
+    return t
+
+
+  @classmethod
+  def from_root_tensor(cls, root_tensor):
     '''Create a TFTensor from a TensorFlow Tensor object.
 
     Arguments:
       root_op: a TensorFlow Tensor object.'''
 
-    id = root_tensor.name
+    id = cls._fix_tensorname(root_tensor.name)
     if (root_tensor.shape.ndims is None) or (len(root_tensor.shape.as_list())<1):
       shape = []
     else:

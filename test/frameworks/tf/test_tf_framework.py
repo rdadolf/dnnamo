@@ -1,8 +1,9 @@
+from functools import wraps
+import pytest
 import unittest
 from dnnamo.core.model import DnnamoModel
 from dnnamo.framework.tf import TFFramework
 from dnnamo.loader import RunpyLoader
-
 
 class TestTFFramework(unittest.TestCase):
   def test_load(self):
@@ -30,28 +31,39 @@ class TestTFFramework(unittest.TestCase):
       frame = TFFramework()
       frame.load(RunpyLoader, 'nonexistent_module')
 
-  def test_graph_datatag_accessors(self):
-    frame = TFFramework()
-    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
-    assert frame.get_graph(mode='training') is not None, 'No training graph returned.'
-    assert frame.get_graph(mode='inference') is not None, 'No inference graph returned.'
 
-  def test_abstract_datatag_accessors(self):
-    frame = TFFramework()
-    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
-    assert frame.get_graph(mode='training',scope='static',ops='primitive') is not None, 'No abstract graph returned.'
-    assert frame.get_graph(mode='inference',scope='static',ops='primitive') is not None, 'No abstract graph returned.'
+@pytest.mark.parametrize('mode', ['training','inference'])
+@pytest.mark.parametrize('model', ['test/test_models/simple_nnet'])
+@pytest.mark.xfail(raises=NotImplementedError)
+class TestTFFrameworkDatatagAccessors(object):
+  def test_datatag_graph_all_static_native(self, model, mode):
+    frame = TFFramework(RunpyLoader, model)
+    g = frame.get_graph(mode, 'static', 'native')
+    assert len(g.ops)>0, 'No operations in graph.'
 
-  # FIXME
-  @unittest.skip('The test models dont know how to export weights yet.')
-  def test_weight_datatag_accessors(self):
-    frame = TFFramework()
-    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
-    assert frame.get_weights(mode='training') is not None, 'No weights returned.'
-    assert frame.get_weights(mode='inference') is not None, 'No weights returned.'
+  def test_datatag_graph_all_static_primitive(self, model, mode):
+    frame = TFFramework(RunpyLoader, model)
+    g = frame.get_graph(mode, 'static', 'primitive')
+    assert len(g.ops)>0, 'No operations in graph.'
 
-  def test_get_timing(self):
-    frame = TFFramework()
-    frame.load(RunpyLoader, 'test/test_models/simple_nnet.py')
-    assert frame.get_timing(mode='training') is not None, 'No timing returned.'
-    assert frame.get_timing(mode='inference') is not None, 'No timing returned.'
+  def test_datatag_graph_all_dynamic_native(self, model, mode):
+    frame = TFFramework(RunpyLoader, model)
+    g = frame.get_graph(mode, 'dynamic', 'native')
+    assert len(g.ops)>0, 'No operations in graph.'
+
+  def test_datatag_graph_all_dynamic_primitive(self, model, mode):
+    frame = TFFramework(RunpyLoader, model)
+    g = frame.get_graph(mode, 'dynamic', 'primitive')
+    assert len(g.ops)>0, 'No operations in graph.'
+
+  # FIXME: weights
+
+  def test_datatag_timing_all_dynamic_native(self, model, mode):
+    frame = TFFramework(RunpyLoader, model)
+    t = frame.get_timing(mode, 'native')
+    assert len(t)>0, 'No timing information in profile.'
+
+  def test_datatag_timing_all_dynamic_primitive(self, model, mode):
+    frame = TFFramework(RunpyLoader, model)
+    t = frame.get_timing(mode, 'primitive')
+    assert len(t)>0, 'No timing information in profile.'

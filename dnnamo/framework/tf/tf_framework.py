@@ -14,8 +14,8 @@ class _tf_collector(_collector):
 class TFFramework(Framework):
   _collector_registry = _tf_collector
 
-  def __init__(self, model=None):
-    super(TFFramework, self).__init__(model)
+  def __init__(self, loader=None, identifier=None, **kwargs):
+    super(TFFramework, self).__init__(loader, identifier, **kwargs)
     self._translator = TFTranslator()
 
   @property
@@ -56,29 +56,68 @@ class TFFramework(Framework):
 
   ### Internal
 
+  #def _fix_nodes(self, nodes):
+  #  return [_ for _ in map(self._fix_node,nodes) if _ is not None]
+
+  #def _fix_node(self, nodedef):
+  #  # TF uses the _ to signal invalid ops (since ops are required to conform
+  #  #   to a specific Regex defined in tensorflow/python/framework/ops.py.
+  #  if nodedef.name.startswith('_'):
+  #    # Return value nodes can be eliminated
+  #    if nodedef.op=='_Retval':
+  #      return None
+  #    # Argument placeholder arguments can be replaced with tf.Placeholder ops
+  #    elif nodedef.name.startswith('_arg_Placeholder') and (nodedef.op=='_Arg'):
+  #      return tf.NodeDef(
+  #        name = nodedef.name[5:],
+  #        op = u'Placeholder',
+  #        input = nodedef.input,
+  #        device = nodedef.device,
+  #        attr = nodedef.attr
+  #      )
+  #    else:
+  #      raise NotImplementedError('Unknown operation: '+str(nodedef.name)+' : '+str(nodedef.op))
+  #      #return None # Eliminate other operations
+  #  else:
+  #    # Known ops are unchanged.
+  #    return nodedef
+
   def _parse_rmd_proto(self, rmds): # returns (<rungraph-object>, Profile)
     '''Extracts Dnnamo-relevant information from the RunMetadata protobuf.'''
 
+    # FIXME: Graph Aggregation
+    #for rmd in rmds:
+    rmd = rmds[0]
+
     p = Profile()
-    g = None # FIXME
-    for rmd in rmds:
-      # FIXME: investigate cost graph field of rmd?
+    # TODO: investigate cost graph field of rmd?
 
-      # Timing statistics
-      #   Relevant TF protobuf definitions:
-      #     tensorflow/core/protobuf/config.proto
-      #     tensorflow/core/framework/step_stats.proto
-      step_stats = rmd.step_stats
-      for dev_step_stats in step_stats.dev_stats:
-        device = dev_step_stats.device # string
-        for node_stats in dev_step_stats.node_stats:
-          name = node_stats.node_name
-          dt = node_stats.all_end_rel_micros
-          p.add(name,dt)
+    # Timing statistics
+    #   Relevant TF protobuf definitions:
+    #     tensorflow/core/protobuf/config.proto
+    #     tensorflow/core/framework/step_stats.proto
+    step_stats = rmd.step_stats
+    for dev_step_stats in step_stats.dev_stats:
+      device = dev_step_stats.device # string
+      for node_stats in dev_step_stats.node_stats:
+        name = node_stats.node_name
+        dt = node_stats.all_end_rel_micros
+        p.add(name,dt)
 
-      # Run graph
-      # FIXME
-      _ = rmd.partition_graphs
-      g = 'INVALID RUNGRAPH: THIS STRING IS USED TO TRICK THE DATAMANAGER'
+    # Run graph
+    raise NotImplementedError('Waiting on TFGraph.from_rmd() method')
 
+    #unified_rungraph = tf.Graph()
+    #with unified_rungraph.as_default():
+      # Unify parts
+      #for part in rmd.partition_graphs:
+      #
+      #  valid_part = tf.GraphDef(
+      #    versions = part.versions,
+      #    node = self._fix_nodes(part.node)
+      #  )
+      #  tf.import_graph_def(valid_part, name='')
+    #g = TFGraph.from_graph(unified_rungraph) # FIXME
+
+    assert False
     return (g,p)

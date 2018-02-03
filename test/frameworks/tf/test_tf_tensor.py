@@ -24,9 +24,9 @@ class TestTFTensor(unittest.TestCase):
     t = TFTensor('test',[],srcs=[],dsts=[],root=None)
 
   def test_from_tensor(self):
-    x = TFTensor.from_root_tensor(self._g, self._x)
-    y = TFTensor.from_root_tensor(self._g, self._y)
-    z = TFTensor.from_root_tensor(self._g, self._z)
+    x = TFTensor.from_root_tensor(self._x)
+    y = TFTensor.from_root_tensor(self._y)
+    z = TFTensor.from_root_tensor(self._z)
 
     # Check dimensions
     assert x.shape==[]

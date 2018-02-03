@@ -42,8 +42,15 @@ class PrimopDiagnosticTool(BaselineTool):
       unknown_ops = dict()
       # FIXME: mode should be selectable from the CLI. Hardcoding it to training
       #   is the wrong thing.
-      for primop in frame.get_graph(mode='training',scope='static',ops='primitive'):
-        root = primop.root
+      for primop in frame.get_graph(mode='training',scope='static',ops='primitive').ops:
+        # FIXME: this is awkward and needs to be replaced.
+        # this is a vestige from before we had DnnamoOp and TFOp types.
+        # Originally, this tool matches Primop's with tf.Operation objects.
+        # Now Dnnamo matches Primop's (DnnamoOp) with Natop's (TFOp).
+        # This section probably needs to be rewritten.
+        # (But the code should probably saved for parsing attributes later.
+        #  For instance, if/when we implement datatypes, we'll need this.)
+        root = primop.root.root
 
         if primop.optype=='undef':
           if root.type not in unknown_ops:
