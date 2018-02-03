@@ -43,7 +43,7 @@ class Primop(DnnamoOp):
     return self._root
 
   def __str__(self):
-    return '<Primop_'+str(self.optype)+':'+str(self.id.s)+'>'
+    return '<Primop_'+str(self.id)+' '+str(self.optype)+'>'
 
 class PrimopTypes(object):
   '''Singleton container class for all primitive operation types.'''

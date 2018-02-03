@@ -50,4 +50,4 @@ class DnnamoOp(object):
     return self._root
 
   def __str__(self):
-    return '<Op_'+str(self.optype)+':'+str(self.id.s)+'>'
+    return '<Op_'+str(self.id)+' '+str(self.optype)+'>'

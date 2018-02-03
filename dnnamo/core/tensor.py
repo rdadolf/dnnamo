@@ -57,4 +57,4 @@ class DnnamoTensor(object):
     return self._root
 
   def __str__(self):
-    return '<T_'+str(self.id.s)+':'+','.join([str(d) for d in self.shape])+'>'
+    return '<T_'+str(self.id)+' ['+','.join([str(d) for d in self.shape])+']>'
