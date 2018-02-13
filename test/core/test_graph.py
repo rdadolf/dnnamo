@@ -1,7 +1,6 @@
 import unittest
 
-from dnnamo.core.op import DnnamoOp
-from dnnamo.core.tensor import DnnamoTensor
+from dnnamo.core.dataflow import DnnamoOp, DnnamoTensor
 from dnnamo.core.graph import DnnamoGraph
 
 from .synthetic_graph import SynthOp, SynthTensor, ConstructRandomGraph
@@ -17,7 +16,7 @@ class TestGenericGraph(unittest.TestCase):
 
       assert len(g.ops)==N_OPS
       for op in g.ops:
-        assert op.optype=='Synth', 'Invalid operation found.'
+        assert op.type=='Synth', 'Invalid operation found.'
         assert isinstance(op, SynthOp), 'Corrupted tensor object: '+str(op)
 
       assert len(g.tensors)==N_TS

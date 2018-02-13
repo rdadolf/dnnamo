@@ -5,14 +5,14 @@ from dnnamo.core.primop import Primop, PrimopTypes
 class TestPrimop(unittest.TestCase):
   def test_primop_names(self):
     # Make sure all dnnamo primops are named Primop_*
-    for optype,Op in PrimopTypes().items():
+    for type,Op in PrimopTypes().items():
       assert issubclass(Op, Primop), 'Found a Primop that is not a Primop: ('+str(Op)+')'
-      assert isinstance(optype,str), 'Invalid primop opname: '+str(optype)
+      assert isinstance(type,str), 'Invalid primop opname: '+str(type)
 
   def test_null_instantiation(self):
-    for optype,Op in PrimopTypes().items():
+    for type,Op in PrimopTypes().items():
       p = Op()
-      assert p.optype==optype, 'Internal optype doesnt match global entry.'
+      assert p.type==type, 'Internal type doesnt match global entry.'
       assert len(p.parameters)==len(p.parameter_names), 'Parameter names and values dont match up'
 
   def test_parameter_instantiation(self):

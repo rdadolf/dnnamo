@@ -105,7 +105,8 @@ class TFFramework(Framework):
         p.add(name,dt)
 
     # Run graph
-    raise NotImplementedError('Waiting on TFGraph.from_rmd() method')
+    g = TFGraph.from_rmd(rmd)
+    #raise NotImplementedError('Waiting on TFGraph.from_rmd() method')
 
     #unified_rungraph = tf.Graph()
     #with unified_rungraph.as_default():
@@ -119,5 +120,4 @@ class TFFramework(Framework):
       #  tf.import_graph_def(valid_part, name='')
     #g = TFGraph.from_graph(unified_rungraph) # FIXME
 
-    assert False
     return (g,p)

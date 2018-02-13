@@ -1,19 +1,18 @@
 import random
 
-from dnnamo.core.identifier import OP,T
-from dnnamo.core.tensor import DnnamoTensor
-from dnnamo.core.op import DnnamoOp
+from dnnamo.core.identifier import ID
+from dnnamo.core.dataflow import DnnamoTensor, DnnamoOp
 from dnnamo.core.graph import DnnamoGraph
 
 class SynthOp(DnnamoOp):
   def __init__(self, parameters=None, root=None):
-    self._id = OP.unique('synth')
+    self._id = ID.unique('synth')
     self._p = {'foo': 'bar'}
   @property
   def id(self):
     return self._id
   @property
-  def optype(self):
+  def type(self):
     return 'Synth'
   @property
   def parameter_names(self):
@@ -34,7 +33,7 @@ class SynthTensor(DnnamoTensor):
     if len(shape)<1:
       shape = [1]
     self._shape = tuple(shape)
-    self._id = T.unique('synth')
+    self._id = ID.unique('synth')
     self._srcs = srcs
     self._dsts = dsts
     self._root = root

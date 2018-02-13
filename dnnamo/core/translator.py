@@ -29,7 +29,7 @@ class MatchAny(Match):
 
 class MatchExactType(Match):
   def __init__(self, t): self.t=t
-  def match(self, graph, op): return op.optype==self.t
+  def match(self, graph, op): return op.type==self.t
 
 class EmitUndef(Emit):
   def emit(self, graph, op): return Primop_undef(root=op)

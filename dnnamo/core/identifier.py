@@ -1,7 +1,4 @@
-from abc import ABCMeta, abstractmethod
-
 class DnnamoID(object):
-  __metaclass =  ABCMeta
 
   def __init__(self, s):
     if str(s)!=s:
@@ -18,14 +15,10 @@ class DnnamoID(object):
     '''Unique ID factory.'''
     if prefix is None:
       prefix='ID'
+    # Identifier counter increments *globally*, across all ID types.
     c = DnnamoID._id_counter
     DnnamoID._id_counter += 1
     return cls(str(prefix)+'_'+str(c))
-
-  @abstractmethod
-  def __hash__(self):
-    # Allow use of DnnamoID's as keys, but don't hash T's and OP's the same way
-    pass
 
   def __eq__(self, other):
     if type(self)!=type(other):
@@ -36,27 +29,29 @@ class DnnamoID(object):
     # Python's != calls this directly, so we need to override it
     return not(self==other)
 
-class T(DnnamoID):
-  '''Unique identifier for Dnnamo Tensor objects'''
-
   def __hash__(self):
-    # Allow use of DnnamoID's as keys
-    return hash(('T',self.s))
-
-  def __str__(self):
-    return 'T"'+self.s+'"'
+    # Allow use of DnnamoID's as keys, but don't hash different ID's the same way
+    return hash( (self.__class__.__name__, self.s) )
 
   def __repr__(self):
-    return '<DnnamoID:T"'+self.s+'">'
-
-class OP(DnnamoID):
-  '''Unique identifier for Dnnamo Operation objects'''
-  def __hash__(self):
-    # Allow use of DnnamoID's as keys
-    return hash(('OP',self.s))
+    return str(self.__class__.__name__)+"('"+self.s+"')"
 
   def __str__(self):
-    return 'OP"'+self.s+'"'
+    return self.s
 
-  def __repr__(self):
-    return '<DnnamoID:OP"'+self.s+'">'
+# Shortcut
+ID = DnnamoID
+
+### Specific ID types
+
+#class T(DnnamoID):
+#  '''Unique identifier for Dnnamo Tensor objects'''
+
+#class OP(DnnamoID):
+#  '''Unique identifier for Dnnamo Operation objects'''
+
+#class DependenceID(DnnamoID):
+#  '''Unique identifier for Dnnamo Dependence objects'''
+
+#class ProxyID(DnnamoID):
+#  '''Unique identifier for Dnnamo Proxy objects'''

@@ -1,6 +1,6 @@
 from dnnamo.core.primop import *
 from dnnamo.core.graph import DnnamoGraph
-from dnnamo.core.tensor import DnnamoTensor
+from dnnamo.core.dataflow import DnnamoTensor
 from dnnamo.core.translator import Rules, Match, Emit, Translator, \
                                    MatchAny, MatchExactType, \
                                    EmitUndef, EmitZero

@@ -23,7 +23,7 @@ class PrimopsTool(BaselineTool):
       # FIXME: model mode should be selectable from the CLI. Hardcoding it to
       #   'training' is the wrong thing.
       g = frame.get_graph(mode='training',scope='static',ops='primitive')
-      self.data[model] = [(op.id, op.optype) for op in g.ops if op.optype!='undef' or self.args['undef']]
+      self.data[model] = [(op.id, op.type) for op in g.ops if op.type!='undef' or self.args['undef']]
 
   def _output(self):
     for model,ops in self.data.items():

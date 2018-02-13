@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractproperty
-from op import DnnamoOp
-from identifier import OP
+from dataflow import DnnamoOp
+from identifier import ID
 
 # This is just the interface definition.
 class Primop(DnnamoOp):
@@ -19,22 +19,19 @@ class Primop(DnnamoOp):
   # Instance function tracking class-wide counter
   def _unique_id(self):
     '''Returns an int guaranteed to be unique across all Primop subclasses.'''
-    return OP.unique(self.optype)
+    return ID.unique(self.type)
     #c = Primop._id_counter
     #Primop._id_counter += 1
-    #primop_id = str(self.optype)+'_'+str(c)
+    #primop_id = str(self.type)+'_'+str(c)
     #return primop_id
 
   # Factory-assigned properties:
-  # optype
+  # type
   # parameter_names
 
   @property
   def id(self):
     return self._id
-  @property
-  def parameters(self):
-    return self._params
   @property
   def parameter_values(self):
     return [self._params[k] for k in self.parameter_names]
@@ -43,7 +40,7 @@ class Primop(DnnamoOp):
     return self._root
 
   def __str__(self):
-    return '<Primop_'+str(self.id)+' '+str(self.optype)+'>'
+    return '<Primop_'+str(self.id)+' '+str(self.type)+'>'
 
 class PrimopTypes(object):
   '''Singleton container class for all primitive operation types.'''
@@ -67,25 +64,25 @@ class PrimopTypes(object):
     return cls.primops[key]
 
   @staticmethod
-  def new(optype, parameter_set, desc=None):
+  def new(t, parameter_set, desc=None):
     '''Shortcut for dynamically creating new Primop class types.
 
     In general, this function should not be used outside this file.'''
 
-    primop_typename = 'Primop_'+str(optype)
+    primop_typename = 'Primop_'+str(t)
     # Create factory-assigned properties
-    def optype_prop(self): return optype
+    def type_prop(self): return t
     def parameter_names_prop(self): return [p for p in parameter_set] # copy
     if desc is None:
       desc = 'Dnnamo primitive operation.'
     # Create new type
     NewPrimop = type(primop_typename, (Primop,), {
-      'optype': property(optype_prop),
+      'type': property(type_prop),
       'parameter_names': property(parameter_names_prop),
       '__doc__': desc,
     })
     # Record the new type
-    PrimopTypes.primops[optype] = NewPrimop
+    PrimopTypes.primops[t] = NewPrimop
     # Return new type to get its name assigned
     return NewPrimop
 
