@@ -1,3 +1,4 @@
+from dnnamo.core.bimap import Bimap
 from dnnamo.core.primop import *
 from dnnamo.core.graph import DnnamoGraph
 from dnnamo.core.dataflow import DnnamoTensor
@@ -87,27 +88,33 @@ TFRules.add(50, MatchExactType('MatMul'), EmitDot2D())
 
 class TFTranslator(Translator):
   def __init__(self):
-    self._map = {}
-    self._rmap = {}
+    self._map = Bimap() # Left: native, Right: primitive
 
   def translate(self, graph):
     # Caching is handled at the framework level, so if this translate method is
     # called, it means we definitely want to rebuild the abstract graph.
     primgraph = DnnamoGraph()
 
-    # Add all ops as nodes in the dependence graph.
+    # Add all ops to the graph.
     for op in graph.ops:
       primop = self.emit_primop(TFRules, graph, op)
       primgraph.add_op(primop)
-      self._map[op.id] = primop.id
-      self._rmap[primop.id] = op.id
+      self._map.l[op.id] = primop.id
+
+    # Add all proxy vertices as zero nodes.
+    for proxy in graph.proxies:
+      primop = EmitZero().emit(graph, proxy)
+      primgraph.add_proxy(primop) # FIXME? Is this the right type?
+      self._map.l[proxy.id] = primop.id
 
     # Add all tensors as edges in the dependence graph.
     for t in graph.tensors:
-      prim_srcs = [self._map[_] for _ in t.srcs]
-      prim_dsts = [self._map[_] for _ in t.dsts]
+      prim_srcs = [self._map.l[_] for _ in t.srcs]
+      prim_dsts = [self._map.l[_] for _ in t.dsts]
       primt = DnnamoTensor(t.id.s, t.shape, prim_srcs, prim_dsts, root=t)
       primgraph.add_tensor(primt)
+
+    # Omit control-flow edges.
 
     return primgraph
 

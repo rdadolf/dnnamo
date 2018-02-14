@@ -51,10 +51,10 @@ class TestTFFrameworkDatatagAccessors(object):
     g = frame.get_graph(mode, 'dynamic', 'native')
     assert len(g.ops)>0, 'No operations in graph.'
 
-  #def test_datatag_graph_all_dynamic_primitive(self, model, mode):
-  #  frame = TFFramework(RunpyLoader, model)
-  #  g = frame.get_graph(mode, 'dynamic', 'primitive')
-  #  assert len(g.ops)>0, 'No operations in graph.'
+  def test_datatag_graph_all_dynamic_primitive(self, model, mode):
+    frame = TFFramework(RunpyLoader, model)
+    g = frame.get_graph(mode, 'dynamic', 'primitive')
+    assert len(g.ops)>0, 'No operations in graph.'
 
   # FIXME: weights
 

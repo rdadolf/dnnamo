@@ -136,17 +136,9 @@ class Framework(object):
 
 
   # Generic collector methods
-  @_collector(Datatag('graph','training','static','native'))
-  def _collect_training_graph_from_model(self, datatag):
-    self._data_manager[datatag] = self.model.get_training_graph()
-
-  @_collector(Datatag('graph','inference','static','native'))
-  def _collect_inference_graph_from_model(self, datatag):
-    self._data_manager[datatag] = self.model.get_inference_graph()
-
-  @_collector(Datatag('graph','all','static','primitive'))
+  @_collector(Datatag('graph','all','all','primitive'))
   def _collect_primitive_graph(self, datatag):
-    self._data_manager[datatag] = self.translator.translate(self.get_graph(datatag.mode))
+    self._data_manager[datatag] = self.translator.translate(self.get_graph(mode=datatag.mode, scope=datatag.scope))
 
   @_collector(Datatag('weights','all','static','native'))
   def _collect_weights(self, datatag):
