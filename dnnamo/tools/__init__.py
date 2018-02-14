@@ -1,5 +1,6 @@
 # Tools self-register with the ToolRegistry class on import.
 
+import density
 import primops
 
 import _mimic

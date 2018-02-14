@@ -20,7 +20,29 @@ class TFGraph(DnnamoGraph):
     #   multi-graphs, so having both types of hyperedges between vertices is
     #   just fine.
 
-  # User-visible constructor methods
+  ### Name translation support
+  def get_vertex_id_from_tf_name(self, tf_name):
+    '''Returns the DnnamoVertex constructed from a TensorFlow name.
+
+    Dnnamo uses globally-unique identifiers for its graph elements, whereas
+    TensorFlow reuses names for operations, tensors, and other objects. This
+    function translates the TensorFlow name for a graph node into a Dnnamo ID.'''
+    return self._vertex_name.l[tf_name]
+
+  def get_tensor_id_from_tf_name(self, tf_name):
+    '''Returns the DnnamoTensor constructed from a TensorFlow name.
+
+    Dnnamo uses globally-unique identifiers for its graph elements, whereas
+    TensorFlow reuses names for operations, tensors, and other objects. This
+    function translates the TensorFlow name for a tensor into a DnnamoID.
+    Note: Tensorflow sometimes augments tensor names with syntactic sugar,
+    including a slot suffix and a control-flow prefix. This method requires
+    the correct slot suffix (or '' for slot 0), and it will strip any
+    control-flow prefix off the name. Note that if a tensor is used *only*
+    for control-flow, this method with return an error.'''
+    return self._tensor_name.l[tf_name]
+
+  ### User-visible constructor methods
 
   @classmethod
   def from_graph(cls, root_graph):
@@ -42,7 +64,7 @@ class TFGraph(DnnamoGraph):
   def augment_from_rmd(self, root_rmd):
     self._augment_graph(root_rmd=root_rmd)
 
-  # These functions do the actual work for constructing graphs.
+  ### These functions do the actual work for constructing graphs.
 
   def _convert_tf_attribute(self, attr):
     'Converts a TF attr_value protobuf object into a reasonable python object.'
@@ -205,105 +227,4 @@ class TFGraph(DnnamoGraph):
           self.tensor(edgeid).set_shape(shape)
 
     # END _augment_graph
-
-
-
-  #def augment_from_graph(self, root_graph):
-  #  '''Adds elements from a TensorFlow graph.'''
-  #  for root_op in root_graph.get_operations():
-
-  #    tf_op = TFOp.from_root_op(root_op)
-  #    self.add_op(tf_op)
-  #    # All TensorFlow tensors are produced by a single operation, so
-  #    # we don't need to worry about adding this tensor twice. (They can
-  #    # be consumed twice, but that's not relevant here.)
-  #    for root_tensor in root_op.values():
-  #      tf_t = TFTensor.from_root_tensor(root_tensor)
-  #      self.add_tensor(tf_t)
-  #  return self
-
-
-
-  #def augment_from_rmd(self, rmd):
-  #  '''Adds elements from a TensorFlow RunMetadata protobuf.
-
-  #  RunMetadata protobufs are the result of profiling the execution of a
-  #  TensorFlow graph. This method makes a best-effort reconstruction of
-  #  the graph that was run. The data TensorFlow provides can be incomplete.
-  #  '''
-  #  # At a high level, graph nodes (ops) are held in the 'partition_graph'
-  #  # field, and memory/timing information is held in the 'step_stats' field.
-  #  # Unfortunately, these structures are inconsistent at best. Fields often
-  #  # do not exist, and many values must be inferred.
-
-  #  ### (1) collect operations from the partition graphs.
-
-  #  # Segregate the pseudo-ops (any optype that begins with '_') into a
-  #  # separate list for later.
-  #  _transmission_ops = {} # _Send, _Recv
-  #  _source_ops = {} # _Arg_* (XXX: Are these only placeholders or just anything that is replaced by a feed_dict argument?)
-  #  _sink_ops = {} # _Result
-
-  #  for part in rmd.partition_graphs:
-  #    for node in part.node:
-  #      if node.op.startswith('_'):
-  #        self.add_proxy( TFProxy(id=node.name, type=node.op, root=node) )
-  #      #  pass # FIXME: Segregate
-  #        print 'SEGREGATING',node
-  #      else:
-  #        tfop = TFOp.from_root_def(node)
-  #        self.add_op(tfop)
-
-  #  ### (2) collect tensor connectivity information
-  #  # Find consumers (dsts)
-  #  tensor_dsts = {} # tensor_name -> [dst, ...]
-  #  for op in self.ops:
-  #    for p in op.parameter_values:
-  #      if isinstance(p,T):
-  #        if p not in tensor_dsts:
-  #          tensor_dsts[p] = []
-  #        tensor_dsts[p].append(op.id)
-  #  # Associate any tensor with a source op
-  #  # NOTE: since we're only creating tensor connections based on what was
-  #  #   actually used, there could be ops which don't produce anything
-  #  tensor_srcs = {} # tensor_name -> [src]
-  #  for t in tensor_dsts:
-  #    # Create an OP ID from the T ID---they should be basically the same
-  #    src_id = OP(TFOp._opname_from_tensorname(t.s))
-  #    if src_id not in self:
-  #      raise ValueError('Tensor '+str(t)+' produced by unknown op (best guess is '+str(src_id)+')')
-  #    tensor_srcs[t] = src_id
-
-  #  ### (3) collect tensor shape information from step stats
-  #  tensor_shapes = {}
-  #  tensor_roots = {}
-  #  for dev in rmd.step_stats.dev_stats:
-  #    for node in dev.node_stats:
-  #      output_tensor_prefix = node.node_name
-  #      for (i,out_t) in enumerate(node.output):
-  #        # Add a slot tag for every output
-  #        output_tensor_slot = output_tensor_prefix+':'+str(i)
-  #        # Canonicalize tensor name (removes slot on :0)
-  #        output_tensor_name = TFTensor._fix_tensorname(output_tensor_slot)
-  #        # Assume every output is a tensor
-  #        tensor = out_t.tensor_description
-  #        t_id = T(output_tensor_name)
-  #        tensor_shapes[t_id] = [int(d.size) for d in tensor.shape.dim]
-  #        tensor_roots[t_id] = out_t # tensor description protobuf
-
-  #  ### (4) unify all tensor information
-  #  # Check if everyone has the same tensors.
-  #  src_keys = set(tensor_srcs.keys())
-  #  dst_keys = set(tensor_dsts.keys())
-  #  shp_keys = set(tensor_shapes.keys())
-  #  # tensor_roots have same entries as shape, so don't need to check
-  #  assert len(src_keys ^ dst_keys)==0
-  #  assert len(src_keys ^ shp_keys)==0
-
-  #  for t in src_keys:
-  #    tensor = TFTensor(t, tensor_shapes[t], tensor_srcs[t], tensor_dsts[t], root=None)
-  #    self.add_tensor(tensor)
-
-  #  return self
-
 

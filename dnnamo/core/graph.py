@@ -73,7 +73,7 @@ class DnnamoGraph(object):
   def is_edge(self, id):
     self[id] # Better nonexistence error message
     return self._restype[id] in self._EDGE_TYPES
-  def is_type(self, id, t):
+  def _istype(self, id, t):
     self[id] # Better nonexistence error message
     return self._restype[id]==t
 
@@ -86,57 +86,47 @@ class DnnamoGraph(object):
   @property
   def ops(self):
     '''Return all DnnamoOp's in the graph.'''
-    return [res for id,res in self._res.items() if self.is_type(id,'op')]
+    return [res for id,res in self._res.items() if self._istype(id,'op')]
   @property
   def tensors(self):
     '''Return all DnnamoTensor's in the graph.'''
-    return [res for id,res in self._res.items() if self.is_type(id,'tensor')]
+    return [res for id,res in self._res.items() if self._istype(id,'tensor')]
   @property
   def dependences(self):
     '''Return all non-tensor dependences in the graph.'''
-    return [res for id,res in self._res.items() if self.is_type(id,'dependence')]
+    return [res for id,res in self._res.items() if self._istype(id,'dependence')]
   @property
   def proxies(self):
     '''Return all non-op proxy vertices in the graph.'''
-    return [res for id,res in self._res.items() if self.is_type(id,'proxy')]
+    return [res for id,res in self._res.items() if self._istype(id,'proxy')]
 
-  @property
   def vertices_from(self, id):
     '''All destination vertices for a given edge.'''
     return [v for v in self._eout[id]]
-  @property
   def vertices_to(self, id):
     '''All source vertices for a given edge.'''
     return [v for v in self._ein[id]]
-  @property
   def edges_from(self, id):
     '''All edges coming from a given vertex.'''
     return [e for e in self._vout[id]]
-  @property
   def edges_to(self, id):
     '''All edges leading to a given vertex.'''
     return [e for e in self._vin[id]]
-  @property
   def ops_from(self, id):
     '''All source ops for a given edge.'''
     return [v for v in self._eout[id] if self._istype(v,'op')]
-  @property
   def ops_to(self, id):
     '''All destination ops for a given edge.'''
     return [v for v in self._ein[id] if self._istype(v,'op')]
-  @property
   def tensors_from(self, id):
     '''All tensors produced by a given vertex.'''
     return [e for e in self._vout[id] if self._istype(e,'tensor')]
-  @property
   def tensors_to(self, id):
     '''All tensors feeding into a given vertex.'''
     return [e for e in self._vin[id] if self._istype(e,'tensor')]
-  @property
   def dependences_from(self, id):
     '''All dependence edges coming from a given vertex.'''
     return [e for e in self._vout[id] if self._istype(e,'dependence')]
-  @property
   def dependences_to(self, id):
     '''All dependence edges leading to a given vertex.'''
     return [e for e in self._vin[id] if self._istype(e,'dependence')]
@@ -198,7 +188,7 @@ class DnnamoGraph(object):
     for s in e.srcs:
       self._vout[s].append(e.id)
     for d in e.dsts:
-      self._vout[d].append(e.id)
+      self._vin[d].append(e.id)
 
   def add_op(self, op):
     self.add_vertex(op, 'op')

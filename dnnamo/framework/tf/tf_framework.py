@@ -86,13 +86,15 @@ class TFFramework(Framework):
     '''Extracts Dnnamo-relevant information from the RunMetadata protobuf.'''
 
     # FIXME: Graph Aggregation
-    #for rmd in rmds:
     rmd = rmds[0]
 
-    p = Profile()
     # TODO: investigate cost graph field of rmd?
 
+    # Run graph
+    g = TFGraph.from_rmd(rmd)
+
     # Timing statistics
+    p = Profile()
     #   Relevant TF protobuf definitions:
     #     tensorflow/core/protobuf/config.proto
     #     tensorflow/core/framework/step_stats.proto
@@ -101,23 +103,16 @@ class TFFramework(Framework):
       device = dev_step_stats.device # string
       for node_stats in dev_step_stats.node_stats:
         name = node_stats.node_name
+        # NOTE: We remove _SOURCE ops, since they are treated bizarrely by
+        # TensorFlow: they never have dataflow dependencies, they never exist
+        # in the runtime graph, and yet they have non-zero compute time.
+        # Luckily, there is only one _SOURCE op in an RMD structure, so its
+        # contribution to overall computation time is negligible (and does not
+        # scale with any quantity)
+        if name=='_SOURCE':
+          continue
+        id = g.get_vertex_id_from_tf_name(name)
         dt = node_stats.all_end_rel_micros
-        p.add(name,dt)
-
-    # Run graph
-    g = TFGraph.from_rmd(rmd)
-    #raise NotImplementedError('Waiting on TFGraph.from_rmd() method')
-
-    #unified_rungraph = tf.Graph()
-    #with unified_rungraph.as_default():
-      # Unify parts
-      #for part in rmd.partition_graphs:
-      #
-      #  valid_part = tf.GraphDef(
-      #    versions = part.versions,
-      #    node = self._fix_nodes(part.node)
-      #  )
-      #  tf.import_graph_def(valid_part, name='')
-    #g = TFGraph.from_graph(unified_rungraph) # FIXME
+        p.add(id,dt)
 
     return (g,p)

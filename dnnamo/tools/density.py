@@ -1,0 +1,47 @@
+import numpy as np
+
+from ..framework import FRAMEWORKS
+from ..loader import RunpyLoader
+from .tool_utilities import BaselineTool, ToolRegistry
+
+class DensityTool(BaselineTool):
+  TOOL_NAME='density'
+  TOOL_SUMMARY='Prints a list of the computational density (microseconds of compute per value consumed) of each op, sorted by total execution time'
+
+  def _run(self, models):
+    self.data = {} # model -> [(id,time,density), ...]
+    for model in models:
+      frame = FRAMEWORKS[self.args['framework']]()
+      frame.load(self.args['loader'], model, **self.args['loader_opts'])
+
+      # FIXME: CLI-selectable mode
+      g = frame.get_graph(mode='training', scope='dynamic', ops='native')
+      p = frame.get_timing(mode='training', ops='native')
+
+      # FIXME: better aggregation
+      timing = p.aggregate('last')
+
+      dat = []
+      for op in g.ops:
+        id = op.id
+        time = timing[op.id]
+        # FIXME: really should be in bytes, not "values"
+        values = int(sum([np.prod(g[t].shape) for t in g.tensors_to(op.id)]))
+        dat.append( (id,time,values) )
+
+      dat.sort(key=lambda (i,t,v): t, reverse=True)
+      self.data[model] = dat
+
+  def _output(self):
+    for model,dat in self.data.items():
+      print '---Model: '+str(model)+'---'
+      for (id,time,values) in dat:
+        s = '  '+str(time)+' us\t'+str(values)+' values\t'
+        if values==0:
+          s += '(no data)'
+        else:
+          s += str(np.round(float(time)/values, decimals=2))+'us/value'
+        s += '\t'+str(id)
+        print s
+
+ToolRegistry.register(DensityTool)
