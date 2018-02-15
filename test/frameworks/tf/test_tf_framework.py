@@ -58,12 +58,14 @@ class TestTFFrameworkDatatagAccessors(object):
 
   # FIXME: weights
 
-  #def test_datatag_timing_all_dynamic_native(self, model, mode):
-  #  frame = TFFramework(RunpyLoader, model)
-  #  t = frame.get_timing(mode, 'native')
-  #  assert len(t)>0, 'No timing information in profile.'
+  def test_datatag_timing_all_dynamic_native(self, model, mode):
+    frame = TFFramework(RunpyLoader, model)
+    t = frame.get_timing(mode, 'native')
+    assert len(t)>0, 'No timing information in profile.'
 
-  #def test_datatag_timing_all_dynamic_primitive(self, model, mode):
-  #  frame = TFFramework(RunpyLoader, model)
-  #  t = frame.get_timing(mode, 'primitive')
-  #  assert len(t)>0, 'No timing information in profile.'
+  def test_datatag_timing_all_dynamic_primitive(self, model, mode):
+    frame = TFFramework(RunpyLoader, model)
+    t = frame.get_timing(mode, 'primitive')
+    assert len(t)>0, 'No timing information in profile.'
+
+  # FIXME ivalues

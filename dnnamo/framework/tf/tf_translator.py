@@ -104,7 +104,7 @@ class TFTranslator(Translator):
     # Add all proxy vertices as zero nodes.
     for proxy in graph.proxies:
       primop = EmitZero().emit(graph, proxy)
-      primgraph.add_proxy(primop) # FIXME? Is this the right type?
+      primgraph.add_op(primop) # FIXME? Is this the right type?
       self._map.l[proxy.id] = primop.id
 
     # Add all tensors as edges in the dependence graph.

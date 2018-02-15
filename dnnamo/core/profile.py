@@ -2,7 +2,7 @@ import numpy as np
 
 class Profile(object):
   def __init__(self):
-    self._profile = {} # op -> [usecs, ...]
+    self._profile = {} # op_id -> [usecs, ...]
     self._steps = 0
 
   def __getitem__(self, key):

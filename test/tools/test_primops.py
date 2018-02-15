@@ -13,3 +13,9 @@ class TestPrimop(unittest.TestCase):
     with in_temporary_directory():
       cmd='primops '+testfile
       runtool(PrimopsTool(), cmd)
+
+  def test_run_dynamic(self):
+    testfile = os.path.abspath(TESTFILE)
+    with in_temporary_directory():
+      cmd='primops '+testfile+' --timing'
+      runtool(PrimopsTool(), cmd)

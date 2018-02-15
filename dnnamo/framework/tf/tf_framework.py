@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+from ...core.bimap import Bimap
 from ...core.datamanager import Datatag
 from ...core.framework import Framework, _collector
 from ...core.profile import Profile
@@ -33,6 +34,22 @@ class TFFramework(Framework):
     else:
       raise TypeError, 'Invalid mode in datatag: '+str(datatag)
     self._data_manager[Datatag('graph',datatag.mode,'static','native')] = g
+
+  @_tf_collector(Datatag('timing','all','dynamic','primitive'))
+  def _translate_timing_information(self, datatag):
+    # Collect requisite data
+    g_prim = self.get_graph(mode=datatag.mode, scope='dynamic', ops='primitive')
+    p_nat = self.get_timing(mode=datatag.mode, ops='native')
+    # Compute a name map between native and primitive op ID's
+    op_names = Bimap()
+    for primop in g_prim.ops:
+      op_names.l[primop.id] = primop.root.id
+    # Create the primitive timing profile
+    p_prim = Profile()
+    for natop_id,timing_list in p_nat.items():
+      p_prim[op_names.r[natop_id]] = timing_list
+
+    self._data_manager[datatag] = p_prim
 
   @_tf_collector(Datatag('graph','all','dynamic','native'))
   @_tf_collector(Datatag('timing','all','dynamic','native'))
