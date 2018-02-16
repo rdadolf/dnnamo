@@ -14,6 +14,7 @@ pages:
     - 'Installation': install.md
     - 'Examples': examples.md # probably want a couple simple, pretty demos here
   - 'Using Dnnamo':
+    - 'Overview': user/overview.md
     - 'Analysis': user/analysis.md # maybe separate pages on tools/examples
     - 'Modeling': user/modeling.md # maybe separate pages on tools/examples
     - 'Optimization': user/optimization.md # maybe separate pages on tools/examples

@@ -1,3 +1,5 @@
+# Primitive Operations
+
 Dnnamo can create a simplified performance model of neural networks called an abstract graph.
 This graph represents the dataflow dependences between the individual operations that make up a net.
 Many operations, however, tend to have the same performance behavior, even if their mathematical meaning is quite different.
@@ -5,7 +7,8 @@ For instance, consider the two matrix expressions `A - B` and `A mod B`, for two
 Substituting these two operations for one another in a real neural network would almost cretainly break it.
 From a performance standpoint, however, the operations are quite similar: both perform simple binary arithmetic elementwise over two similarly shaped matrix and produce an output of the same size.
 Dnnamo represents these classes of similar operations with an abstract operation called a *primitive operation*, or primop.
-A list of available primops and their function is given below.
+
+# Available Primops
 
 ### `Primop_dot`
 

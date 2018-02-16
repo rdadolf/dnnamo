@@ -11,6 +11,16 @@ pip install --upgrade -r requirements.txt
 If you're planning on using one of the supported external workload suites, the requirements for those are in the `models` directory.
 Use pip the same way to install these requirements.
 
+# Checking the installation
+
+In the Dnnamo directory or with `PYTHONPATH` set to it, running the following should give you a list of the available tools:
+
+```bash
+python -m dnnamo --help
+```
+
+For documentation on how to use these tools, see [Using Dnnamo](/user/overview/index.html).
+
 # Running tests
 
 Dnnamo uses pytest for testing, but it contains two shortcut scripts in the `build` directory.
