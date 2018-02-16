@@ -5,10 +5,19 @@ class Unimap(dict):
   def _uni_setitem(self, k, v):
     super(Unimap,self).__setitem__(k,v)
 
+  def _uni_delitem(self, k):
+    super(Unimap,self).__delitem__(k)
+
   def __setitem__(self, k, v):
     super(Unimap,self).__setitem__(k,v)
     # Must be set only one way, otherwise goes into infinite recursion
     self._inv._uni_setitem(v,k)
+
+  def __delitem__(self, k):
+    v = self[k] # Save its pair for later
+    super(Unimap,self).__delitem__(k)
+    # Must be deleted only one way, otherwise goes into infinite recursion
+    self._inv._uni_delitem(v)
 
 
 class Bimap(object):

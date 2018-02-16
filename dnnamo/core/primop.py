@@ -1,6 +1,8 @@
 from abc import ABCMeta, abstractproperty
-from dataflow import DnnamoOp
-from identifier import ID
+
+from .dataflow import DnnamoOp
+from .identifier import ID
+from .registry import Registry
 
 # This is just the interface definition.
 class Primop(DnnamoOp):
@@ -42,26 +44,26 @@ class Primop(DnnamoOp):
   def __str__(self):
     return '<Primop_'+str(self.id)+' '+str(self.type)+'>'
 
-class PrimopTypes(object):
+class PrimopTypes(Registry):
   '''Singleton container class for all primitive operation types.'''
-  primops = {}
+  #primops = {}
 
-  @classmethod
-  def items(cls):
-    return cls.primops.items()
+  #@classmethod
+  #def items(cls):
+  #  return cls.primops.items()
 
-  @classmethod
-  def __iter__(cls):
-    for p in cls.primops:
-      yield p
+  #@classmethod
+  #def __iter__(cls):
+  #  for p in cls.primops:
+  #    yield p
 
-  @classmethod
-  def __len__(cls):
-    return len(cls.primops)
+  #@classmethod
+  #def __len__(cls):
+  #  return len(cls.primops)
 
-  @classmethod
-  def __getitem__(cls, key):
-    return cls.primops[key]
+  #@classmethod
+  #def __getitem__(cls, key):
+  #  return cls.primops[key]
 
   @staticmethod
   def new(t, parameter_set, desc=None):
@@ -82,7 +84,7 @@ class PrimopTypes(object):
       '__doc__': desc,
     })
     # Record the new type
-    PrimopTypes.primops[t] = NewPrimop
+    PrimopTypes.register(t,NewPrimop)
     # Return new type to get its name assigned
     return NewPrimop
 
