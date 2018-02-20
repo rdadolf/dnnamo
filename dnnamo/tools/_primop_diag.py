@@ -118,4 +118,4 @@ class PrimopDiagnosticTool(BaselineTool):
     for k,v in self.data.items():
       print k,'=>',v
 
-ToolRegistry.register(PrimopDiagnosticTool)
+ToolRegistry.register(PrimopDiagnosticTool.TOOL_NAME, PrimopDiagnosticTool)

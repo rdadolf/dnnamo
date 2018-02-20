@@ -48,4 +48,4 @@ class PrimopsTool(BaselineTool):
         s += '\t'+str(op_type)+' ('+str(root_type)+')\t'+str(op_id)
         print s
 
-ToolRegistry.register(PrimopsTool)
+ToolRegistry.register(PrimopsTool.TOOL_NAME, PrimopsTool)

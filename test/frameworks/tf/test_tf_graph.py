@@ -33,3 +33,23 @@ class TestTFGraph(unittest.TestCase):
     _ = s.run(self._a, {}, options=opts, run_metadata=rmd)
     tfg = TFGraph.from_rmd(rmd)
     # FIXME: need tests
+
+  @pytest.mark.xfail() # NYI
+  def test_accessors(self):
+    g = TFGraph.from_graph(self._g)
+    # g.__contains__
+    # g.__getitem__
+    # g.vertices_from(e)
+    # g.vertices_to(e)
+    # g.edges_from(v)
+    # g.edges_to(v)
+    # g.tensors_from(v)
+    # g.tensors_to(v)
+    # g.dependencies_from(v)
+    # g.dependencies_to(v)
+
+  @pytest.mark.xfail() # NYI
+  def test_mutators(self):
+    g = TFGraph()
+    # g.add_vertex
+    # g.add_edge

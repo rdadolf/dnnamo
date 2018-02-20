@@ -83,16 +83,9 @@ class PlotTool(BaselineTool):
   def _plot(self, filename): pass
 
 
-class ToolRegistry(object):
-  registry = {}
-
-  @classmethod
-  def register(cls, ToolClass):
-    cls.registry[ToolClass.TOOL_NAME] = ToolClass
-
+class ToolRegistry(dnnamo.core.registry.Registry):
   @classmethod
   def sorted_tools(cls):
-    dev_sorted = [(k,v) for k,v in sorted(cls.registry.items(), key=lambda pair:pair[0]) if k.startswith('_')]
-    normal_sorted = [(k,v) for k,v in sorted(cls.registry.items(), key=lambda pair:pair[0]) if not k.startswith('_')]
+    dev_sorted = [(k,v) for k,v in sorted(cls.items(), key=lambda pair:pair[0]) if k.startswith('_')]
+    normal_sorted = [(k,v) for k,v in sorted(cls.items(), key=lambda pair:pair[0]) if not k.startswith('_')]
     return normal_sorted + dev_sorted
-    #return cls.registry.items()

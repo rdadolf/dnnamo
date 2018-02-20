@@ -44,4 +44,4 @@ class DensityTool(BaselineTool):
         s += '\t'+str(id)
         print s
 
-ToolRegistry.register(DensityTool)
+ToolRegistry.register(DensityTool.TOOL_NAME, DensityTool)

@@ -66,4 +66,4 @@ class MimicTool(BaselineTool):
     return (0,None)
 
 
-ToolRegistry.register(MimicTool)
+ToolRegistry.register(MimicTool.TOOL_NAME, MimicTool)

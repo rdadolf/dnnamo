@@ -1,4 +1,5 @@
 import unittest
+import pytest
 
 from dnnamo.core.registry import Registry
 
@@ -32,7 +33,18 @@ class TestRegistry(unittest.TestCase):
     ExampleRegistry._rderegister(2)
     with self.assertRaises(KeyError):
       ExampleRegistry.lookup('b')
-    
 
+    # All
+    ExampleRegistry.register('b', 2)
+    ExampleRegistry.register('c', 3)
+    assert 2==ExampleRegistry.lookup('b')
+    assert 3==ExampleRegistry.lookup('c')
+    ExampleRegistry._deregister_all()
+    with self.assertRaises(KeyError):
+      ExampleRegistry.lookup('b')
+    with self.assertRaises(KeyError):
+      ExampleRegistry.lookup('c')
+    
+  @pytest.mark.xfail()
   def test_iterate(self):
-    pass # FIXME
+    pass # FIXME: Implement iteration tests (for _ in registry ...)
