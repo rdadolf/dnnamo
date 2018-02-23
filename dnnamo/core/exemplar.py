@@ -15,7 +15,11 @@ class Exemplar(object):
   __metaclass__ = ABCMeta
 
   @abstractmethod
-  def synthesize(cls, primop_args): # FIXME: what should these args be?
+  def __init__(self, primop_args):
+    pass
+
+  @abstractmethod
+  def synthesize(self):
     pass
   
 

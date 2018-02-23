@@ -12,20 +12,28 @@ class TFExemplar(Exemplar):
 ################################################################################
 
 class TFExemplar_zero(TFExemplar):
-  def synthesize(cls, primop_args):
-    dim, = primop_args
+  def __init__(self, primop_args):
+    pass # FIXME
+  def synthesize(self):
+    pass # FIXME
 
 class TFExemplar_hadamard(TFExemplar):
-  def synthesize(cls, primop_args):
-    pass
+  def __init__(self, primop_args):
+    self.dim, = primop_args
+  def synthesize(cls):
+    pass # FIXME
 
 class TFExemplar_dot(TFExemplar):
-  def synthesize(cls, primop_args):
-    pass
+  def __init__(self, primop_args):
+    pass # FIXME
+  def synthesize(self):
+    pass # FIXME
 
 class TFExemplar_convolution(TFExemplar):
-  def synthesize(cls, primop_args):
-    pass
+  def __init__(self, primop_args):
+    pass # FIXME
+  def synthesize(self):
+    pass # FIXME
 
 
 ################################################################################
