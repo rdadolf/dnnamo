@@ -1,5 +1,3 @@
-from abc import ABCMeta, abstractmethod, abstractproperty
-
 class DnnamoModel(object):
   @property
   def is_dnnamo_model(self):

@@ -48,6 +48,9 @@ class Framework(object):
     if loader is not None:
       self.load(loader, identifier, **kwargs)
 
+  def set_model(self, model):
+    self._model = model
+
   def load(self, loader, identifier, **kwargs):
     '''Loads a model.
 

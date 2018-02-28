@@ -19,7 +19,7 @@ class Exemplar(object):
     pass
 
   @abstractmethod
-  def synthesize(self):
+  def synthesize(self, *args, **kwargs):
     pass
   
 
