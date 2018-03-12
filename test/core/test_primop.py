@@ -18,7 +18,7 @@ class TestPrimop(unittest.TestCase):
   def test_parameter_instantiation(self):
     for _,Op in PrimopTypes().items():
       pnames = Op().parameter_names # instantiation is necessary for properties
-      p = Op({p:1 for p in pnames})
+      p = Op([1 for _ in pnames])
 
       for k,v in p.parameters.items():
-        assert v==1, 'Error in creating parameters by name: '+str(k)+'='+str(v)+' (should be 1)'
+        assert v==1, 'Error in creating parameters: '+str(k)+'='+str(v)+' (should be 1)'

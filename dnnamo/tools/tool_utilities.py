@@ -20,11 +20,11 @@ class LoaderOptsArgAction(argparse.Action):
     #print 'Total:',self.options
     setattr(namespace,'loader_opts', self.options)
 
-class BaselineTool(Cacher):
+class AbstractTool(Cacher):
   __metaclass__ = ABCMeta
 
   TOOL_NAME = 'Tool'
-  TOOL_SUMMARY = 'A tool for Dnnamo.'
+  TOOL_SUMMARY = "A one-line description of the tool's function."
 
   def __init__(self):
     self.subparser = None
@@ -33,13 +33,41 @@ class BaselineTool(Cacher):
 
   def add_subparser(self, argparser):
     self.subparser = argparser.add_parser(self.TOOL_NAME, help=self.TOOL_SUMMARY)
+    self.subparser.add_argument('--cachefile', metavar='PATH', type=str, default=self.TOOL_NAME+'.cache', help='Path where cache files are read from or written to.')
+    self.subparser.add_argument('--readcache', action='store_true', default=False, help='Use data from a cache file instead of running.')
+    self.subparser.add_argument('--writecache', action='store_true', default=False, help='Store data to a cache file after running.')
+    return self.subparser
+
+  def run(self, args):
+    # NOTE: if you override this, this line is generally still required.
+    # You should also generally consider adding the other functionality, too.
+    self.args = args
+
+    if self.args['readcache']:
+      self.data = self._load(self.args['cachefile'])
+    else:
+      self._run()
+
+    self._output()
+
+    if self.args['writecache']:
+      self._save(self.data, self.args['cachefile'])
+
+  @abstractmethod
+  def _run(self, *args): pass
+
+  @abstractmethod
+  def _output(self): pass
+
+class BaselineTool(AbstractTool):
+  __metaclass__ = ABCMeta
+
+  def add_subparser(self, argparser):
+    super(BaselineTool,self).add_subparser(argparser)
     self.subparser.add_argument('models', type=str, nargs='*', help='A list of model identifiers. Different loaders understand different types of identifiers (paths, model names, etc.).')
     self.subparser.add_argument('--framework', choices=dnnamo.framework.FRAMEWORKS.keys(), default='tf', help='specify which framework the models use')
     self.subparser.add_argument('--loader','-l', choices=dnnamo.loader.__all__, type=str, action=LoaderArgAction, default=dnnamo.loader.RunpyLoader, help='The Dnnamo loader class used to read in the model.')
     self.subparser.add_argument('--loader_opts', type=str, action=LoaderOptsArgAction, default={}, help='Additional options to the selected loader (key=value).')
-    self.subparser.add_argument('--cachefile', metavar='PATH', type=str, default=self.TOOL_NAME+'.cache', help='Path where cache files are read from or written to.')
-    self.subparser.add_argument('--readcache', action='store_true', default=False, help='Use data from a cache file instead of running.')
-    self.subparser.add_argument('--writecache', action='store_true', default=False, help='Store data to a cache file after running.')
     return self.subparser
 
   def run(self, args):
@@ -60,9 +88,6 @@ class BaselineTool(Cacher):
 
     if self.args['writecache']:
       self._save(self.data, self.args['cachefile'])
-
-  @abstractmethod
-  def _output(self): pass
 
   @abstractmethod
   def _run(self, models): pass

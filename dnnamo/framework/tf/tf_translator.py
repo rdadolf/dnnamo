@@ -16,7 +16,7 @@ from dnnamo.core.translator import Rules, Match, Emit, Translator, \
 class EmitUnaryHadamard(Emit):
   def emit(self, op):
     dim = graph.tensor(op.parameter_values[0]).shape
-    return Primop_hadamard({'dim': dim}, root=op)
+    return Primop_hadamard([dim], root=op)
     #return Primop_hadamard({'dim': op.inputs[0].get_shape().as_list()}, root=op)
 
 class EmitBinaryHadamard(Emit):
@@ -31,7 +31,7 @@ class EmitBinaryHadamard(Emit):
       dim_b = dim_a
     # if both are <1, both are already [ ]
     # if both are >1, then TF disallows input tensors with different dimensions
-    return Primop_hadamard({'dim': dim_a}, root=op)
+    return Primop_hadamard([dim_a], root=op)
 
 class EmitDot2D(Emit):
   def emit(self, graph, op):
@@ -45,7 +45,7 @@ class EmitDot2D(Emit):
       dim_a = dim_a[::-1]
     if op.parameters['transpose_b'].b:
       dim_b = dim_b[::-1]
-    return Primop_dot({'dim_a':dim_a, 'dim_b':dim_b, 'dim_reduce':1}, root=op)
+    return Primop_dot([dim_a, dim_b, 1], root=op)
 
 ################################################################################
 # Translation rules

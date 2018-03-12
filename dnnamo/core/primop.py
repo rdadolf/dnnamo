@@ -11,7 +11,7 @@ class Primop(DnnamoOp):
   def __init__(self, parameters=None, root=None):
     self._id = self._unique_id()
     if parameters is not None:
-      self._params = {p:parameters[p] for p in self.parameter_names}
+      self._params = dict(zip(self.parameter_names, parameters))
     else:
       self._params = {p:None for p in self.parameter_names}
     self._root = root
