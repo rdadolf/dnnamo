@@ -14,8 +14,6 @@ class ArgSampler(object):
 class UniformSampler(object):
   min_T_dimsize = 10
   max_T_dimsize = 1000
-  min_T_dims = 1
-  max_T_dims = 4
 
   def sample(self, primop_type, n=1, seed=None):
     if seed is not None:
@@ -30,9 +28,7 @@ class UniformSampler(object):
     return [ [] for _ in xrange(0,n) ]
 
   def sample_hadamard(self, n):
-    dims = np.random.random_integers(self.min_T_dims, self.max_T_dims, size=n)
-    sizes = [ [ np.random.random_integers(self.min_T_dimsize, self.max_T_dimsize, size=d).tolist() ] for d in dims ]
-    return sizes
+    return [ np.random.random_integers(self.min_T_dimsize, self.max_T_dimsize, size=4).tolist() for _ in xrange(0,n) ]
 
   #def sample_dot(self, n): pass
   #def sample_convolution(self, n): pass

@@ -20,7 +20,7 @@ class DnnamoGraph(object):
     # NOTE:
     # Hyper-multi-graphs can have the same edge exiting twice out of the same
     # vertex. This is weird, but it actually can happen if an op takes the same
-    # tensor as two different parameters.
+    # tensor as two different arguments.
     # So the incidence lists *CAN* have duplicate entries:
     #   self._vin[V] = [e1,e1,e2]  # Valid. Op taking one tensor for two args.
     #   self._eout[E] = [v1,v1,v2] # Valid. As above, but from the tensor's PoV.

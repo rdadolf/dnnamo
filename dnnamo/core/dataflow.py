@@ -114,35 +114,35 @@ class DnnamoDependence(DnnamoEdge):
 class DnnamoOp(DnnamoVertex):
   __metaclass__ = ABCMeta
 
-  def __init__(self, id, type, parameters, root=None):
+  def __init__(self, id, type, arguments, root=None):
     '''Create a Dnnamo Operation.
 
     Arguments:
       id: a unique string used to identify this operation.
       type: a string used to identify the generic type of this operation.
-      parameters: a list of (name,value) tuples containing operation arguments.
+      arguments: a list of (name,value) tuples containing operation arguments.
       root: [optional] the original root operation used to create this operation.'''
     super(DnnamoOp,self).__init__(id,type,root)
-    self.set_parameters(parameters)
+    self.set_arguments(arguments)
 
-  def set_parameters(self, parameters):
-    self._pnames = [k for k,_ in parameters]
-    self._pvalues = [v for _,v in parameters]
-
-  @property
-  def parameter_names(self):
-    'An ordered list of the names of input parameters.'
-    return self._pnames
+  def set_arguments(self, arguments):
+    self._argnames  = [k for k,_ in arguments]
+    self._argvalues = [v for _,v in arguments]
 
   @property
-  def parameter_values(self):
-    'An ordered list of the values of input parameters.'
-    return self._pvalues
+  def argnames(self):
+    'An ordered list of the names of input arguments.'
+    return self._argnames
 
   @property
-  def parameters(self):
-    'A dictionary of the names and values of input parameters.'
-    return {k:v for k,v in zip(self.parameter_names, self.parameter_values)}
+  def argvalues(self):
+    'An ordered list of the values of input arguments.'
+    return self._argvalues
+
+  @property
+  def arguments(self):
+    'A dictionary of the names and values of input arguments.'
+    return {k:v for k,v in zip(self.argnames, self.argvalues)}
 
   def __str__(self):
     return '<Op_'+str(self.id)+' '+str(self.type)+'>'

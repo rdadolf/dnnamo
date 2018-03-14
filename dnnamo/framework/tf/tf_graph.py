@@ -109,7 +109,7 @@ class TFGraph(DnnamoGraph):
       nodedefs = [node for part in root_rmd.partition_graphs for node in part.node]
 
     ### (1) Add stub vertices, populate vertex name table
-    # NOTE: parameter lists are empty
+    # NOTE: argument lists are empty
     for node in nodedefs:
       i = ID.unique(node.name)
       self._vertex_name.l[node.name] = i
@@ -118,7 +118,7 @@ class TFGraph(DnnamoGraph):
         v = DnnamoProxy(id=i, type=t, root=node)
         self.add_proxy(v)
       else:
-        v = DnnamoOp(id=i, type=t, parameters=[], root=node) # empty params
+        v = DnnamoOp(id=i, type=t, arguments=[], root=node) # empty args
         self.add_op(v)
     # FIXME: Add node_stat vertices here (just _SOURCE?)
 
@@ -166,12 +166,12 @@ class TFGraph(DnnamoGraph):
         self.add_dependence(DnnamoDependence(id, [src], dep_dsts, root))
 
 
-    ### (3) Fill op parameters
+    ### (3) Fill op arguments
     #   Accurate edge IDs can now be looked up from edge name table
 
-    for op in self.ops: # Proxy vertices don't have parameters)
+    for op in self.ops: # Proxy vertices don't have arguments)
       nodedef = op.root
-      # Parameter names are integer strings ('0', '1', ...) for TF inputs
+      # Argument names are integer strings ('0', '1', ...) for TF inputs
       #   followed by TF attribute names, in alphabetical order
       inputs = []
       for i,input in enumerate(nodedef.input):
@@ -189,7 +189,7 @@ class TFGraph(DnnamoGraph):
       #attr_names  = [k for k,_ in attrs]
       #attr_values = [v for _,v in attrs]
 
-      op.set_parameters( inputs + attrs )
+      op.set_arguments( inputs + attrs )
 
     ### (4) Fill edge shape information
 

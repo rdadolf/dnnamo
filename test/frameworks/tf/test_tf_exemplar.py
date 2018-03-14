@@ -5,7 +5,7 @@ from dnnamo.framework.tf.tf_exemplar import *
 
 @pytest.mark.parametrize('exemplar_pair', [
   #(TFExemplar_zero, []),
-  (TFExemplar_hadamard, [('dim', [1,2,3])]),
+  (TFExemplar_hadamard, [1,2,3,4]),
   #(TFExemplar_dot, [('dim_a',[1,2]), ('dim_b',[2,3]), ('dim_reduce',1)]),
   #(TFExemplar_convolution, [('dim_a',[9,9]), ('dim_b', [3,3])]),
 ])

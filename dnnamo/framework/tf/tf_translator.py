@@ -13,16 +13,24 @@ from dnnamo.core.translator import Rules, Match, Emit, Translator, \
 ################################################################################
 # Emit components
 
+def _extend_tensor_dims(tensor_dims):
+  'Produces a list of the first four dimensions of a tensor, or 0 if too few.'
+  retval = [0, 0, 0, 0]
+  # Raises an IndexError if tensor has >4 dimensions. Primops can't handle 5+.
+  retval[0:len(tensor_dims)] = tensor_dims
+  #import pdb; pdb.set_trace()
+  return retval
+
 class EmitUnaryHadamard(Emit):
   def emit(self, op):
-    dim = graph.tensor(op.parameter_values[0]).shape
-    return Primop_hadamard([dim], root=op)
-    #return Primop_hadamard({'dim': op.inputs[0].get_shape().as_list()}, root=op)
+    dims = graph.tensor(op.argvalues[0]).shape
+    args = _extend_tensor_dims(dims)
+    return Primop_hadamard( args, root=op)
 
 class EmitBinaryHadamard(Emit):
   def emit(self, graph, op):
-    dim_a = graph.tensor(op.parameter_values[0]).shape
-    dim_b = graph.tensor(op.parameter_values[1]).shape
+    dim_a = graph.tensor(op.argvalues[0]).shape
+    dim_b = graph.tensor(op.argvalues[1]).shape
     #dim_a = op.inputs[0].get_shape().as_list()
     #dim_b = op.inputs[1].get_shape().as_list()
     if len(dim_a)<1:
@@ -31,21 +39,23 @@ class EmitBinaryHadamard(Emit):
       dim_b = dim_a
     # if both are <1, both are already [ ]
     # if both are >1, then TF disallows input tensors with different dimensions
-    return Primop_hadamard([dim_a], root=op)
+    args = _extend_tensor_dims(dim_a)
+    return Primop_hadamard( args, root=op)
 
 class EmitDot2D(Emit):
   def emit(self, graph, op):
-    dim_a = graph.tensor(op.parameter_values[0]).shape
-    dim_b = graph.tensor(op.parameter_values[1]).shape
+    dim_a = graph.tensor(op.argvalues[0]).shape
+    dim_b = graph.tensor(op.argvalues[1]).shape
     #dim_a = op.inputs[0].get_shape().as_list()
     #dim_b = op.inputs[1].get_shape().as_list()
     # FIXME: Check if these transpose ops incur a performance cost
     #   If they're just indexing tricks, then the below works.
-    if op.parameters['transpose_a'].b:
+    if op.arguments['transpose_a'].b:
       dim_a = dim_a[::-1]
-    if op.parameters['transpose_b'].b:
+    if op.arguments['transpose_b'].b:
       dim_b = dim_b[::-1]
-    return Primop_dot([dim_a, dim_b, 1], root=op)
+    args = _extend_tensor_dims(dim_a) + _extend_tensor_dims(dim_b) + [1]
+    return Primop_dot( args, root=op)
 
 ################################################################################
 # Translation rules

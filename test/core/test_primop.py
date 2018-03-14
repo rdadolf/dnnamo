@@ -13,12 +13,12 @@ class TestPrimop(unittest.TestCase):
     for type,Op in PrimopTypes().items():
       p = Op()
       assert p.type==type, 'Internal type doesnt match global entry.'
-      assert len(p.parameters)==len(p.parameter_names), 'Parameter names and values dont match up'
+      assert len(p.arguments)==len(p.argnames), 'Argument names and values dont match up'
 
-  def test_parameter_instantiation(self):
+  def test_argument_instantiation(self):
     for _,Op in PrimopTypes().items():
-      pnames = Op().parameter_names # instantiation is necessary for properties
+      pnames = Op().argnames # instantiation is necessary for properties
       p = Op([1 for _ in pnames])
 
-      for k,v in p.parameters.items():
-        assert v==1, 'Error in creating parameters: '+str(k)+'='+str(v)+' (should be 1)'
+      for k,v in p.arguments.items():
+        assert v==1, 'Error in creating arguments: '+str(k)+'='+str(v)+' (should be 1)'

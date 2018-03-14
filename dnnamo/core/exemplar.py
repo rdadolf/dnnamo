@@ -15,7 +15,7 @@ class Exemplar(object):
   __metaclass__ = ABCMeta
 
   @abstractmethod
-  def __init__(self, primop_args):
+  def __init__(self, primop_argvalues):
     pass
 
   @abstractmethod

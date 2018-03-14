@@ -54,7 +54,7 @@ class PrimopDiagnosticTool(BaselineTool):
         if primop.type=='undef':
           if primop.root.type not in unknown_ops:
             unknown_ops[primop.root.type] = []
-          args = [str(p)+':'+str(primop.root.parameters[p]) for p in primop.root.parameter_names]
+          args = [str(p)+':'+str(primop.root.arguments[p]) for p in primop.root.argnames]
           #args = []
           #if root.op_def is not None:
           #  # None implies no Tensor dataflow inputs (config args only)

@@ -38,20 +38,20 @@ class TFExemplar_zero(TFExemplar):
     pass # FIXME
 
 class TFExemplar_hadamard(TFExemplar):
-  def __init__(self, primop_args):
-    self.dim, = [v for k,v in primop_args]
+  def __init__(self, primop_argvalues):
+    self.dims = primop_argvalues
 
   @property
   def input_signature(self):
     return [
-      TFSignatureType.Tensor(dtype='float32', dims=self.dim),
-      TFSignatureType.Tensor(dtype='float32', dims=self.dim)
+      TFSignatureType.Tensor(dtype='float32', dims=self.dims),
+      TFSignatureType.Tensor(dtype='float32', dims=self.dims)
     ]
 
   @property
   def output_signature(self):
     return [
-      TFSignatureType.Tensor(dtype='int64', dims=self.dim)
+      TFSignatureType.Tensor(dtype='int64', dims=self.dims)
     ]
 
   def synthesize(cls, inputs):

@@ -6,7 +6,7 @@ from dnnamo.framework import FRAMEWORKS
 
 class TestTFSyntheticModel(unittest.TestCase):
   def setUp(self):
-    self.ex = TFExemplar_hadamard([('dims', [1,2,3])])
+    self.ex = TFExemplar_hadamard([1,2,3,0])
 
   def test_instantiation(self):
     TFSyntheticModel( self.ex )

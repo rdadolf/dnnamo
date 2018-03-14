@@ -42,16 +42,3 @@ class DnnamoID(object):
 # Shortcut
 ID = DnnamoID
 
-### Specific ID types
-
-#class T(DnnamoID):
-#  '''Unique identifier for Dnnamo Tensor objects'''
-
-#class OP(DnnamoID):
-#  '''Unique identifier for Dnnamo Operation objects'''
-
-#class DependenceID(DnnamoID):
-#  '''Unique identifier for Dnnamo Dependence objects'''
-
-#class ProxyID(DnnamoID):
-#  '''Unique identifier for Dnnamo Proxy objects'''

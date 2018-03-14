@@ -22,7 +22,7 @@ class TestUniformSamplerOps(object):
     args = sampler.sample(primop_type, n=1, seed=1)[0] # index 0
     PType = PrimopTypes.lookup(primop_type)
     primop = PType( args )
-    assert len(args)==len(primop.parameters), 'Argument length mismatch'
+    assert len(args)==len(primop.arguments), 'Argument length mismatch'
 
   def test_multi_sample(self, primop_type):
     N = 1000
@@ -32,5 +32,5 @@ class TestUniformSamplerOps(object):
     PType = PrimopTypes.lookup(primop_type)
     for i in xrange(0,N):
       primop = PType( args[i] )
-      assert len(args[i])==len(primop.parameters), 'Argument length mismatch'
+      assert len(args[i])==len(primop.arguments), 'Argument length mismatch'
 
