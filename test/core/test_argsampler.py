@@ -2,11 +2,11 @@ import pytest
 import unittest
 
 from dnnamo.core.primop import PrimopTypes
-from dnnamo.core.argsampler import UniformSampler
+from dnnamo.core.argsampler import UniformArgSampler
 
-class TestUniformSampler(unittest.TestCase):
+class TestUniformArgSampler(unittest.TestCase):
   def test_instantiate(self):
-    UniformSampler()
+    UniformArgSampler()
 
 @pytest.mark.parametrize('primop_type', [
   'undef',
@@ -15,10 +15,10 @@ class TestUniformSampler(unittest.TestCase):
   #'dot',
   #'convolution'
   ])
-class TestUniformSamplerOps(object):
+class TestUniformArgSamplerOps(object):
 
   def test_single_sample(self, primop_type):
-    sampler = UniformSampler()
+    sampler = UniformArgSampler()
     args = sampler.sample(primop_type, n=1, seed=1)[0] # index 0
     PType = PrimopTypes.lookup(primop_type)
     primop = PType( args )
@@ -26,7 +26,7 @@ class TestUniformSamplerOps(object):
 
   def test_multi_sample(self, primop_type):
     N = 1000
-    sampler = UniformSampler()
+    sampler = UniformArgSampler()
     args = sampler.sample(primop_type, n=N, seed=1) # no index
     assert len(args)==N, 'Invalid sample count'
     PType = PrimopTypes.lookup(primop_type)

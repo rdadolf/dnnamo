@@ -50,6 +50,8 @@ class Framework(object):
 
   def set_model(self, model):
     self._model = model
+    # New model, so no chached data is valid anymore.
+    self._data_manager.invalidate(Datatag('all','all','all','all'))
 
   def load(self, loader, identifier, **kwargs):
     '''Loads a model.

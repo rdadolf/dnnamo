@@ -11,9 +11,9 @@ class ArgSampler(object):
 
 ################################################################################
 
-class UniformSampler(object):
-  min_T_dimsize = 10
-  max_T_dimsize = 1000
+class UniformArgSampler(object):
+  min_T_dimsize = 1
+  max_T_dimsize = 100
 
   def sample(self, primop_type, n=1, seed=None):
     if seed is not None:
