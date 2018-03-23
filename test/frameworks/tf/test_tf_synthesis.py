@@ -17,11 +17,6 @@ class TestTFSyntheticModel(unittest.TestCase):
     _ = m.run_inference()
     _ = m.profile_inference()
 
-  def test_exemplar_name(self):
-    m = TFSyntheticModel( self.ex )
-    name = m.get_exemplar_op_name()
-    assert name is not None
-
   def test_framework_interface(self):
     frame = FRAMEWORKS['tf']()
     frame.set_model( TFSyntheticModel(self.ex) )

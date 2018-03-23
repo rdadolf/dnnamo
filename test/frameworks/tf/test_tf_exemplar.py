@@ -12,7 +12,9 @@ from dnnamo.framework.tf.tf_exemplar import *
 class TestTFExemplar(object):
   def test_instantiate_all(self, exemplar_pair):
     Exemplar, args = exemplar_pair
-    _ = Exemplar(args)
+    exemplar = Exemplar(args)
+    assert exemplar.get_op_name() is not None, 'No op name given'
+    
 
   def test_signatures(self, exemplar_pair):
     Exemplar, args = exemplar_pair
