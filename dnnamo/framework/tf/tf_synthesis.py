@@ -26,11 +26,6 @@ class TFSyntheticModel(SyntheticModel):
         dtype = input_sig.dtype,
       )
 
-  def get_exemplar_op_name(self):
-    # We actually know that the name should be 'Exemplar', but this double-checks
-    # that operation actually exists.
-    return self._g.get_operation_by_name('Exemplar').name
-
   # Supported standard model interfaces
 
   def get_inference_graph(self):

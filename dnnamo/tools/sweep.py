@@ -1,5 +1,6 @@
 
 from .tool_utilities import AbstractTool, ToolRegistry
+import numpy as np
 
 from dnnamo.core.argsampler import UniformArgSampler
 from dnnamo.framework.tf import TFFramework
@@ -13,7 +14,8 @@ class SweepTool(AbstractTool):
   def add_subparser(self, argparser):
     super(SweepTool, self).add_subparser(argparser)
     self.subparser.add_argument('primop', type=str, help='Which primitive operation to sweep.')
-    self.subparser.add_argument('--seed', type=int, help='Set the PRNG seed for this sweep.')
+    self.subparser.add_argument('-n', type=int, default=1, help='Set the PRNG seed for this sweep.')
+    self.subparser.add_argument('--seed', type=int, default=None, help='Set the PRNG seed for this sweep.')
     # FIXME: Add argument to limit scope of sweep
     return self.subparser
 
@@ -21,19 +23,21 @@ class SweepTool(AbstractTool):
     uas = UniformArgSampler()
     frame = TFFramework()
     primop_t = self.args['primop']
-    # FIXME: loop
-    primop_args = uas.sample(primop_t)[0] # Fixme: sample N times
-    print primop_args
+    primop_args = uas.sample(primop_t, n=self.args['n'], seed=self.args['seed'])
     Exemplar = TFExemplarRegistry.lookup(primop_t)
-    exemplar = Exemplar(primop_args)
-    synthmodel = TFSyntheticModel(exemplar)
-    frame.set_model(synthmodel)
-    print 'Running'
-    profile = frame.get_timing(mode='inference', ops='native')
-    print 'Exemplar op name:',synthmodel.get_exemplar_op_name()
-    print profile.items()
+    self.data = []
+    for p_args in primop_args:
+      exemplar = Exemplar(p_args)
+      synthmodel = TFSyntheticModel(exemplar)
+      frame.set_model(synthmodel)
+      profile = frame.get_timing(mode='inference', ops='native')
+      graph = frame.get_graph(mode='inference', scope='dynamic', ops='native')
+      id = graph.get_vertex_id_from_tf_name( exemplar.get_op_name() )
+      self.data.append( (p_args, profile[id][0]) )
 
   def _output(self):
     print 'Output'
+    for (args,time) in self.data:
+      print args,':',time
 
 ToolRegistry.register(SweepTool.TOOL_NAME, SweepTool)

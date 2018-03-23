@@ -15,6 +15,10 @@ class TFExemplar(Exemplar):
   @abstractproperty
   def output_signature(self): pass
 
+  def get_op_name(self):
+    return 'Exemplar'
+
+
 ################################################################################
 
 
