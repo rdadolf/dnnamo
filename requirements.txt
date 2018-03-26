@@ -5,3 +5,4 @@ mkdocs
 pylint>1.7
 nose
 pytest>=3
+sklearn
