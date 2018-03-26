@@ -52,6 +52,9 @@ class Bimap(object):
     for k,v in d.items():
       self.l[k] = v
 
+  def __len__(self):
+    return len(self._l) # Both have the same length, so returning either is fine
+
   def __contains__(self, k):
     return (k in self._l) or (k in self._r)
 

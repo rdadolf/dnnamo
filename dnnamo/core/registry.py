@@ -1,7 +1,14 @@
 from .bimap import Bimap
 
+class IterableType(type): # metaclass to enable __iter__ on class objects
+  def __iter__(self):
+    return self._class_iterator()
+  def __len__(self):
+    return self._class_len()
+
 class Registry(object):
   '''Registries are common in Dnnamo. It would be nice if they used the same interface.'''
+  __metaclass__ = IterableType
 
   _registry = None
 
@@ -18,6 +25,16 @@ class Registry(object):
     #   in, e.g., deregistration.
     if cls._registry is None:
       cls._registry = Bimap()
+
+  @classmethod
+  def _class_len(cls):
+    return len(cls._registry)
+
+  @classmethod
+  def _class_iterator(cls):
+    cls._idempotent_allocate_registry()
+    for _ in cls._registry.l:
+      yield _
 
   @classmethod
   def register(cls, lhs, rhs):

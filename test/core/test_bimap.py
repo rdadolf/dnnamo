@@ -26,9 +26,13 @@ class TestBimapOps(object):
       b.r == {1:'a', 2:'b', 3:'c'}
 
   def test_mutation(self,b):
-    b.l[1] = 'd'
-    assert b.l[1] == 'd'
-    assert b.r['d'] == 1
+    # Caution, mutation change the original parameterization
+    b.l['a'] = 5
+    assert b.l['a'] == 5
+    assert b.r[5] == 'a'
+
+  def test_len(self,b):
+    assert len(b)==3
 
   def test_inclusion(self,b):
     # View inclusion

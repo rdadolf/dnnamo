@@ -7,6 +7,8 @@ class ExampleRegistry(Registry): pass
 
 class TestRegistry(unittest.TestCase):
   def test_register(self):
+    ExampleRegistry._deregister_all()
+
     with self.assertRaises(KeyError):
       ExampleRegistry.lookup('a')
     with self.assertRaises(KeyError):
@@ -18,6 +20,8 @@ class TestRegistry(unittest.TestCase):
     assert 'a'==ExampleRegistry.rlookup(1)
 
   def test_register(self):
+    ExampleRegistry._deregister_all()
+
     # Forwards
     with self.assertRaises(KeyError):
       ExampleRegistry.lookup('b')
@@ -45,6 +49,14 @@ class TestRegistry(unittest.TestCase):
     with self.assertRaises(KeyError):
       ExampleRegistry.lookup('c')
     
-  @pytest.mark.xfail()
   def test_iterate(self):
-    pass # FIXME: Implement iteration tests (for _ in registry ...)
+    ExampleRegistry._deregister_all()
+
+    ExampleRegistry.register('a',1)
+    ExampleRegistry.register('b',2)
+    ExampleRegistry.register('c',3)
+    assert len(ExampleRegistry)==3
+    for key in ExampleRegistry:
+      assert type(key)==str
+      assert key in ExampleRegistry
+      assert ExampleRegistry.lookup(key) is not None
