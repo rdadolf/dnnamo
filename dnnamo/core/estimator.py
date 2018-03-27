@@ -1,5 +1,6 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 import json
+import sklearn
 
 from .primop import PrimopTypes
 
@@ -56,22 +57,59 @@ class EstimatorIO(dict):
     with open(filename, 'w') as f:
       json.dump(self, f)
 
-
+################################################################################
 
 class DnnamoEstimator(object):
-  @abstractmethod
-  def get_params(self, op): pass
+  __metaclass__ = ABCMeta
 
   @abstractmethod
-  def set_params(self, op, *params): pass
+  def get_params(self, op):
+    'Returns an ordered list of values which represent the estimator parameters.'
+
+  @abstractmethod
+  def set_params(self, op, *params):
+    'Sets the estimator parameters for an op using an ordered list of values.'
 
   @abstractmethod
   def estimate(self, op, op_arguments): pass
 
 class AnalyticalEstimator(DnnamoEstimator):
-  pass
+  __metaclass__ = ABCMeta
 
 class RegressionEstimator(DnnamoEstimator):
-
+  __metaclass__ = ABCMeta
   @abstractmethod
   def fit(self, op, op_argument_list, measurement_list): pass
+
+class SKLRegressionEstimator(RegressionEstimator):
+  '''A regression estimator using a scikit-learn estimator.'''
+  # scikit-learn is convenient in that its interface is incredibly consistent.
+  # As a result, we can re-use a lot of the same functions, regardless of the
+  # underlying model. We use an internal property to access these models.
+
+  __metaclass__ = ABCMeta
+
+  @abstractproperty
+  def _estimators(self):
+    '''Returns a dictionary of sk-learn estimator objects, keyed by op type.'''
+
+  # DnnamoEstimators use ordinal parameters, sk-learn uses k-v parameters.
+  # To work around this, we assume sk-learn model parameters are static (which
+  # they all are) and simply use the sorted keys as the canonical ordering.
+
+  def get_params(self, op):
+    kv = self._estimators[op].get_params()
+    key_order = sorted(kv.keys())
+    return [kv[k] for k in key_order]
+
+  def set_params(self, op, *params):
+    current_kv = self._estimators[op].get_params()
+    key_order = sorted(current_kv.keys())
+    new_kv = dict( zip(key_order, params) )
+    self._estimators[op].set_params(**new_kv)
+
+  def estimate(self, op, op_arguments):
+    return self._estimators[op].predict([op_arguments])
+
+  def fit(self, op, op_argument_list, measurement_list):
+    self._estimators[op].fit(op_argument_list, measurement_list)
