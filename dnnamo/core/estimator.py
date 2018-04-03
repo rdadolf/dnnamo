@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod, abstractproperty
 import json
+import numpy as np
 import sklearn
 
 from .primop import PrimopTypes
@@ -67,7 +68,7 @@ class DnnamoEstimator(object):
     'Returns an ordered list of values which represent the estimator parameters.'
 
   @abstractmethod
-  def set_params(self, op, *params):
+  def set_params(self, op, params):
     'Sets the estimator parameters for an op using an ordered list of values.'
 
   @abstractmethod
@@ -97,19 +98,31 @@ class SKLRegressionEstimator(RegressionEstimator):
   # To work around this, we assume sk-learn model parameters are static (which
   # they all are) and simply use the sorted keys as the canonical ordering.
 
-  def get_params(self, op):
-    kv = self._estimators[op].get_params()
-    key_order = sorted(kv.keys())
-    return [kv[k] for k in key_order]
+  #def get_params(self, op):
+  #  kv = self._estimators[op].get_params(deep=True)
+  #  key_order = sorted(kv.keys())
+  #  return [kv[k] for k in key_order]
 
-  def set_params(self, op, *params):
-    current_kv = self._estimators[op].get_params()
-    key_order = sorted(current_kv.keys())
-    new_kv = dict( zip(key_order, params) )
-    self._estimators[op].set_params(**new_kv)
+  #def set_params(self, op, params):
+  #  current_kv = self._estimators[op].get_params(deep=True)
+  #  key_order = sorted(current_kv.keys())
+  #  new_kv = dict( zip(key_order, params) )
+  #  self._estimators[op].set_params(**new_kv)
 
   def estimate(self, op, op_arguments):
-    return self._estimators[op].predict([op_arguments])
+    return self._estimators[op].predict([op_arguments])[0]
 
   def fit(self, op, op_argument_list, measurement_list):
-    self._estimators[op].fit(op_argument_list, measurement_list)
+    # In their infinite wisdom, SKL allows multi-target regression with
+    # a single dimension.... So passing a y with shape (100,1) causes
+    # radically different behavior than passing a y with shape (100,).
+    # Retrieving parameters becomes a PITA, so we require a 1-D target.
+    ys = np.array(measurement_list)
+    if len(ys.shape)!=1:
+      raise TypeError, 'Estimator should be fit against a 1-dimensional array, not '+str(ys.shape)
+
+    xs = np.array(op_argument_list)
+    if len(xs.shape)!=2:
+      raise TypeError, 'Estimator should be fit using a 2-dimensional array of arguments, not '+str(xs.shape)
+
+    self._estimators[op].fit(xs, ys)
