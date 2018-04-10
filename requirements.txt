@@ -1,4 +1,4 @@
-TensorFlow==1.4
+TensorFlow==1.7
 scipy
 matplotlib
 mkdocs
