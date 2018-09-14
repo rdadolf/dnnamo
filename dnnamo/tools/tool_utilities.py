@@ -71,6 +71,7 @@ class BaselineTool(AbstractTool):
     self.subparser.add_argument('--framework', choices=dnnamo.framework.FRAMEWORKS.keys(), default='tf', help='specify which framework the models use')
     self.subparser.add_argument('--loader','-l', choices=dnnamo.loader.__all__, type=str, action=LoaderArgAction, default=dnnamo.loader.RunpyLoader, help='The Dnnamo loader class used to read in the model.')
     self.subparser.add_argument('--loader_opts', type=str, action=LoaderOptsArgAction, default={}, help='Additional options to the selected loader (key=value).')
+    self.subparser.add_argument('--mode', choices=['training','inference'], type=str, default='training', help='Choose which mode the model will be analyzed in.')
     return self.subparser
 
   def run(self, args):

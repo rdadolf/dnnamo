@@ -40,9 +40,7 @@ class PrimopDiagnosticTool(BaselineTool):
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
 
       unknown_ops = dict()
-      # FIXME: mode should be selectable from the CLI. Hardcoding it to training
-      #   is the wrong thing.
-      for primop in frame.get_graph(mode='training',scope='static',ops='primitive').ops:
+      for primop in frame.get_graph(mode=self.args['mode'],scope='static',ops='primitive').ops:
         # FIXME: this is awkward and needs to be replaced.
         # this is a vestige from before we had DnnamoOp and TFOp types.
         # Originally, this tool matches Primop's with tf.Operation objects.

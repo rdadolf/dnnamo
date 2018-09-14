@@ -24,15 +24,13 @@ class PrimopsTool(BaselineTool):
       frame = FRAMEWORKS[self.args['framework']]()
       print self.args['loader_opts']
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
-      # FIXME: model mode should be selectable from the CLI. Hardcoding it to
-      #   'training' is the wrong thing.
       if self.args['run']:
-        g = frame.get_graph(mode='training',scope='dynamic',ops='primitive')
+        g = frame.get_graph(mode=self.args['mode'],scope='dynamic',ops='primitive')
       else:
-        g = frame.get_graph(mode='training',scope='static',ops='primitive')
+        g = frame.get_graph(mode=self.args['mode'],scope='static',ops='primitive')
 
       if self.args['timing']:
-        p = frame.get_timing(mode='training',ops='primitive').aggregate('last')
+        p = frame.get_timing(mode=self.args['mode'],ops='primitive').aggregate('last')
         self.data[model] = [(op.id, op.type, op.root.type, p[op.id]) for op in g.ops if op.type!='undef' or self.args['undef']]
         self.data[model].sort(key=lambda (_0,_1,_2,t): t, reverse=True)
       else:

@@ -52,7 +52,7 @@ class MimicTool(BaselineTool):
 
   def _mimic_profile(self, frame):
     # FIXME: scope should be selectable
-    timing_info = frame.get_timing(mode='training', ops='native')
+    timing_info = frame.get_timing(self.args['mode'], ops='native')
     t_sum = sum([usecs for op,usecs in timing_info.aggregate('last').items()])
     return (t_sum, timing_info)
 
