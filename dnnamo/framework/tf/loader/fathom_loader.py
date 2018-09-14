@@ -1,4 +1,5 @@
 import importlib
+import os.path
 import sys
 
 from ....core.model import DnnamoModel
@@ -17,6 +18,13 @@ FATHOM_MODELS = [
 ]
 
 class FathomModel(DnnamoModel):
+  # FIXME: FathomModel's currently have a bit of a mismatch with DnnamoModel.
+  #   Fathom assumed the construction of two separate models, one for training
+  #   and one for inference. Dnnamo assumes only one which can be run in either
+  #   mode. As a result, modifications to one model will not impact the other,
+  #   despite what Dnnamo would like. This could be hacked by manually patching
+  #   weights to and from each model, but I have not done so.
+
   def __init__(self, ModelClass, ModelClassFwd):
     self._fathommodel_train = ModelClass()
     self._fathommodel_inf = ModelClassFwd()
@@ -35,6 +43,11 @@ class FathomModel(DnnamoModel):
   def profile_training(self, n_steps=1, *args, **kwargs):
     profiler = SessionProfiler()
     self._fathommodel_train.run(runstep=profiler.session_profile, n_steps=n_steps)
+    return profiler.rmd
+
+  def profile_inference(self, n_steps=1, *args, **kwargs):
+    profiler = SessionProfiler()
+    self._fathommodel_inf.run(runstep=profiler.session_profile, n_steps=n_steps)
     return profiler.rmd
 
 class TFFathomLoader(BaseLoader):
@@ -57,16 +70,16 @@ class TFFathomLoader(BaseLoader):
     old_syspath = sys.path
     if self.fathompath is not None:
       sys.path.insert(0,self.fathompath)
-    module = importlib.import_module(self.modulename)
+    self.module = importlib.import_module(self.modulename)
     sys.path = old_syspath
 
     # Find and instantiate the corresponding Fathom module
     try:
-      ModelClass = getattr(module, self.identifier)
+      ModelClass = getattr(self.module, self.identifier)
     except KeyError:
       raise NameError, 'No '+str(self.identifier)+' class found in Fathom.'
     try:
-      ModelClassFwd = getattr(module, self.identifier+'Fwd')
+      ModelClassFwd = getattr(self.module, self.identifier+'Fwd')
     except KeyError:
       raise NameError, 'No '+str(self.identifier)+'Fwd class found in Fathom.'
 
@@ -86,3 +99,13 @@ class TFFathomLiteLoader(TFFathomLoader):
     the installation location of the Fathom package.'''
 
     TFFathomLoader.__init__(self, identifier, fathompath=fathompath, modulename=modulename)
+
+  def load(self):
+    m = TFFathomLoader.load(self)
+    # Attempt to set the fathomlite data directory automatically
+    assert self.module is not None, 'Module import failed.'
+    fathomlite_directory = os.path.dirname(os.path.abspath(self.module.__file__))
+    fathomlite_root = os.path.dirname(fathomlite_directory)
+    fathomlite_data = os.path.join(fathomlite_root, 'data')
+    self.module.Config.set('data_dir', fathomlite_data)
+    return m

@@ -15,7 +15,10 @@ class LoaderOptsArgAction(argparse.Action):
     self.options = {}
   def __call__(self, parser, namespace, values, option_string):
     assert option_string=='--loader_opts', 'invalid use of the LoaderOptsArgAction: '+str(option_string)
-    k,v = values.split('=')
+    try:
+      k,v = values.split('=')
+    except ValueError:
+      raise ValueError('Must supply arguments to --loader_opts in the form "key=value". Got "'+str(values)+'" instead.')
     self.options[k] = v
     #print 'Total:',self.options
     setattr(namespace,'loader_opts', self.options)

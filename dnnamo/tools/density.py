@@ -15,8 +15,8 @@ class DensityTool(BaselineTool):
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
 
       # FIXME: CLI-selectable mode
-      g = frame.get_graph(mode='training', scope='dynamic', ops='native')
-      p = frame.get_timing(mode='training', ops='native')
+      g = frame.get_graph(mode='inference', scope='dynamic', ops='native')
+      p = frame.get_timing(mode='inference', ops='native')
 
       # FIXME: better aggregation
       timing = p.aggregate('last')

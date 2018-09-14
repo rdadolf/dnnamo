@@ -60,6 +60,10 @@ class Framework(object):
     The identifier specifies which model to load, but its type depends on the
     loader that was selected.'''
     self._model = loader(identifier, **kwargs).load()
+    if self._model is None:
+      raise TypeError('No model returned by loader "'+str(loader.__class__.__name__)+'"')
+    if not isinstance(self._model, DnnamoModel):
+      raise TypeError('Invalid model returned by loader "'+str(loader.__class__.__name__)+'"')
     return self.model
 
   @property
