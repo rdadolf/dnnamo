@@ -38,7 +38,7 @@ class FathomModel(DnnamoModel):
     return profiler.rmd
 
 class TFFathomLoader(BaseLoader):
-  def __init__(self, identifier, fathompath=None):
+  def __init__(self, identifier, fathompath=None, modulename='fathom'):
     '''Loader for the Fathom reference workloads.
 
     Fathom (https://github.com/rdadolf/fathom) contains reference implementations
@@ -48,6 +48,7 @@ class TFFathomLoader(BaseLoader):
 
     if identifier not in FATHOM_MODELS:
       raise KeyError, 'No '+str(identifier)+' model found in Fathom. Valid models are: '+', '.join(FATHOM_MODELS)
+    self.modulename = modulename
     self.identifier = identifier
     self.fathompath = fathompath
 
@@ -56,7 +57,7 @@ class TFFathomLoader(BaseLoader):
     old_syspath = sys.path
     if self.fathompath is not None:
       sys.path.insert(0,self.fathompath)
-    module = importlib.import_module('fathom')
+    module = importlib.import_module(self.modulename)
     sys.path = old_syspath
 
     # Find and instantiate the corresponding Fathom module
@@ -72,3 +73,16 @@ class TFFathomLoader(BaseLoader):
     m = FathomModel(ModelClass, ModelClassFwd)
 
     return m
+
+class TFFathomLiteLoader(TFFathomLoader):
+  def __init__(self, identifier, fathompath=None, modulename='fathomlite'):
+    '''Loader for the Fathom-lite reference workloads.
+
+    Fathom-lite (https://github.com/rdadolf/fathom-lite) is a lightweight
+    alternative to the original Fathom reference workloads which uses smaller
+    datasets in order to accurately capture performance behavior without the 
+    cost of larger training datasets. This loader allows Fathom-lite models to be
+    imported by name. The optional fathompath parameter can be used to point to
+    the installation location of the Fathom package.'''
+
+    TFFathomLoader.__init__(self, identifier, fathompath=fathompath, modulename=modulename)

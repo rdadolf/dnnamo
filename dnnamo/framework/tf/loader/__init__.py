@@ -1,3 +1,3 @@
-from .fathom_loader import TFFathomLoader
+from .fathom_loader import TFFathomLoader, TFFathomLiteLoader
 
-__all__ = ['TFFathomLoader']
+__all__ = ['TFFathomLoader', 'TFFathomLiteLoader']
