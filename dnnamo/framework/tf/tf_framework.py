@@ -4,8 +4,10 @@ from ...core.bimap import Bimap
 from ...core.datamanager import Datatag
 from ...core.framework import Framework, _collector
 from ...core.profile import Profile
-from .tf_translator import TFTranslator
+from .tf_exemplar import TFExemplarRegistry
 from .tf_graph import TFGraph
+from .tf_synthesis import TFSyntheticModel
+from .tf_translator import TFTranslator
 
 class _tf_collector(_collector):
   # This copies all of the collector methods from the core Framework registry.
@@ -22,6 +24,14 @@ class TFFramework(Framework):
   @property
   def translator(self):
     return self._translator
+
+  @property
+  def ExemplarRegistry(self):
+    return TFExemplarRegistry
+
+  @property
+  def SyntheticModel(self):
+    return TFSyntheticModel
 
   ### Collectors
 

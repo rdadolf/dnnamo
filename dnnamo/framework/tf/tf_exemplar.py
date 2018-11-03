@@ -90,7 +90,7 @@ class TFExemplar_convolution(TFExemplar):
 
 ################################################################################
 
-TFExemplarRegistry.register('zero', TFExemplar_zero)
+#TFExemplarRegistry.register('zero', TFExemplar_zero)
 TFExemplarRegistry.register('hadamard',TFExemplar_hadamard)
-TFExemplarRegistry.register('dot', TFExemplar_dot)
-TFExemplarRegistry.register('convolution', TFExemplar_convolution)
+#TFExemplarRegistry.register('dot', TFExemplar_dot)
+#TFExemplarRegistry.register('convolution', TFExemplar_convolution)

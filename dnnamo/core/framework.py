@@ -77,6 +77,14 @@ class Framework(object):
   def translator(self):
     '''Returns the instantiated, framework-specific translator object.'''
 
+  @abstractproperty
+  def ExemplarRegistry(self):
+    '''Returns the Registry class for the exemplars for this framework.'''
+
+  @abstractproperty
+  def SyntheticModel(self):
+    '''Returns a model class for building synthetic models from exemplar ops.'''
+
   ### Datatag accessors
   # Each of these methods corresponds to a Datatag, and their data is handled
   # by the DataManager.

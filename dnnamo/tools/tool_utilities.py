@@ -49,7 +49,9 @@ class AbstractTool(Cacher):
     if self.args['readcache']:
       self.data = self._load(self.args['cachefile'])
     else:
-      self._run()
+      v = self._run()
+      if v is not None:
+        return v
 
     self._output()
 
@@ -86,7 +88,9 @@ class BaselineTool(AbstractTool):
         print 'No models selected.'
         return
       else:
-        self._run(self.args['models'])
+        v = self._run(self.args['models'])
+        if v is not None:
+          return v
 
     self._output()
 

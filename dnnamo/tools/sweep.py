@@ -13,22 +13,32 @@ class SweepTool(AbstractTool):
 
   def add_subparser(self, argparser):
     super(SweepTool, self).add_subparser(argparser)
-    self.subparser.add_argument('primop', type=str, help='Which primitive operation to sweep.')
+    self.subparser.add_argument('primop', nargs='?', type=str, help='Which primitive operation to sweep.')
     self.subparser.add_argument('-n', type=int, default=1, help='Set the PRNG seed for this sweep.')
+    self.subparser.add_argument('-o', '--output', type=str, default='timing.data', help='Output file with timing measurements.')
     self.subparser.add_argument('--seed', type=int, default=None, help='Set the PRNG seed for this sweep.')
+    self.subparser.add_argument('-l','--list', default=False, action='store_true', help="Don't actually run a sweep, just print which primops are supported,")
     # FIXME: Add argument to limit scope of sweep
     return self.subparser
 
   def _run(self):
-    uas = UniformArgSampler()
     frame = TFFramework()
+    if self.args['list']:
+      print 'Supported Exemplars:'
+      for primop in frame.ExemplarRegistry:
+        print ' ',primop
+      return 0
+    elif self.args['primop'] is None:
+      self.subparser.error('A primop must be specified unless using --list')
+
     primop_t = self.args['primop']
+    uas = UniformArgSampler()
     primop_args = uas.sample(primop_t, n=self.args['n'], seed=self.args['seed'])
-    Exemplar = TFExemplarRegistry.lookup(primop_t)
+    Exemplar = frame.ExemplarRegistry.lookup(primop_t)
     self.data = []
     for p_args in primop_args:
       exemplar = Exemplar(p_args)
-      synthmodel = TFSyntheticModel(exemplar)
+      synthmodel = frame.SyntheticModel(exemplar)
       frame.set_model(synthmodel)
       profile = frame.get_timing(mode='inference', ops='native')
       graph = frame.get_graph(mode='inference', scope='dynamic', ops='native')

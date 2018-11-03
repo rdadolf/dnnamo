@@ -18,6 +18,16 @@ class ExampleFramework(Framework):
   def translator(self):
     # Since the translator doesn't do anything, we can always return a new one
     return ExampleTranslator()
+
+  @property
+  def ExemplarRegistry(self):
+    # Just need a non-abstract property implemented
+    return None
+
+  @property
+  def SyntheticModel(self):
+    # Just need a non-abstract property implemented
+    return None
     
 class TestFramework(unittest.TestCase):
   def test_instantiation(self):
