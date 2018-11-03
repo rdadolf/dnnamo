@@ -1,25 +1,27 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
-from ..core.estimator import SKLRegressionEstimator
+from ..core.estimator import SKLRegressionEstimator, EstimatorRegistry
 from ..core.primop import PrimopTypes
 
-class SKLLinearEstimator(SKLRegressionEstimator):
-  pass
+class OLSEstimator(SKLRegressionEstimator):
+  def __init__(self):
+    self._est = LinearRegression()
 
-  def get_params(self, op):
-    coef = self._estimators[op].coef_.tolist()
-    intercept = self._estimators[op].intercept_
+  def get_params(self):
+    try:
+      coef = self._estimator.coef_.tolist()
+      intercept = self._estimator.intercept_
+    except AttributeError:
+      raise ValueError('Estimator has not been fit, so it has no parameters yet.')
     return coef+[intercept]
 
-  def set_params(self, op, params):
-    self._estimators[op].coef_ = np.array(params[0:-1])
-    self._estimators[op].intercept_ = params[-1]
-
-class OLSEstimator(SKLLinearEstimator):
-  def __init__(self):
-    self._est = { op:LinearRegression() for op in PrimopTypes }
+  def set_params(self, params):
+    self._estimator.coef_ = np.array(params[0:-1])
+    self._estimator.intercept_ = params[-1]
 
   @property
-  def _estimators(self):
+  def _estimator(self):
     return self._est
+
+EstimatorRegistry.register('ols', OLSEstimator)
