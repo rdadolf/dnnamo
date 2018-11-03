@@ -3,6 +3,7 @@ from .tool_utilities import AbstractTool, ToolRegistry
 import numpy as np
 
 from dnnamo.core.argsampler import UniformArgSampler
+from dnnamo.core.features import Features
 from dnnamo.framework.tf import TFFramework
 from dnnamo.framework.tf.tf_exemplar import TFExemplarRegistry
 from dnnamo.framework.tf.tf_synthesis import TFSyntheticModel
@@ -35,7 +36,7 @@ class SweepTool(AbstractTool):
     uas = UniformArgSampler()
     primop_args = uas.sample(primop_t, n=self.args['n'], seed=self.args['seed'])
     Exemplar = frame.ExemplarRegistry.lookup(primop_t)
-    self.data = []
+    self.data = Features()
     for p_args in primop_args:
       exemplar = Exemplar(p_args)
       synthmodel = frame.SyntheticModel(exemplar)
@@ -43,11 +44,19 @@ class SweepTool(AbstractTool):
       profile = frame.get_timing(mode='inference', ops='native')
       graph = frame.get_graph(mode='inference', scope='dynamic', ops='native')
       id = graph.get_vertex_id_from_tf_name( exemplar.get_op_name() )
-      self.data.append( (p_args, profile[id][0]) )
+      self.data.append( p_args, profile[id][0] )
+
+  def _load(self, filename):
+    feats = Features()
+    feats.read(filename)
+    return feats
+
+  def _save(self, data, filename):
+    data.write(filename)
 
   def _output(self):
     print 'Output'
-    for (args,time) in self.data:
+    for args,time in zip(self.data.op_arguments, self.data.measurements):
       print args,':',time
 
 ToolRegistry.register(SweepTool.TOOL_NAME, SweepTool)
