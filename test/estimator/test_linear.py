@@ -1,7 +1,10 @@
 import numpy as np
+import os
 import unittest
 
 from dnnamo.estimator import OLSEstimator
+
+from ..util import in_temporary_directory
 
 import pytest
 class TestOLSEstimator(unittest.TestCase):
@@ -13,8 +16,8 @@ class TestOLSEstimator(unittest.TestCase):
 
   def test_blind_predict(self):
     est = OLSEstimator()
-    est.fit('zero', [[0]], [0])
-    v = est.estimate('zero', [0])
+    est.fit([[0]], [0])
+    v = est.estimate([0])
     assert (v+1), 'Estimate returned non-numeric value: '+str(v)
 
   def test_reproducible_parameters(self):
@@ -27,18 +30,31 @@ class TestOLSEstimator(unittest.TestCase):
     v_true = m_true*100 + b_true
 
     est = OLSEstimator()
-    est.fit('zero', line_x, line_y)
+    est.fit(line_x, line_y)
 
-    v = est.estimate('zero', [100])
+    v = est.estimate([100])
     assert np.abs(v-v_true)<10., 'Incorrect estimation'
-    params = est.get_params('zero')
+    params = est.get_params()
     assert np.abs(m_true-params[0])<1., 'Incorrect slope fit'
     assert np.abs(b_true-params[1])<10., 'Incorrect intercept fit'
-    v = est.estimate('zero', [100])
+    v = est.estimate([100])
     assert np.abs(v-v_true)<10., 'Incorrect estimation'
 
     est2 = OLSEstimator()
-    est2.set_params('zero',params)
-    v = est2.estimate('zero', [100])
+    est2.set_params(params)
+    v = est2.estimate([100])
     assert np.abs(v-v_true)<10., 'Incorrect estimation'
 
+  def test_io(self):
+    with in_temporary_directory() as d:
+      filename = os.path.join(os.path.abspath(d), 'zero-linear.est')
+      est = OLSEstimator()
+      est.fit([[0,1,2,3]],[0])
+      est.write(filename)
+      # FIXME: flush?
+      est2 = OLSEstimator()
+      est2.read(filename)
+
+      assert len(est.get_params())==len(est2.get_params())
+      for i,(lhs,rhs) in enumerate(zip(est.get_params(), est2.get_params())):
+        assert lhs==rhs, 'Parameter '+str(i)+' does not match: "'+str(lhs)+'" vs. "'+str(rhs)+'"'

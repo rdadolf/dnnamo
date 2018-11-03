@@ -14,11 +14,11 @@ class Registry(object):
 
   @classmethod
   def _idempotent_allocate_registry(cls):
-    '''Allocating this as part of the part class, such as using a class attribute,
-    will cause subclasses to inherit (and SHARE!) the parent class's storage.
-    This is not the behavior we want. So instead, we use a None sentinel for an
-    un-initialized registry, then idempotently create the registry on the first
-    use of it.'''
+    # Allocating this as part of the part class, such as using a class attribute,
+    # will cause subclasses to inherit (and SHARE!) the parent class's storage.
+    # This is not the behavior we want. So instead, we use a None sentinel for an
+    # un-initialized registry, then idempotently create the registry on the first
+    # use of it.
     # NOTE: We call this on *EVERY* function, even the ones that don't make much
     #   sense to do so. Sure, it's overkill, but it also makes the error messages
     #   a bit more meaningful ("cls does not have a _regstiry attr" vs. KeyError
@@ -79,3 +79,10 @@ class Registry(object):
     cls._idempotent_allocate_registry()
     return cls._registry.l.items()
 
+  def keys(kcs):
+    cls._idempotent_allocate_registry()
+    return cls._registry.l.keys()
+
+  def values(kcs):
+    cls._idempotent_allocate_registry()
+    return cls._registry.r.keys()
