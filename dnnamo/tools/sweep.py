@@ -15,8 +15,8 @@ class SweepTool(AbstractTool):
   def add_subparser(self, argparser):
     super(SweepTool, self).add_subparser(argparser)
     self.subparser.add_argument('primop', nargs='?', type=str, help='Which primitive operation to sweep.')
-    self.subparser.add_argument('-n', type=int, default=1, help='Set the PRNG seed for this sweep.')
-    self.subparser.add_argument('-o', '--output', type=str, default='timing.data', help='Output file with timing measurements.')
+    self.subparser.add_argument('-n', type=int, default=1, help='Number of data points to collect.')
+    self.subparser.add_argument('-o', '--output', type=str, default=None, help='Output file with Estimator training features (default: <primop>.features).')
     self.subparser.add_argument('--seed', type=int, default=None, help='Set the PRNG seed for this sweep.')
     self.subparser.add_argument('-l','--list', default=False, action='store_true', help="Don't actually run a sweep, just print which primops are supported,")
     # FIXME: Add argument to limit scope of sweep
@@ -45,6 +45,10 @@ class SweepTool(AbstractTool):
       graph = frame.get_graph(mode='inference', scope='dynamic', ops='native')
       id = graph.get_vertex_id_from_tf_name( exemplar.get_op_name() )
       self.data.append( p_args, profile[id][0] )
+
+    if self.args['output'] is None:
+      self.args['output'] = str(primop_t)+'.features'
+    self._save(self.data, self.args['output'])
 
   def _load(self, filename):
     feats = Features()

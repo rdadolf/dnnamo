@@ -1,6 +1,7 @@
 # Tools self-register with the ToolRegistry class on import.
 
 import density
+import learn_estimator
 import primops
 import sweep
 

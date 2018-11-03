@@ -32,8 +32,11 @@ class Features(object):
     else:
       assert np_op_args_list.shape[1]==self._args.shape[1], 'op arguments do not have the same shape as existing op arguments in features.'
       self._args = np.vstack( (self._args, np_op_args_list) )
-      self._vals = np.vstack( (self._vals, meas_list) )
+      self._vals = np.hstack( (self._vals, np_meas_list) )
     return self
+
+  def concatenate(self, features):
+    return self.extend(features.op_arguments, features.measurements)
 
   @property
   def op_arguments(self):

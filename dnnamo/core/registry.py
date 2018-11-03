@@ -79,10 +79,12 @@ class Registry(object):
     cls._idempotent_allocate_registry()
     return cls._registry.l.items()
 
-  def keys(kcs):
+  @classmethod
+  def keys(cls):
     cls._idempotent_allocate_registry()
     return cls._registry.l.keys()
 
-  def values(kcs):
+  @classmethod
+  def values(cls):
     cls._idempotent_allocate_registry()
     return cls._registry.r.keys()

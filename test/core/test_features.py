@@ -9,10 +9,16 @@ class TestFeatures(unittest.TestCase):
   def test_instantiate(self):
     _ = Features()
 
-  def test_append(self):
+  def test_add(self):
     f = Features()
     f.append([1,2,3], 4)
     f.append(np.array([1,2,3]), np.array(4))
+    assert len(f.measurements)==2
+    f2 = Features()
+    f2.extend([[1,2,3],[4,5,6]], [7,8])
+    assert len(f2.measurements)==2
+    f2.concatenate(f)
+    assert len(f2.measurements)==4
 
   def test_accessors(self):
     f = Features()
