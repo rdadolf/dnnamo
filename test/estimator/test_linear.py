@@ -3,6 +3,7 @@ import os
 import unittest
 
 from dnnamo.estimator import OLSEstimator
+from dnnamo.core.features import Features
 
 from ..util import in_temporary_directory
 
@@ -16,7 +17,8 @@ class TestOLSEstimator(unittest.TestCase):
 
   def test_blind_predict(self):
     est = OLSEstimator()
-    est.fit([[0]], [0])
+    feats = Features().append([0],0)
+    est.fit(feats)
     v = est.estimate([0])
     assert (v+1), 'Estimate returned non-numeric value: '+str(v)
 
@@ -28,9 +30,10 @@ class TestOLSEstimator(unittest.TestCase):
     m_true,b_true = 3,20
     line_y = m_true*line_x[:,0] + b_true + noise
     v_true = m_true*100 + b_true
+    feats = Features().extend(line_x, line_y)
 
     est = OLSEstimator()
-    est.fit(line_x, line_y)
+    est.fit(feats)
 
     v = est.estimate([100])
     assert np.abs(v-v_true)<10., 'Incorrect estimation'
@@ -49,7 +52,8 @@ class TestOLSEstimator(unittest.TestCase):
     with in_temporary_directory() as d:
       filename = os.path.join(os.path.abspath(d), 'zero-linear.est')
       est = OLSEstimator()
-      est.fit([[0,1,2,3]],[0])
+      feats = Features().append([0,1,2,3], 0)
+      est.fit(feats)
       est.write(filename)
       # FIXME: flush?
       est2 = OLSEstimator()

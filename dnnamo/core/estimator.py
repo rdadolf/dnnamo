@@ -40,8 +40,8 @@ class AnalyticalEstimator(DnnamoEstimator):
 class RegressionEstimator(DnnamoEstimator):
   __metaclass__ = ABCMeta
   @abstractmethod
-  def fit(self, op_argument_list, measurement_list):
-    '''Fit f(op_argument_list[i]) = measurement_list[i].'''
+  def fit(self, features):
+    '''Fit the Estimator using data in a DnnamoFeatures object.'''
 
 class SKLRegressionEstimator(RegressionEstimator):
   '''A regression estimator using a scikit-learn estimator.'''
@@ -72,16 +72,16 @@ class SKLRegressionEstimator(RegressionEstimator):
   def estimate(self, op_arguments):
     return self._estimator.predict([op_arguments])[0]
 
-  def fit(self, op_argument_list, measurement_list):
+  def fit(self, features):
     # In their infinite wisdom, SKL allows multi-target regression with
     # a single dimension.... So passing a y with shape (100,1) causes
     # radically different behavior than passing a y with shape (100,).
     # Retrieving parameters becomes a PITA, so we require a 1-D target.
-    ys = np.array(measurement_list)
+    ys = np.array(features.measurements)
     if len(ys.shape)!=1:
       raise TypeError, 'Estimator should be fit against a 1-dimensional array, not '+str(ys.shape)
 
-    xs = np.array(op_argument_list)
+    xs = np.array(features.op_arguments)
     if len(xs.shape)!=2:
       raise TypeError, 'Estimator should be fit using a 2-dimensional array of arguments, not '+str(xs.shape)
 
