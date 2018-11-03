@@ -8,24 +8,20 @@ do
   key="$1"
   case $key in
       -a|--all)
-      FLAGS_SKIP=""
-      shift
+        FLAGS_SKIP=""
+        shift
       ;;
       -s|--summary)
-      FLAGS_SUMMARY="--tb=no --no-print-logs"
-      shift
-      ;;
-      -*) # Unknown flag
-      echo "Unrecognized flag \"$key\""
-      shift
+        FLAGS_SUMMARY="--tb=no --no-print-logs"
+        shift
       ;;
       *) # Positional arguments
-      POSITIONAL+=("$1") # save it in an array for later
-      shift # past argument
+        POSITIONAL+=("$1") # save it in an array for later
+        shift # past argument
       ;;
   esac
 done
 
-cmd="pytest --ignore=models $FLAGS_SKIP $FLAGS_SUMMARY $POSITIONAL"
+cmd="pytest --ignore=models $FLAGS_SKIP $FLAGS_SUMMARY ${POSITIONAL[*]}"
 echo "$cmd"
 eval $cmd

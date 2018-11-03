@@ -4,8 +4,6 @@ import os.path
 import tempfile
 import shutil
 
-# FIXME: add temporary directory context manager
-
 def runtool(t, cmd):
   parser = argparse.ArgumentParser()
   subs = parser.add_subparsers()
@@ -13,7 +11,6 @@ def runtool(t, cmd):
   args = vars(parser.parse_args(cmd.split()))
   print args
   return t.run(args)
-
 
 class cleanup_cachefile(object):
   def __init__(self,filename):
@@ -32,8 +29,9 @@ class in_temporary_directory(object):
     self._d = os.path.abspath(tempfile.mkdtemp(prefix=self._prefix))
     self._old_d = os.getcwd()
     os.chdir(self._d)
-    print 'Working in temporary directory ',self._d
+    print 'Working in temporary directory',self._d
     return self._d
   def __exit__(self, *args):
+    print 'Leaving temporary directory',self._d
     os.chdir(self._old_d)
     shutil.rmtree(self._d)

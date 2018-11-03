@@ -1,6 +1,7 @@
 .DS_Store
 .cache/
 deploy/
+.pytest_cache/
 
 *.pyc
 *.pdf
