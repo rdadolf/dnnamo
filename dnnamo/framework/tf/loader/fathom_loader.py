@@ -28,8 +28,12 @@ class FathomModel(DnnamoModel):
   def __init__(self, ModelClass, ModelClassFwd):
     self._fathommodel_train = ModelClass()
     self._fathommodel_inf = ModelClassFwd()
-    self._fathommodel_train.setup()
-    self._fathommodel_inf.setup()
+    setup_options = {
+      'intra_op_parallelism_threads':1,
+      'inter_op_parallelism_threads':1,
+    }
+    self._fathommodel_train.setup(setup_options=setup_options)
+    self._fathommodel_inf.setup(setup_options=setup_options)
 
   def get_training_graph(self):
     return self._fathommodel_train.G
@@ -49,6 +53,12 @@ class FathomModel(DnnamoModel):
     profiler = SessionProfiler()
     self._fathommodel_inf.run(runstep=profiler.session_profile, n_steps=n_steps)
     return profiler.rmd
+
+  def run_training(self, n_steps=1, *args, **kwargs):
+    return self._fathommodel_train.run(runstep=session_run, n_steps=n_steps)
+
+  def run_inference(self, n_steps=1, *args, **kwargs):
+    return self._fathommodel_inf.run(runstep=session_run, n_steps=n_steps)
 
 class TFFathomLoader(BaseLoader):
   def __init__(self, identifier, fathompath=None, modulename='fathom'):

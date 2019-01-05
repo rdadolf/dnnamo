@@ -2,10 +2,10 @@
 
 import density
 import learn_estimator
+import mimic
 import primops
 import sweep
 
-import _mimic
 import _primop_diag
 
 from .tool_utilities import ToolRegistry
