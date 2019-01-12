@@ -1,7 +1,7 @@
 import os.path
 import unittest
 
-from dnnamo.tools._mimic import MimicTool
+from dnnamo.tools.mimic import MimicTool
 
 from ..util import runtool, in_temporary_directory
 
@@ -11,13 +11,13 @@ class TestMimic(unittest.TestCase):
   def test_simply_run(self):
     testfile = os.path.abspath(TESTFILE)
     with in_temporary_directory():
-      cmd='_mimic '+testfile
+      cmd='mimic '+testfile
       runtool(MimicTool(), cmd)
 
   def test_profile_detail(self):
     testfile = os.path.abspath(TESTFILE)
     with in_temporary_directory():
-      cmd='_mimic --detail profile '+testfile
+      cmd='mimic --detail profile '+testfile
       tool = MimicTool()
       runtool(tool, cmd)
 
