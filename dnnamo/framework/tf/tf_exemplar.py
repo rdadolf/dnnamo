@@ -55,12 +55,13 @@ class TFExemplar_hadamard(TFExemplar):
   @property
   def output_signature(self):
     return [
-      TFSignatureType.Tensor(dtype='int64', dims=self.dims)
+      TFSignatureType.Tensor(dtype='float32', dims=self.dims)
     ]
 
   def synthesize(cls, inputs):
     lhs,rhs = inputs
-    outT = tf.add(lhs,rhs, name='Exemplar')
+    #outT = tf.add(lhs,rhs, name='Exemplar')
+    outT = tf.multiply(lhs,rhs, name='Exemplar')
     return [outT]
 
 class TFExemplar_dot(TFExemplar):

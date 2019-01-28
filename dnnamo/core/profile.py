@@ -23,6 +23,10 @@ class Profile(object):
     self._profile[key].append(value)
     self._steps = max(len(self._profile[key]), self._steps)
 
+  def extend(self, key, values):
+    for v in values:
+      self.add(key,v)
+
   @property
   def consistent(self):
     # Returns true if every op in the profile has the same number of data points.

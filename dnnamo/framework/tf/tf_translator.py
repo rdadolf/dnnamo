@@ -18,7 +18,6 @@ def _extend_tensor_dims(tensor_dims):
   retval = [0, 0, 0, 0]
   # Raises an IndexError if tensor has >4 dimensions. Primops can't handle 5+.
   retval[0:len(tensor_dims)] = tensor_dims
-  #import pdb; pdb.set_trace()
   return retval
 
 class EmitUnaryHadamard(Emit):
