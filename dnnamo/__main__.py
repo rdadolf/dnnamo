@@ -2,15 +2,13 @@
 import sys
 import argparse
 
-import importlib
-
 from .tools import ToolRegistry
 
 def main(argv):
   parser = argparse.ArgumentParser()
   subparsers = parser.add_subparsers(title='Tools', description='Run each tool with -h or --help for more info.')
 
-  for toolname,toolcls in ToolRegistry.sorted_tools():
+  for _,toolcls in ToolRegistry.sorted_tools():
     tool = toolcls()
     subparser = tool.add_subparser(subparsers)
     subparser.set_defaults(selected_tool=tool.run)

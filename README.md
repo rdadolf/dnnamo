@@ -8,7 +8,7 @@
 
 This is a research repository.
 
-If you're interested in using Dnnamo as a tool, you'll probably have to wait until a full release. I expect this to be sometime in late March 2018, but there's no guarantees in research.
+If you're interested in using Dnnamo as a tool, you'll probably have to wait until a full release.
 
 If you're a researcher, then you probably want to wait for the paper, around the same time. It will probably go up on arXiv, and I'm happy to talk more then.
 

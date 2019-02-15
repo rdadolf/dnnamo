@@ -1,5 +1,4 @@
 from ..framework import FRAMEWORKS
-from ..loader import RunpyLoader
 from .tool_utilities import BaselineTool, ToolRegistry
 
 class PrimopsTool(BaselineTool):
@@ -17,10 +16,10 @@ class PrimopsTool(BaselineTool):
     self.subparser.add_argument('--undef',action='store_true',default=False,help='Display undefined Primops')
     return self.subparser
 
-  def _run(self, models):
+  def _run(self):
     if self.args['timing']:
       self.args['run'] = True
-    for model in models:
+    for model in self.args['models']:
       frame = FRAMEWORKS[self.args['framework']]()
       print self.args['loader_opts']
       frame.load(self.args['loader'], model, **self.args['loader_opts'])

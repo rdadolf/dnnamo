@@ -1,7 +1,5 @@
 from abc import ABCMeta, abstractmethod, abstractproperty
-import json
 import numpy as np
-import sklearn
 
 from .registry import Registry
 

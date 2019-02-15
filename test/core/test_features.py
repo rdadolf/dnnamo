@@ -1,9 +1,9 @@
-import numpy as np
 import unittest
-
-from ..util import in_temporary_directory
+import numpy as np
 
 from dnnamo.core.features import Features
+
+from ..util import in_temporary_directory
 
 class TestFeatures(unittest.TestCase):
   def test_instantiate(self):
@@ -52,7 +52,7 @@ class TestFeatures(unittest.TestCase):
     f.append([2,3,4], 11)
     f.append([3,4,5], 12)
 
-    with in_temporary_directory() as d:
+    with in_temporary_directory():
       f.write('test_file')
       f2 = Features()
       f2.read('test_file')

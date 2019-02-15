@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 from .identifier import ID
 
 class DnnamoDFO(object):
@@ -7,9 +7,10 @@ class DnnamoDFO(object):
   def __init__(self, id, root=None):
     '''Create a Dnnamo dataflow object.
 
-    Arguments 
+    Arguments
       id: a unique identifier string.
       root: [optional] the original root object used to create this.'''
+
     if isinstance(id, ID):
       self._id = id
     else:
@@ -61,7 +62,7 @@ class DnnamoVertex(DnnamoDFO):
   def __init__(self, id, type, root=None):
     super(DnnamoVertex,self).__init__(id,root)
     self._type = type
-  
+
   @property
   def type(self):
     'A string which specifies a generic function.'
@@ -88,7 +89,7 @@ class DnnamoTensor(DnnamoEdge):
       checked_shape = [int(_) for _ in shape]
       if (checked_shape!=shape):
         raise TypeError('Shape must be either None or a list of zero or more integers, not '+str(shape))
-      self._shape = checked_shape 
+      self._shape = checked_shape
 
   @property
   def shape(self):

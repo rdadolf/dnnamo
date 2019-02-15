@@ -1,5 +1,3 @@
-import tensorflow as tf
-
 from ...core.bimap import Bimap
 from ...core.datamanager import Datatag
 from ...core.framework import Framework, _collector
@@ -127,7 +125,7 @@ class TFFramework(Framework):
     #     tensorflow/core/framework/step_stats.proto
     step_stats = rmd.step_stats
     for dev_step_stats in step_stats.dev_stats:
-      device = dev_step_stats.device # string
+      # device = dev_step_stats.device # string
       for node_stats in dev_step_stats.node_stats:
         name = node_stats.node_name
         # NOTE: We remove _SOURCE ops, since they are treated bizarrely by

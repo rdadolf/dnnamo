@@ -1,10 +1,7 @@
-
-from .tool_utilities import AbstractTool, ToolRegistry
-import numpy as np
-
 from dnnamo.core.estimator import EstimatorRegistry
 from dnnamo.core.features import Features
-from dnnamo.framework.tf import TFFramework
+
+from .tool_utilities import AbstractTool, ToolRegistry
 
 class LearnEstimatorTool(AbstractTool):
   TOOL_NAME='learn-estimator'
@@ -21,7 +18,6 @@ class LearnEstimatorTool(AbstractTool):
   def _run(self):
     if self.args['output'] is None:
       self.args['output'] = str(self.args['primop'])+'-'+str(self.args['estimator'])+'.est'
-    primop_t = self.args['primop']
     EstimatorClass = EstimatorRegistry.lookup(self.args['estimator'])
     est = EstimatorClass()
 

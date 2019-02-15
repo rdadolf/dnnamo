@@ -2,7 +2,6 @@ import timeit
 
 from ..core.profile import Profile
 from ..framework import FRAMEWORKS
-from ..loader import RunpyLoader
 from .tool_utilities import BaselineTool, ToolRegistry
 
 class MimicTool(BaselineTool):
@@ -19,8 +18,8 @@ class MimicTool(BaselineTool):
     self.subparser.add_argument('--full', default=False, action='store_true', help='Prints timing information for each individual component being estimated.')
     return self.subparser
 
-  def _run(self, models):
-    for model in models:
+  def _run(self):
+    for model in self.args['models']:
       frame = FRAMEWORKS[self.args['framework']]()
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
 
@@ -28,7 +27,7 @@ class MimicTool(BaselineTool):
                   'framework': self._mimic_framework,
                   'primop': self._mimic_primop,
                   'regression': self._mimic_regression }
-      
+
       t0 = timeit.default_timer()
       if self.args['mode']=='inference':
         _ = frame.model.run_inference(n_steps=1)
@@ -44,7 +43,7 @@ class MimicTool(BaselineTool):
   def _output(self):
     super(MimicTool,self)._output()
 
-    for model,(true_time, mimic_time, components) in self.data.items():
+    for true_time, mimic_time, components in self.data.values():
       precision = 2 # max decimal places
       print 'True vs. Mimic time: '+str(round(true_time,precision))+'us '+str(round(mimic_time,precision))+'us ('+str(round(mimic_time*100/true_time,precision))+'%)'
       if self.args['full']:
@@ -56,7 +55,7 @@ class MimicTool(BaselineTool):
           print '  '+str(name)+':',timing
 
   def _aggregate_profile(self, profile):
-    return sum([usecs for op,usecs in profile.aggregate('last').items()])
+    return sum([usecs for _,usecs in profile.aggregate('last').items()])
 
   def _mimic_profile(self, frame):
     '''Mimic a model by aggregating pointwise native op measurements.'''

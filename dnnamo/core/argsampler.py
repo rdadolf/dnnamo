@@ -28,7 +28,7 @@ class UniformArgSampler(object):
     return [ [] for _ in xrange(0,n) ]
 
   def sample_hadamard(self, n):
-    return [ np.random.random_integers(self.min_T_dimsize, self.max_T_dimsize, size=4).tolist() for _ in xrange(0,n) ]
+    return [ np.random.randint(self.min_T_dimsize, self.max_T_dimsize+1, size=4).tolist() for _ in xrange(0,n) ]
 
   #def sample_dot(self, n): pass
   #def sample_convolution(self, n): pass

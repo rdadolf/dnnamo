@@ -1,7 +1,4 @@
-from abc import ABCMeta, abstractmethod, abstractproperty
-from functools import wraps
-import os
-import timeit
+from abc import ABCMeta, abstractproperty
 
 from .model import DnnamoModel
 from .datamanager import Datatag, DataManager
@@ -122,7 +119,7 @@ class Framework(object):
   # calls get_timing() and then get_rungraph(), for example, the framework would
   # call the fused data collection routine on the first call, and the second
   # would return immediately using cached data.
-  # 
+  #
   # It's probably obvious, but users should usually not be calling these, since
   # it bypasses the caching interface, which exists for a reason. If the user
   # really wants to force re-collecting data, then they should just invalidate

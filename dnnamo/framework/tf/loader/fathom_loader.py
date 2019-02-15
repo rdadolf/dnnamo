@@ -103,7 +103,7 @@ class TFFathomLiteLoader(TFFathomLoader):
 
     Fathom-lite (https://github.com/rdadolf/fathom-lite) is a lightweight
     alternative to the original Fathom reference workloads which uses smaller
-    datasets in order to accurately capture performance behavior without the 
+    datasets in order to accurately capture performance behavior without the
     cost of larger training datasets. This loader allows Fathom-lite models to be
     imported by name. The optional fathompath parameter can be used to point to
     the installation location of the Fathom package.'''

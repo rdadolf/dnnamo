@@ -5,7 +5,7 @@ from dnnamo.core.bimap import Bimap
 
 class TestBimap(unittest.TestCase):
   def test_instantiation(self):
-    b = Bimap()
+    _ = Bimap()
 
 @pytest.mark.parametrize('b',[
     Bimap([('a',1), ('b',2), ('c',3)]),
@@ -14,16 +14,16 @@ class TestBimap(unittest.TestCase):
   ])
 class TestBimapOps(object):
   def test_construction(self,b):
-      # Elements
-      assert b.l['a'] == 1
-      assert b.l['b'] == 2
-      assert b.l['c'] == 3
-      assert b.r[1] == 'a'
-      assert b.r[2] == 'b'
-      assert b.r[3] == 'c'
-      # Whole views
-      b.l == {'a':1, 'b':2, 'c':3}
-      b.r == {1:'a', 2:'b', 3:'c'}
+    # Elements
+    assert b.l['a'] == 1
+    assert b.l['b'] == 2
+    assert b.l['c'] == 3
+    assert b.r[1] == 'a'
+    assert b.r[2] == 'b'
+    assert b.r[3] == 'c'
+    # Whole views
+    b.l == {'a':1, 'b':2, 'c':3}
+    b.r == {1:'a', 2:'b', 3:'c'}
 
   def test_mutation(self,b):
     # Caution, mutation change the original parameterization

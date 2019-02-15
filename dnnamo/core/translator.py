@@ -4,19 +4,19 @@ from .primop import Primop_undef, Primop_zero
 
 class Match(object):
   __metaclass__ = ABCMeta
-  @abstractmethod 
+  @abstractmethod
   def match(self, graph, op): 'Returns true if the rule should emit a primop.'
-  
+
 class Emit(object):
   __metaclass__ = ABCMeta
-  @abstractmethod 
+  @abstractmethod
   def emit(self, graph, op): 'Returns a Primop instance from the native op.'
 
 Rule = namedtuple('Rule', ['priority','match_obj','emit_obj'])
 
 class Rules(object):
   rules = []
-  
+
   @classmethod
   def add(cls, priority, match_obj, emit_obj):
     cls.rules.append( Rule(priority, match_obj, emit_obj) )

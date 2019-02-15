@@ -43,7 +43,7 @@ class SessionProfiler(object):
 
   def __init__(self):
     self.rmd = []
-  
+
   def session_profile(self, session, fetches, feed_dict=None):
     '''Replacement for tf.Session.run(...) which returns profiling data.
 

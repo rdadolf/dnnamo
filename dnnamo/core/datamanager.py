@@ -1,4 +1,3 @@
-from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 
 class Datatag(namedtuple('Datatag',['name','mode','scope','ops'])):

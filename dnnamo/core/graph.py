@@ -1,4 +1,3 @@
-from .identifier import ID
 from .dataflow import DnnamoDFO, DnnamoOp, DnnamoTensor, DnnamoVertex, DnnamoEdge
 
 class DnnamoGraph(object):
@@ -198,6 +197,6 @@ class DnnamoGraph(object):
 
   def add_tensor(self, tensor):
     self.add_edge(tensor, 'tensor')
-  
+
   def add_dependence(self, dep):
     self.add_edge(dep, 'dependence')

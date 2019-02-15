@@ -1,19 +1,18 @@
-import numpy as np
 import os
 import unittest
+import numpy as np
 
 from dnnamo.estimator import OLSEstimator
 from dnnamo.core.features import Features
 
 from ..util import in_temporary_directory
 
-import pytest
 class TestOLSEstimator(unittest.TestCase):
   #def setUp(self):
   # FIXME: generate test data if necessary
 
   def test_instantiate(self):
-    est = OLSEstimator()
+    _ = OLSEstimator()
 
   def test_blind_predict(self):
     est = OLSEstimator()
@@ -26,7 +25,7 @@ class TestOLSEstimator(unittest.TestCase):
     N = 1000
     np.random.seed(13)
     noise = 20*np.random.randn(N)
-    line_x = np.random.random_integers(1,1000,(N,1))
+    line_x = np.random.randint(0,1000,(N,1))
     m_true,b_true = 3,20
     line_y = m_true*line_x[:,0] + b_true + noise
     v_true = m_true*100 + b_true

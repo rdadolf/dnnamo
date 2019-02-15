@@ -3,12 +3,13 @@ from collections import namedtuple
 import tensorflow as tf
 
 from ...core.exemplar import Exemplar, ExemplarRegistry
-from ...core.primop import PrimopTypes
 
 class TFExemplarRegistry(ExemplarRegistry):
   pass # Fully defined from superclass; this allocates distinct storage for it.
 
 class TFExemplar(Exemplar):
+  __metaclass__ = ABCMeta
+
   # For common support functions
   @abstractproperty
   def input_signature(self): pass
@@ -32,7 +33,7 @@ class TFSignatureType(object):
 class TFExemplar_zero(TFExemplar):
   def __init__(self, primop_args):
     pass # FIXME
-  def synthesize(self):
+  def synthesize(self): # pylint: disable=W0221
     pass # FIXME
   @property
   def input_signature(self):
@@ -58,7 +59,7 @@ class TFExemplar_hadamard(TFExemplar):
       TFSignatureType.Tensor(dtype='float32', dims=self.dims)
     ]
 
-  def synthesize(cls, inputs):
+  def synthesize(self, inputs): # pylint: disable=W0221
     lhs,rhs = inputs
     #outT = tf.add(lhs,rhs, name='Exemplar')
     outT = tf.multiply(lhs,rhs, name='Exemplar')
@@ -67,7 +68,7 @@ class TFExemplar_hadamard(TFExemplar):
 class TFExemplar_dot(TFExemplar):
   def __init__(self, primop_args):
     pass # FIXME
-  def synthesize(self):
+  def synthesize(self): # pylint: disable=W0221
     pass # FIXME
   @property
   def input_signature(self):
@@ -79,7 +80,7 @@ class TFExemplar_dot(TFExemplar):
 class TFExemplar_convolution(TFExemplar):
   def __init__(self, primop_args):
     pass # FIXME
-  def synthesize(self):
+  def synthesize(self): # pylint: disable=W0221
     pass # FIXME
   @property
   def input_signature(self):

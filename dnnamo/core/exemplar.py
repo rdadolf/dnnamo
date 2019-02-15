@@ -1,6 +1,4 @@
-from abc import ABCMeta, abstractmethod, abstractproperty
-from .bimap import Bimap
-from .primop import PrimopTypes
+from abc import ABCMeta, abstractmethod
 from .registry import Registry
 
 class Exemplar(object):
@@ -21,7 +19,7 @@ class Exemplar(object):
   @abstractmethod
   def synthesize(self, *args, **kwargs):
     pass
-  
+
 
 class ExemplarRegistry(Registry):
   '''Registry mapping primops to exemplars.

@@ -1,6 +1,5 @@
-from functools import wraps
-import pytest
 import unittest
+import pytest
 from dnnamo.core.model import DnnamoModel
 from dnnamo.framework.tf import TFFramework
 from dnnamo.loader import RunpyLoader

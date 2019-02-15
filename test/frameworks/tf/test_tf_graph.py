@@ -1,5 +1,6 @@
-import pytest
 import unittest
+
+import pytest
 import tensorflow as tf
 
 from dnnamo.framework.tf import TFGraph
@@ -31,12 +32,13 @@ class TestTFGraph(unittest.TestCase):
     opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE, output_partition_graphs=True)
     rmd = tf.RunMetadata()
     _ = s.run(self._a, {}, options=opts, run_metadata=rmd)
-    tfg = TFGraph.from_rmd(rmd)
+    TFGraph.from_rmd(rmd)
     # FIXME: need tests
 
   @pytest.mark.xfail() # NYI
   def test_accessors(self):
-    g = TFGraph.from_graph(self._g)
+    pass
+    # g = TFGraph.from_graph(self._g)
     # g.__contains__
     # g.__getitem__
     # g.vertices_from(e)
@@ -50,6 +52,7 @@ class TestTFGraph(unittest.TestCase):
 
   @pytest.mark.xfail() # NYI
   def test_mutators(self):
-    g = TFGraph()
+    pass
+    # g = TFGraph()
     # g.add_vertex
     # g.add_edge

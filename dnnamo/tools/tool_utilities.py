@@ -59,7 +59,7 @@ class AbstractTool(Cacher):
       self._save(self.data, self.args['cachefile'])
 
   @abstractmethod
-  def _run(self, *args): pass
+  def _run(self): pass
 
   @abstractmethod
   def _output(self): pass
@@ -88,7 +88,7 @@ class BaselineTool(AbstractTool):
         print 'No models selected.'
         return
       else:
-        v = self._run(self.args['models'])
+        v = self._run()
         if v is not None:
           return v
 
@@ -98,7 +98,7 @@ class BaselineTool(AbstractTool):
       self._save(self.data, self.args['cachefile'])
 
   @abstractmethod
-  def _run(self, models): pass
+  def _run(self): pass
 
 
 class PlotTool(BaselineTool):

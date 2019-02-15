@@ -2,7 +2,7 @@ from dnnamo.core.bimap import Bimap
 from dnnamo.core.primop import *
 from dnnamo.core.graph import DnnamoGraph
 from dnnamo.core.dataflow import DnnamoTensor
-from dnnamo.core.translator import Rules, Match, Emit, Translator, \
+from dnnamo.core.translator import Rules, Emit, Translator, \
                                    MatchAny, MatchExactType, \
                                    EmitUndef, EmitZero
 
@@ -21,7 +21,7 @@ def _extend_tensor_dims(tensor_dims):
   return retval
 
 class EmitUnaryHadamard(Emit):
-  def emit(self, op):
+  def emit(self, graph, op):
     dims = graph.tensor(op.argvalues[0]).shape
     args = _extend_tensor_dims(dims)
     return Primop_hadamard( args, root=op)

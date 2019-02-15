@@ -21,7 +21,7 @@ class TestMimic(unittest.TestCase):
       tool = MimicTool()
       runtool(tool, cmd)
 
-      true_time, mimic_time, components = tool.data[testfile]
+      true_time, mimic_time, _ = tool.data[testfile]
       print 'true_time:',true_time
       print 'mimic_time:',mimic_time
 

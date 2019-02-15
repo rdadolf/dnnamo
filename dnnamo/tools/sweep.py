@@ -1,12 +1,8 @@
-
-from .tool_utilities import AbstractTool, ToolRegistry
-import numpy as np
-
 from dnnamo.core.argsampler import UniformArgSampler
 from dnnamo.core.features import Features
 from dnnamo.framework.tf import TFFramework
-from dnnamo.framework.tf.tf_exemplar import TFExemplarRegistry
-from dnnamo.framework.tf.tf_synthesis import TFSyntheticModel
+
+from .tool_utilities import AbstractTool, ToolRegistry
 
 class SweepTool(AbstractTool):
   TOOL_NAME='sweep'
@@ -55,7 +51,7 @@ class SweepTool(AbstractTool):
     feats.read(filename)
     return feats
 
-  def _save(self, data, filename):
+  def _save(self, data, filename): # pylint: disable=W0221
     data.write(filename)
 
   def _output(self):

@@ -2,7 +2,6 @@ import unittest
 
 import tensorflow as tf
 
-from dnnamo.core.identifier import ID
 from dnnamo.core.model import DnnamoModel
 from dnnamo.framework.tf.tf_graph import TFGraph
 from dnnamo.framework.tf.tf_translator import TFTranslator
@@ -29,7 +28,7 @@ class TestTFTranslator(unittest.TestCase):
   def test_tfop_matmul(self):
     translator = TFTranslator()
     with SyntheticModel() as m:
-      t = tf.matmul( tf.constant([1,2],shape=[1,2]), tf.constant([3,4],shape=[2,1]) )
+      tf.matmul( tf.constant([1,2],shape=[1,2]), tf.constant([3,4],shape=[2,1]) )
       ng = TFGraph.from_graph(m.get_training_graph())
       assert len(ng.ops)>0, 'Native graph created incorrectly.'
 

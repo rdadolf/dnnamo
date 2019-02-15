@@ -1,13 +1,12 @@
 import unittest
 
-from dnnamo.core.dataflow import DnnamoOp, DnnamoTensor
 from dnnamo.core.graph import DnnamoGraph
 
 from .synthetic_graph import SynthOp, SynthTensor, ConstructRandomGraph
 
 class TestGenericGraph(unittest.TestCase):
   def test_instantiation(self):
-    g = DnnamoGraph()
+    _ = DnnamoGraph()
 
   def test_iteration(self):
     N_OPS = 7

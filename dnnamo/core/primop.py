@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractproperty
+from abc import ABCMeta
 
 from .dataflow import DnnamoOp
 from .identifier import ID

@@ -1,5 +1,4 @@
 import unittest
-import pytest
 
 from dnnamo.core.registry import Registry
 
@@ -48,7 +47,7 @@ class TestRegistry(unittest.TestCase):
       ExampleRegistry.lookup('b')
     with self.assertRaises(KeyError):
       ExampleRegistry.lookup('c')
-    
+
   def test_iterate(self):
     ExampleRegistry._deregister_all()
 

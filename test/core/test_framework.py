@@ -1,10 +1,6 @@
-import inspect
-import pytest
 import unittest
-import itertools
 
 from dnnamo.core.framework import Framework
-from dnnamo.loader import RunpyLoader
 from dnnamo.core.translator import Translator
 from dnnamo.core.graph import DnnamoGraph
 
@@ -28,8 +24,8 @@ class ExampleFramework(Framework):
   def SyntheticModel(self):
     # Just need a non-abstract property implemented
     return None
-    
+
 class TestFramework(unittest.TestCase):
   def test_instantiation(self):
-    frame = ExampleFramework()
+    _ = ExampleFramework()
 

@@ -1,16 +1,15 @@
 import numpy as np
 
 from ..framework import FRAMEWORKS
-from ..loader import RunpyLoader
 from .tool_utilities import BaselineTool, ToolRegistry
 
 class DensityTool(BaselineTool):
   TOOL_NAME='density'
   TOOL_SUMMARY='Prints a list of the computational density (microseconds of compute per value consumed) of each op, sorted by total execution time'
 
-  def _run(self, models):
+  def _run(self):
     self.data = {} # model -> [(id,time,density), ...]
-    for model in models:
+    for model in self.args['models']:
       frame = FRAMEWORKS[self.args['framework']]()
       frame.load(self.args['loader'], model, **self.args['loader_opts'])
 

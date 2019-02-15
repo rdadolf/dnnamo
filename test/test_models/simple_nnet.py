@@ -80,9 +80,11 @@ class SimpleNNet(DnnamoModel):
       out = session_run(self.session, fetches=fetches, feed_dict=feed_dict)
     outs.append(out)
     return outs
-  def run_inference(self, *args, **kwargs):
+
+  def run_inference(self, *args, **kwargs): # pylint: disable=W0221
     return self._inference(False, *args, **kwargs)
-  def profile_inference(self, *args, **kwargs):
+
+  def profile_inference(self, *args, **kwargs): # pylint: disable=W0221
     return self._inference(True, *args, **kwargs)
 
   def _training(self, profile, n_steps=1, *args, **kwargs):
@@ -100,9 +102,11 @@ class SimpleNNet(DnnamoModel):
         out = (loss, None)
       outs.append(out)
     return outs
-  def run_training(self, *args, **kwargs):
+
+  def run_training(self, *args, **kwargs): # pylint: disable=W0221
     return self._training(False, *args, **kwargs)
-  def profile_training(self, *args, **kwargs):
+
+  def profile_training(self, *args, **kwargs): # pylint: disable=W0221
     return self._training(True, *args, **kwargs)
 
   def get_intermediates(self, *args, **kwargs):

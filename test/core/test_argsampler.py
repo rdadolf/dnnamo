@@ -1,5 +1,5 @@
-import pytest
 import unittest
+import pytest
 
 from dnnamo.core.primop import PrimopTypes
 from dnnamo.core.argsampler import UniformArgSampler

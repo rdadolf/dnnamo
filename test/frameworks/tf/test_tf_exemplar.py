@@ -1,5 +1,4 @@
 import pytest
-import unittest
 
 from dnnamo.framework.tf.tf_exemplar import *
 
@@ -14,7 +13,6 @@ class TestTFExemplar(object):
     Exemplar, args = exemplar_pair
     exemplar = Exemplar(args)
     assert exemplar.get_op_name() is not None, 'No op name given'
-    
 
   def test_signatures(self, exemplar_pair):
     Exemplar, args = exemplar_pair
