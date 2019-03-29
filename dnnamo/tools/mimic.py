@@ -49,7 +49,7 @@ class MimicTool(BaselineTool):
 
     wall_time = self.data['wall_time']
     true_time = self.data['true_time']
-    true_profile = self.data['true_profile']
+    #true_profile = self.data['true_profile']
     mimic_time = self.data['mimic_time']
     mimic_profile = self.data['mimic_profile']
 
@@ -58,7 +58,7 @@ class MimicTool(BaselineTool):
     print('Wall Time: '+fmt(wall_time))
     print('True Time: '+fmt(true_time))
     print('Mimic Time: '+fmt(mimic_time))
-    
+
     if self.args['full']:
       print 'Component timing information:'
       # FIXME: include true profile information
@@ -115,7 +115,7 @@ class MimicTool(BaselineTool):
         #print('SKIPPED: '+str(primop)+' '+str(actual_timing[primop.id]))
         pass
 
-    t_sum = self._aggregate_profile(timing_info)
+    #t_sum = self._aggregate_profile(timing_info)
 
     # FIXME: Need to assign values to cachefile
     #return (t_sum, timing_info)
