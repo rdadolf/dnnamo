@@ -7,6 +7,7 @@ from .tool_utilities import AbstractTool, ToolRegistry
 class SweepTool(AbstractTool):
   TOOL_NAME='sweep'
   TOOL_SUMMARY='Generating timing measurements suitable for training a performance estimator.'
+  CACHE_FORMAT=[] # FIXME: Features are not cached.
 
   def add_subparser(self, argparser):
     super(SweepTool, self).add_subparser(argparser)
@@ -32,7 +33,7 @@ class SweepTool(AbstractTool):
     uas = UniformArgSampler()
     primop_args = uas.sample(primop_t, n=self.args['n'], seed=self.args['seed'])
     Exemplar = frame.ExemplarRegistry.lookup(primop_t)
-    self.data = Features()
+    self.features = Features()
     for p_args in primop_args:
       exemplar = Exemplar(p_args)
       synthmodel = frame.SyntheticModel(exemplar)
@@ -40,23 +41,25 @@ class SweepTool(AbstractTool):
       profile = frame.get_timing(mode='inference', ops='native')
       graph = frame.get_graph(mode='inference', scope='dynamic', ops='native')
       id = graph.get_vertex_id_from_tf_name( exemplar.get_op_name() )
-      self.data.append( p_args, profile[id][0] )
+      self.features.append( p_args, profile[id][0] )
 
     if self.args['output'] is None:
       self.args['output'] = str(primop_t)+'.features'
-    self._save(self.data, self.args['output'])
+    self.features.write(self.args['output'])
 
-  def _load(self, filename):
-    feats = Features()
-    feats.read(filename)
-    return feats
+  # FIXME: Features objects cannot be cached in the normal way.
 
-  def _save(self, data, filename): # pylint: disable=W0221
-    data.write(filename)
+  #def _load(self, filename):
+  #  feats = Features()
+  #  feats.read(filename)
+  #  return feats
+
+  #def _save(self, data, filename): # pylint: disable=W0221
+  #  data.write(filename)
 
   def _output(self):
     print 'Output'
-    for args,time in zip(self.data.op_arguments, self.data.measurements):
+    for args,time in zip(self.features.op_arguments, self.features.measurements):
       print args,':',time
 
 ToolRegistry.register(SweepTool.TOOL_NAME, SweepTool)

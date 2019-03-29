@@ -7,52 +7,66 @@ from .tool_utilities import BaselineTool, ToolRegistry
 class MimicTool(BaselineTool):
   TOOL_NAME='mimic'
   TOOL_SUMMARY='Attempts to estimate the performance of a neural network by decomposing it into abstract pieces and then reassembling it.'
+  CACHE_FORMAT=[
+    'wall_time', # Total wall clock time of the model
+    'true_time', # Total reconstructed time of the profile
+    'true_profile', # Profiled op times
+    'mimic_time', # Total reconstructed time of the mimic
+    'mimic_profile', # Mimicked op times
+  ]
 
   def __init__(self):
     super(MimicTool,self).__init__()
-    self.data = {}
 
   def add_subparser(self, argparser):
     super(MimicTool,self).add_subparser(argparser)
-    self.subparser.add_argument('--detail','-d', default='profile', choices=['profile','framework','primop','regression'], help='The level of abstraction to which the neural net is decomposed before being reassembled.')
+    self.subparser.add_argument('--detail','-d', default='profile', choices=['profile','primop','regression'], help='The level of abstraction to which the neural net is decomposed before being reassembled.')
     self.subparser.add_argument('--full', default=False, action='store_true', help='Prints timing information for each individual component being estimated.')
     return self.subparser
 
   def _run(self):
-    for model in self.args['models']:
-      frame = FRAMEWORKS[self.args['framework']]()
-      frame.load(self.args['loader'], model, **self.args['loader_opts'])
+    model = self.args['model']
+    frame = FRAMEWORKS[self.args['framework']]()
+    frame.load(self.args['loader'], model, **self.args['loader_opts'])
 
-      actions = { 'profile': self._mimic_profile,
-                  'framework': self._mimic_framework,
-                  'primop': self._mimic_primop,
-                  'regression': self._mimic_regression }
+    actions = { 'profile': self._mimic_profile,
+                'primop': self._mimic_primop,
+                'regression': self._mimic_regression }
 
-      t0 = timeit.default_timer()
-      if self.args['mode']=='inference':
-        _ = frame.model.run_inference(n_steps=1)
-      elif self.args['mode']=='training':
-        _ = frame.model.run_training(n_steps=1)
-      else:
-        raise ValueError('Invalid mode: '+str(self.args['mode']))
-      t1 = timeit.default_timer()
-      true_time = (t1-t0)*1000000. # to microseconds
-      mimic_time, components = actions[self.args['detail']](frame)
-      self.data[model] = (true_time, mimic_time, components)
+    t0 = timeit.default_timer()
+    if self.args['mode']=='inference':
+      _ = frame.model.run_inference(n_steps=1)
+    elif self.args['mode']=='training':
+      _ = frame.model.run_training(n_steps=1)
+    else:
+      raise ValueError('Invalid mode: '+str(self.args['mode']))
+    t1 = timeit.default_timer()
+    self.data['wall_time'] = (t1-t0)*1000000. # to microseconds
+    actions[self.args['detail']](frame)
 
   def _output(self):
     super(MimicTool,self)._output()
 
-    for true_time, mimic_time, components in self.data.values():
-      precision = 2 # max decimal places
-      print 'True vs. Mimic time: '+str(round(true_time,precision))+'us '+str(round(mimic_time,precision))+'us ('+str(round(mimic_time*100/true_time,precision))+'%)'
-      if self.args['full']:
-        print 'Component timing information:'
-        if components is None:
-          print '  No components found.' # mostly for empty cachefiles
-          return
-        for name,timing in components.items():
-          print '  '+str(name)+':',timing
+    wall_time = self.data['wall_time']
+    true_time = self.data['true_time']
+    true_profile = self.data['true_profile']
+    mimic_time = self.data['mimic_time']
+    mimic_profile = self.data['mimic_profile']
+
+    def fmt(t): return str(round(t,2)) if t is not None else 'None'
+
+    print('Wall Time: '+fmt(wall_time))
+    print('True Time: '+fmt(true_time))
+    print('Mimic Time: '+fmt(mimic_time))
+    
+    if self.args['full']:
+      print 'Component timing information:'
+      # FIXME: include true profile information
+      if mimic_profile is None:
+        print '  No components found.' # mostly for empty cachefiles
+        return
+      for name,timing in mimic_profile.items():
+        print '  '+str(name)+':',timing
 
   def _aggregate_profile(self, profile):
     return sum([usecs for _,usecs in profile.aggregate('last').items()])
@@ -60,13 +74,10 @@ class MimicTool(BaselineTool):
   def _mimic_profile(self, frame):
     '''Mimic a model by aggregating pointwise native op measurements.'''
 
-    # FIXME: scope should be selectable
     timing_info = frame.get_timing(self.args['mode'], ops='native')
     t_sum = self._aggregate_profile(timing_info)
-    return (t_sum, timing_info)
-
-  def _mimic_framework(self, frame):
-    return (0,None)
+    self.data['true_time'] = t_sum
+    self.data['true_profile'] = timing_info
 
   def _mimic_primop(self, frame):
     '''Mimic a model by synthesizing and running primops matching the model.
@@ -105,14 +116,17 @@ class MimicTool(BaselineTool):
         pass
 
     t_sum = self._aggregate_profile(timing_info)
-    return (t_sum, timing_info)
+
+    # FIXME: Need to assign values to cachefile
+    #return (t_sum, timing_info)
 
   def _mimic_regression(self, frame):
     '''Mimic a model using a pre-trained regression model.
 
     For each op, we translate it into a primop, then feed its parameters into
     a pre-trained model to estimate the op's behavior.'''
-    return (0,None)
 
+    # FIXME: Need to assign values to cachefile
+    #return (0,None)
 
 ToolRegistry.register(MimicTool.TOOL_NAME, MimicTool)

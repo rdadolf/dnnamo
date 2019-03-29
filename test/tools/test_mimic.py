@@ -21,11 +21,11 @@ class TestMimic(unittest.TestCase):
       tool = MimicTool()
       runtool(tool, cmd)
 
-      true_time, mimic_time, _ = tool.data[testfile]
+      wall_time, true_time = tool.data['wall_time'],tool.data['true_time']
+      print 'wall_time:',wall_time
       print 'true_time:',true_time
-      print 'mimic_time:',mimic_time
 
+      assert wall_time>0, 'Invalid wall time'
       assert true_time>0, 'Invalid true time'
-      assert mimic_time>0, 'Invalid mimic time'
 
-      assert true_time > mimic_time, 'Impossible mimic time'
+      assert wall_time > true_time, 'Impossible true time'

@@ -23,16 +23,51 @@ class LoaderOptsArgAction(argparse.Action):
     #print 'Total:',self.options
     setattr(namespace,'loader_opts', self.options)
 
-class AbstractTool(Cacher):
+################################################################################
+
+class DataBlob(object):
+  '''Stores data that a tool generates and provides an externalizable format.'''
+
+  def __init__(self, keylist):
+    self._d = {}
+    for key in keylist:
+      assert isinstance(key,str), 'Keylist must be a list of strings'
+      self._d[key] = None
+
+  def __getitem__(self, key):
+    return self._d[key]
+
+  def __setitem__(self, key, value):
+    if key not in self._d:
+      raise KeyError('"'+str(key)+'" is not a valid key. Must be one of: '+','.join([str(k) for k in self._d]))
+    self._d[key] = value
+
+  def to_json(self):
+    return self._d
+
+  def from_json(self, d):
+    oldkeys = self._d.keys()
+    newkeys = d.keys()
+    for old in oldkeys:
+      assert old in newkeys, 'Required key "'+old+'" not found in cache file.'
+    for new in newkeys:
+      assert new in oldkeys, 'Cache file key "'+new+'" not allowed in data.'
+    self._d = d
+
+################################################################################
+
+class AbstractTool(object):
   __metaclass__ = ABCMeta
 
   TOOL_NAME = 'Tool'
   TOOL_SUMMARY = "A one-line description of the tool's function."
+  CACHE_FORMAT = None # A list of key names for the data attribute.
 
   def __init__(self):
     self.subparser = None
     self.args = None
-    self.data = None
+    assert hasattr(self, 'CACHE_FORMAT') and self.CACHE_FORMAT is not None, 'CACHE_FORMAT must be defined for this tool.'
+    self.data = DataBlob(self.CACHE_FORMAT)
 
   def add_subparser(self, argparser):
     self.subparser = argparser.add_parser(self.TOOL_NAME, help=self.TOOL_SUMMARY)
@@ -41,13 +76,27 @@ class AbstractTool(Cacher):
     self.subparser.add_argument('--writecache', action='store_true', default=False, help='Store data to a cache file after running.')
     return self.subparser
 
+  def _save(self, filename=None):
+    if filename is None:
+      filename = self.TOOL_NAME+'.cache'
+    with open(filename,'w') as fp:
+      json.dump(self.data.to_json(), fp)
+      print('File "'+filename+'" saved.')
+
+  def _load(self, filename=None):
+    if filename is None:
+      filename = self.TOOL_NAME+'.cache'
+    with open(filename,'r') as fp:
+      self.data.from_json(json.load(fp))
+      print('File "'+filename+'" loaded.')
+
   def run(self, args):
     # NOTE: if you override this, this line is generally still required.
     # You should also generally consider adding the other functionality, too.
     self.args = args
 
     if self.args['readcache']:
-      self.data = self._load(self.args['cachefile'])
+      self._load(self.args['cachefile'])
     else:
       v = self._run()
       if v is not None:
@@ -56,7 +105,7 @@ class AbstractTool(Cacher):
     self._output()
 
     if self.args['writecache']:
-      self._save(self.data, self.args['cachefile'])
+      self._save(self.args['cachefile'])
 
   @abstractmethod
   def _run(self): pass
@@ -69,8 +118,8 @@ class BaselineTool(AbstractTool):
 
   def add_subparser(self, argparser):
     super(BaselineTool,self).add_subparser(argparser)
-    self.subparser.add_argument('models', type=str, nargs='*', help='A list of model identifiers. Different loaders understand different types of identifiers (paths, model names, etc.).')
-    self.subparser.add_argument('--framework', choices=dnnamo.framework.FRAMEWORKS.keys(), default='tf', help='specify which framework the models use')
+    self.subparser.add_argument('model', type=str, help='A model identifier. Different loaders understand different types of identifiers (paths, model names, etc.).')
+    self.subparser.add_argument('--framework', choices=dnnamo.framework.FRAMEWORKS.keys(), default='tf', help='specify which framework the model uses')
     self.subparser.add_argument('--loader','-l', choices=dnnamo.loader.__all__, type=str, action=LoaderArgAction, default=dnnamo.loader.RunpyLoader, help='The Dnnamo loader class used to read in the model.')
     self.subparser.add_argument('--loader_opts', type=str, action=LoaderOptsArgAction, default={}, help='Additional options to the selected loader (key=value).')
     self.subparser.add_argument('--mode', choices=['training','inference'], type=str, default='training', help='Choose which mode the model will be analyzed in.')
@@ -82,24 +131,19 @@ class BaselineTool(AbstractTool):
     self.args = args
 
     if self.args['readcache']:
-      self.data = self._load(self.args['cachefile'])
+      self._load(self.args['cachefile'])
     else:
-      if len(self.args['models'])<1:
-        print 'No models selected.'
-        return
-      else:
-        v = self._run()
-        if v is not None:
-          return v
+      v = self._run()
+      if v is not None:
+        return v
 
     self._output()
 
     if self.args['writecache']:
-      self._save(self.data, self.args['cachefile'])
+      self._save(self.args['cachefile'])
 
   @abstractmethod
   def _run(self): pass
-
 
 class PlotTool(BaselineTool):
   def add_subparser(self, argparser):
